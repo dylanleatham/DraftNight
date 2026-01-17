@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="DraftApp.Api/DraftApp.Api.csproj" />
+  <Project Path="DraftApp.Engine.Tests/DraftApp.Engine.Tests.csproj" />
+  <Project Path="DraftApp.Engine/DraftApp.Engine.csproj" />
+</Solution>

@@ -6,10 +6,13 @@ vendor/
 dist/
 build/
 out/
+bin/
+obj/
 *.exe
 *.dll
 *.so
 *.dylib
+*.pdb
 
 # Environment files
 .env

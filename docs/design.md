@@ -15,9 +15,57 @@
 
 ---
 
-## 2. High-Level Architecture
+## 2. Technology Stack
 
-### 2.1 Components
+### 2.1 Backend
+- **.NET 10 (C#)** — ASP.NET Core Web API
+- **Entity Framework Core** — ORM and migrations for Azure SQL
+- **Azure SignalR SDK** — managed WebSocket integration
+- **xUnit** — unit and integration testing
+
+### 2.2 Frontend
+- **React 18** with **TypeScript**
+- **Vite** — build tooling
+- **PWA** via vite-plugin-pwa (service worker, offline support)
+- **Vitest** — unit testing
+- **Playwright** — E2E testing
+
+### 2.3 API Contract
+- **OpenAPI 3.0** — generated from ASP.NET Core (Swashbuckle)
+- **openapi-typescript-codegen** — generate TypeScript client from spec
+
+### 2.4 Repository Structure (Monorepo)
+```
+/
+├── src/
+│   ├── backend/           # ASP.NET Core Web API
+│   │   ├── DraftApp.Api/          # API project
+│   │   ├── DraftApp.Engine/       # Tournament engine (pure library)
+│   │   └── DraftApp.Engine.Tests/ # Engine golden tests
+│   └── frontend/          # React SPA
+│       ├── src/
+│       └── public/
+├── .github/
+│   └── workflows/
+├── docs/                  # Specs and design docs
+└── docker-compose.yml     # Local dev environment
+```
+
+### 2.5 Local Development
+- **Docker Compose** for local Azure SQL (via SQL Server container) and Azurite (storage emulator)
+- Backend: `dotnet run` or VS Code / Visual Studio
+- Frontend: `npm run dev` (Vite dev server with API proxy)
+
+### 2.6 Code Quality
+- **Backend**: `dotnet format`, StyleCop Analyzers
+- **Frontend**: ESLint, Prettier
+- **Pre-commit**: Husky + lint-staged (frontend), dotnet format check (backend)
+
+---
+
+## 3. High-Level Architecture
+
+### 3.1 Components
 - **Web Client (SPA/PWA)**
   - Event lobby, pairings, standings, prizes
   - Host control panel
@@ -41,7 +89,7 @@
   - Stores event state, rounds, matches, results, prizes
   - Stores audit log
 
-### 2.2 Data Flow Summary
+### 3.2 Data Flow Summary
 1. Client issues command (e.g., Host finalizes match)
 2. API validates permissions and request shape
 3. API applies mutation via Tournament Engine
@@ -313,15 +361,73 @@ Include event-scoped structured logs:
 
 ---
 
-## 13. Deployment Notes
+## 13. Deployment Notes (Azure)
 
-### 13.1 Hosting
+### 13.1 Hosting Architecture
+- **Frontend**: Azure Static Web Apps for SPA/PWA hosting (built-in HTTPS, global CDN)
+- **Backend API**: Azure App Service (Linux) or Azure Container Apps
+- **Realtime**: Azure SignalR Service (managed WebSocket scaling, handles connection limits and idle timeouts)
+- **Database**: Azure SQL Database
 - Single-region deployment is sufficient for in-person play.
-- Use HTTPS only.
 
-### 13.2 Data Backup
-- Daily backups are sufficient.
-- For active events, durability can be improved with frequent incremental backups or WAL retention.
+### 13.2 Azure SQL Database
+- Use Standard or Basic tier (S0 sufficient for expected load of ≤8 concurrent users per event)
+- Enable automatic tuning
+- Connection string stored in Azure App Service Configuration (not in code)
+- Use managed identity for database authentication where possible
+
+### 13.3 Azure SignalR Service
+- Required because Azure App Service has a ~4 minute idle timeout on WebSocket connections
+- Use Serverless mode for cost efficiency (pay per message)
+- Client reconnect logic (§7.3) remains necessary for network interruptions
+- Hub per event not required; use groups for `event:{eventId}` channels
+
+### 13.4 Rate Limiting
+- Implement at application level using middleware (e.g., ASP.NET Core rate limiting)
+- Alternatively, use Azure API Management for centralized rate limiting on join endpoints
+
+### 13.5 Observability
+- Azure Application Insights for:
+  - Structured logging (eventId, roundNumber, matchId, actorHostId)
+  - Metrics (events created/completed, WebSocket disconnect rate)
+  - Dependency tracking (SQL queries, SignalR messages)
+- Configure sampling to manage costs
+
+### 13.6 Data Backup
+- Azure SQL automatic backups enabled by default (7-day retention on Basic/Standard)
+- Point-in-time restore available for active event recovery
+- For long-term audit log retention, consider Azure Blob Storage export
+
+### 13.7 CI/CD (GitHub Actions)
+
+#### Workflows
+- **CI (on push/PR to main)**: Build, lint, test (unit + integration)
+- **Deploy (on push to main)**: Deploy to production after CI passes
+
+#### Deployment Targets
+| Component | Deployment Method |
+|-----------|-------------------|
+| Frontend (Static Web Apps) | Azure Static Web Apps GitHub Action (auto-configured on resource creation) |
+| Backend (App Service) | `azure/webapps-deploy` action with publish profile or OIDC |
+| Database migrations | Run as part of backend deployment pipeline |
+
+#### Secrets and Configuration
+- Use GitHub repository secrets for:
+  - `AZURE_WEBAPP_PUBLISH_PROFILE` or OIDC credentials (`AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`)
+  - `AZURE_SQL_CONNECTION_STRING` (for migrations in CI)
+- Environment-specific configuration via Azure App Service Configuration (not in repo)
+
+#### Workflow Structure
+```
+.github/
+  workflows/
+    ci.yml              # Build, lint, test on all PRs
+    deploy.yml          # Deploy to Azure on push to main
+```
+
+#### Branch Protection
+- Require CI to pass before merging to main
+- Main branch deploys automatically to production
 
 ---
 
