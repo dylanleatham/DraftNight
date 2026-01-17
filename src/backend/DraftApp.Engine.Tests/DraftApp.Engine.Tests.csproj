@@ -22,4 +22,8 @@
     <ProjectReference Include="..\DraftApp.Engine\DraftApp.Engine.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Golden\TestCases\*.json" />
+  </ItemGroup>
+
 </Project>

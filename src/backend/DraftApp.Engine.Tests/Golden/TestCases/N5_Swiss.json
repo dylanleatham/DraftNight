@@ -1,0 +1,65 @@
+{
+  "name": "N5_Swiss",
+  "description": "5-player Swiss with BYE wins",
+  "input": {
+    "eventId": "evt-n5",
+    "players": [
+      { "id": "p1", "name": "Alice" },
+      { "id": "p2", "name": "Bob" },
+      { "id": "p3", "name": "Charlie" },
+      { "id": "p4", "name": "Diana" },
+      { "id": "p5", "name": "Eve" }
+    ],
+    "packsInBox": 36,
+    "matchResults": {
+      "1": [
+        { "matchId": "r1-m0", "winnerId": "p1" },
+        { "matchId": "r1-m1", "winnerId": "p3" }
+      ],
+      "2": [
+        { "matchId": "r2-m1", "winnerId": "p1" },
+        { "matchId": "r2-m2", "winnerId": "p2" }
+      ],
+      "3": [
+        { "matchId": "r3-m1", "winnerId": "p1" },
+        { "matchId": "r3-m2", "winnerId": "p5" }
+      ]
+    }
+  },
+  "expected": {
+    "format": "Swiss",
+    "totalRounds": 3,
+    "prizePacks": 21,
+    "rounds": {
+      "1": [
+        { "id": "r1-m0", "playerAId": "p1", "playerBId": "p2", "isBye": false, "winnerId": "p1" },
+        { "id": "r1-m1", "playerAId": "p3", "playerBId": "p4", "isBye": false, "winnerId": "p3" },
+        { "id": "r1-m2", "playerAId": "p5", "playerBId": null, "isBye": true, "winnerId": "p5" }
+      ],
+      "2": [
+        { "id": "r2-m0", "playerAId": "p4", "playerBId": null, "isBye": true, "winnerId": "p4" },
+        { "id": "r2-m1", "playerAId": "p1", "playerBId": "p3", "isBye": false, "winnerId": "p1" },
+        { "id": "r2-m2", "playerAId": "p5", "playerBId": "p2", "isBye": false, "winnerId": "p2" }
+      ],
+      "3": [
+        { "id": "r3-m0", "playerAId": "p2", "playerBId": null, "isBye": true, "winnerId": "p2" },
+        { "id": "r3-m1", "playerAId": "p1", "playerBId": "p4", "isBye": false, "winnerId": "p1" },
+        { "id": "r3-m2", "playerAId": "p3", "playerBId": "p5", "isBye": false, "winnerId": "p5" }
+      ]
+    },
+    "finalStandings": [
+      { "playerId": "p1", "matchWins": 3, "matchLosses": 0, "seed": 1 },
+      { "playerId": "p2", "matchWins": 2, "matchLosses": 1, "seed": 2 },
+      { "playerId": "p3", "matchWins": 1, "matchLosses": 2, "seed": 3 },
+      { "playerId": "p4", "matchWins": 1, "matchLosses": 2, "seed": 4 },
+      { "playerId": "p5", "matchWins": 2, "matchLosses": 1, "seed": 5 }
+    ],
+    "prizeAllocations": {
+      "p1": 3,
+      "p2": 2,
+      "p3": 1,
+      "p4": 1,
+      "p5": 2
+    }
+  }
+}

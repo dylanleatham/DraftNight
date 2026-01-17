@@ -1,0 +1,35 @@
+{
+  "name": "N2_RoundRobin",
+  "description": "Minimal 2-player round-robin tournament",
+  "input": {
+    "eventId": "evt-n2",
+    "players": [
+      { "id": "p1", "name": "Alice" },
+      { "id": "p2", "name": "Bob" }
+    ],
+    "packsInBox": 36,
+    "matchResults": {
+      "1": [
+        { "matchId": "r1-m0", "winnerId": "p1" }
+      ]
+    }
+  },
+  "expected": {
+    "format": "RoundRobin",
+    "totalRounds": 1,
+    "prizePacks": 30,
+    "rounds": {
+      "1": [
+        { "id": "r1-m0", "playerAId": "p1", "playerBId": "p2", "isBye": false, "winnerId": "p1" }
+      ]
+    },
+    "finalStandings": [
+      { "playerId": "p1", "matchWins": 1, "matchLosses": 0, "seed": 1 },
+      { "playerId": "p2", "matchWins": 0, "matchLosses": 1, "seed": 2 }
+    ],
+    "prizeAllocations": {
+      "p1": 1,
+      "p2": 0
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "name": "N8_Swiss_LimitedPrizes",
+  "description": "8-player Swiss with limited prizes (B=30, P=6) testing later-round-first allocation",
+  "input": {
+    "eventId": "evt-n8-limited",
+    "players": [
+      { "id": "p1", "name": "Alice" },
+      { "id": "p2", "name": "Bob" },
+      { "id": "p3", "name": "Charlie" },
+      { "id": "p4", "name": "Diana" },
+      { "id": "p5", "name": "Eve" },
+      { "id": "p6", "name": "Frank" },
+      { "id": "p7", "name": "Grace" },
+      { "id": "p8", "name": "Henry" }
+    ],
+    "packsInBox": 30,
+    "matchResults": {
+      "1": [
+        { "matchId": "r1-m0", "winnerId": "p1" },
+        { "matchId": "r1-m1", "winnerId": "p3" },
+        { "matchId": "r1-m2", "winnerId": "p5" },
+        { "matchId": "r1-m3", "winnerId": "p7" }
+      ],
+      "2": [
+        { "matchId": "r2-m0", "winnerId": "p1" },
+        { "matchId": "r2-m1", "winnerId": "p5" },
+        { "matchId": "r2-m2", "winnerId": "p2" },
+        { "matchId": "r2-m3", "winnerId": "p4" }
+      ],
+      "3": [
+        { "matchId": "r3-m0", "winnerId": "p1" },
+        { "matchId": "r3-m1", "winnerId": "p3" },
+        { "matchId": "r3-m2", "winnerId": "p7" },
+        { "matchId": "r3-m3", "winnerId": "p6" }
+      ]
+    }
+  },
+  "expected": {
+    "format": "Swiss",
+    "totalRounds": 3,
+    "prizePacks": 6,
+    "rounds": {
+      "1": [
+        { "id": "r1-m0", "playerAId": "p1", "playerBId": "p2", "isBye": false, "winnerId": "p1" },
+        { "id": "r1-m1", "playerAId": "p3", "playerBId": "p4", "isBye": false, "winnerId": "p3" },
+        { "id": "r1-m2", "playerAId": "p5", "playerBId": "p6", "isBye": false, "winnerId": "p5" },
+        { "id": "r1-m3", "playerAId": "p7", "playerBId": "p8", "isBye": false, "winnerId": "p7" }
+      ],
+      "2": [
+        { "id": "r2-m0", "playerAId": "p1", "playerBId": "p3", "isBye": false, "winnerId": "p1" },
+        { "id": "r2-m1", "playerAId": "p5", "playerBId": "p7", "isBye": false, "winnerId": "p5" },
+        { "id": "r2-m2", "playerAId": "p2", "playerBId": "p4", "isBye": false, "winnerId": "p2" },
+        { "id": "r2-m3", "playerAId": "p6", "playerBId": "p8", "isBye": false, "winnerId": "p4" }
+      ],
+      "3": [
+        { "id": "r3-m0", "playerAId": "p1", "playerBId": "p5", "isBye": false, "winnerId": "p1" },
+        { "id": "r3-m1", "playerAId": "p2", "playerBId": "p3", "isBye": false, "winnerId": "p3" },
+        { "id": "r3-m2", "playerAId": "p7", "playerBId": "p4", "isBye": false, "winnerId": "p7" },
+        { "id": "r3-m3", "playerAId": "p6", "playerBId": "p8", "isBye": false, "winnerId": "p6" }
+      ]
+    },
+    "finalStandings": [
+      { "playerId": "p1", "matchWins": 3, "matchLosses": 0, "seed": 1 },
+      { "playerId": "p2", "matchWins": 1, "matchLosses": 2, "seed": 2 },
+      { "playerId": "p3", "matchWins": 2, "matchLosses": 1, "seed": 3 },
+      { "playerId": "p4", "matchWins": 1, "matchLosses": 2, "seed": 4 },
+      { "playerId": "p5", "matchWins": 2, "matchLosses": 1, "seed": 5 },
+      { "playerId": "p6", "matchWins": 1, "matchLosses": 2, "seed": 6 },
+      { "playerId": "p7", "matchWins": 2, "matchLosses": 1, "seed": 7 },
+      { "playerId": "p8", "matchWins": 0, "matchLosses": 3, "seed": 8 }
+    ],
+    "prizeAllocations": {
+      "p1": 1,
+      "p2": 0,
+      "p3": 1,
+      "p4": 0,
+      "p5": 1,
+      "p6": 1,
+      "p7": 1,
+      "p8": 0
+    }
+  }
+}
