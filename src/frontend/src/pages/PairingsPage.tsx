@@ -1,0 +1,159 @@
+import { useState, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import { Button, Modal, Input } from '../components/ui';
+import { MatchCard } from '../components/event';
+import { useEvent } from '../context/EventContext';
+import { useAuth } from '../context/AuthContext';
+import { useHostActions } from '../hooks/useHostActions';
+import { RoundStatus, MatchStatus } from '../api/types';
+import styles from './PairingsPage.module.css';
+
+export function PairingsPage() {
+  const { eventId } = useParams<{ eventId: string }>();
+  const { state, getPlayer } = useEvent();
+  const { isHost, getPlayerId } = useAuth();
+  const { finalizeMatch, reopenMatch, publishPairings } = useHostActions(eventId!);
+
+  const [reopenModalOpen, setReopenModalOpen] = useState(false);
+  const [matchToReopen, setMatchToReopen] = useState<string | null>(null);
+  const [reopenReason, setReopenReason] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
+
+  const snapshot = state.snapshot;
+  const isHostUser = isHost(eventId!);
+  const playerId = getPlayerId(eventId!);
+
+  const currentRound = useMemo(() => {
+    if (!snapshot) return null;
+    return snapshot.rounds.find((r) => r.roundNumber === snapshot.currentRound);
+  }, [snapshot]);
+
+  if (!snapshot || !currentRound) return null;
+
+  const isPairingsPublished = currentRound.status === RoundStatus.PairingsPublished;
+  const isRoundClosed = currentRound.status === RoundStatus.Closed;
+  const allMatchesFinalized = currentRound.matches.every(
+    (m) => m.status === MatchStatus.Final
+  );
+  const canPublishNextRound =
+    isHostUser &&
+    isRoundClosed &&
+    snapshot.currentRound < snapshot.totalRounds;
+
+  const handleSelectWinner = async (matchId: string, winnerId: string) => {
+    await finalizeMatch(matchId, winnerId);
+  };
+
+  const handleReopenClick = (matchId: string) => {
+    setMatchToReopen(matchId);
+    setReopenReason('');
+    setReopenModalOpen(true);
+  };
+
+  const handleReopenConfirm = async () => {
+    if (!matchToReopen || !reopenReason.trim()) return;
+    await reopenMatch(matchToReopen, reopenReason.trim());
+    setReopenModalOpen(false);
+    setMatchToReopen(null);
+    setReopenReason('');
+  };
+
+  const handlePublishNextRound = async () => {
+    setIsPublishing(true);
+    await publishPairings(snapshot.currentRound + 1);
+    setIsPublishing(false);
+  };
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.roundHeader}>
+        <h2 className={styles.roundTitle}>
+          Round {snapshot.currentRound} of {snapshot.totalRounds}
+        </h2>
+        {isPairingsPublished && !allMatchesFinalized && (
+          <span className={styles.status}>In Progress</span>
+        )}
+        {allMatchesFinalized && !isRoundClosed && (
+          <span className={styles.statusComplete}>All Matches Complete</span>
+        )}
+        {isRoundClosed && (
+          <span className={styles.statusClosed}>Round Closed</span>
+        )}
+      </div>
+
+      <div className={styles.matches}>
+        {currentRound.matches.map((match) => (
+          <MatchCard
+            key={match.id}
+            match={match}
+            playerA={getPlayer(match.playerAId)}
+            playerB={match.playerBId ? getPlayer(match.playerBId) : undefined}
+            currentPlayerId={playerId}
+            isHost={isHostUser}
+            onSelectWinner={
+              isPairingsPublished
+                ? (winnerId) => handleSelectWinner(match.id, winnerId)
+                : undefined
+            }
+            onReopen={
+              isHostUser && match.status === MatchStatus.Final
+                ? () => handleReopenClick(match.id)
+                : undefined
+            }
+          />
+        ))}
+      </div>
+
+      {canPublishNextRound && (
+        <Button
+          size="large"
+          fullWidth
+          loading={isPublishing}
+          onClick={handlePublishNextRound}
+        >
+          Start Round {snapshot.currentRound + 1}
+        </Button>
+      )}
+
+      {isHostUser && isRoundClosed && snapshot.currentRound === snapshot.totalRounds && (
+        <div className={styles.tournamentComplete}>
+          <p>Tournament complete! Go to Prizes to allocate prize packs.</p>
+        </div>
+      )}
+
+      <Modal
+        open={reopenModalOpen}
+        onClose={() => setReopenModalOpen(false)}
+        title="Reopen Match"
+      >
+        <div className={styles.modalContent}>
+          <p>
+            Enter a reason for reopening this match. This will be logged in the
+            audit trail.
+          </p>
+          <Input
+            label="Reason"
+            value={reopenReason}
+            onChange={(e) => setReopenReason(e.target.value)}
+            placeholder="e.g., Incorrect winner selected"
+            autoFocus
+          />
+          <div className={styles.modalActions}>
+            <Button
+              variant="secondary"
+              onClick={() => setReopenModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={!reopenReason.trim()}
+              onClick={handleReopenConfirm}
+            >
+              Reopen Match
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}

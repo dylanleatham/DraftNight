@@ -1,0 +1,35 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.roundInfo {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.tiebreakInfo {
+  padding: 0.75rem;
+  background: var(--color-surface);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.tiebreakInfo p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}

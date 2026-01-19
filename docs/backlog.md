@@ -139,7 +139,7 @@ Expose host- and player-facing APIs that manipulate event state through the engi
 
 ---
 
-## EPIC 4 — Realtime Synchronization
+## EPIC 4 — Realtime Synchronization ✅ COMPLETE
 
 ### Goal
 Ensure all participants observe the same authoritative state.
@@ -147,20 +147,22 @@ Ensure all participants observe the same authoritative state.
 ### Features
 
 #### 4.1 Event Channels
-- One realtime channel per event
+- [x] One realtime channel per event (SignalR hub groups)
 
 #### 4.2 Snapshot Broadcasting
-- Broadcast updated event snapshot on mutation
+- [x] Broadcast updated event snapshot on mutation
 
 #### 4.3 Reconnect Handling
-- Client resyncs full snapshot on reconnect
+- [x] Client resyncs full snapshot on reconnect
+- [x] Auto-reconnect with exponential backoff [0, 2s, 5s, 10s, 30s]
+- [x] Visibility change triggers snapshot refresh
 
 ### Exit criteria
-- Two clients stay in sync during event progression
+- [x] Two clients stay in sync during event progression
 
 ---
 
-## EPIC 5 — Frontend: Core Event UX
+## EPIC 5 — Frontend: Core Event UX ✅ COMPLETE
 
 ### Goal
 Provide a mobile-first UI for running a draft night.
@@ -168,29 +170,42 @@ Provide a mobile-first UI for running a draft night.
 ### Features
 
 #### 5.1 Join and Lobby
-- Join via link/code
-- Display joined players
-- Host start controls
+- [x] Join via link/code (with pre-filled code from URL)
+- [x] Display joined players with seed numbers
+- [x] Host start controls
+- [x] Share join code with copy link button
 
 #### 5.2 Pairings View
-- Show current round pairings
-- Highlight current player’s match
+- [x] Show current round pairings
+- [x] Highlight current player's match
+- [x] Display match status (in progress, final)
 
 #### 5.3 Match Finalization (Host)
-- Winner selection UI
-- Confirmation before finalize
+- [x] Winner selection UI with large touch targets
+- [x] Reopen match with reason (audit trail)
+- [x] Publish next round button
 
 #### 5.4 Standings View
-- Display MW–ML and BYE indicator
-- Deterministic ordering
+- [x] Display MW–ML and BYE indicator
+- [x] Deterministic ordering (MW desc, seed asc)
+- [x] Highlight current player
 
 #### 5.5 Prizes View
-- Remaining packs
-- Per-player pack awards
-- Explanation of later-round priority
+- [x] Remaining packs display
+- [x] Per-player pack awards
+- [x] Prize formula explanation
+- [x] Confirmation modal for allocation
 
 ### Exit criteria
-- Full draft night can be run end-to-end via UI
+- [x] Full draft night can be run end-to-end via UI
+
+### Implementation Notes
+- React 18 + TypeScript + Vite
+- CSS Modules for scoped styling
+- React Router v7 for routing
+- SignalR for real-time sync
+- Mobile-first responsive design
+- Dark/light theme support via CSS variables
 
 ---
 
