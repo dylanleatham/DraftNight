@@ -67,44 +67,64 @@ public class EventRepository(DraftAppDbContext context) : IEventRepository
     }
 
     public async Task<(bool Success, int NewVersion)> PersistEngineStateAsync(
-        Guid eventId,
+        EventEntity entity,
         int expectedVersion,
         EventState newState,
         AuditLogEntity auditLog,
         CancellationToken ct = default)
     {
-        var entity = await GetByIdAsync(eventId, ct);
-        if (entity is null)
+        // Version check already done by service - just verify it's still valid
+        Console.WriteLine($"PersistEngineStateAsync: entity.Version={entity.Version}, expectedVersion={expectedVersion}");
+        if (entity.Version != expectedVersion)
         {
+            Console.WriteLine($"PersistEngineStateAsync: Version mismatch! Returning false.");
             return (false, 0);
         }
 
-        // Optimistic concurrency check
-        if (entity.Version != expectedVersion)
-        {
-            return (false, 0);
-        }
+        // Track existing round/match IDs before update
+        var existingRoundIds = entity.Rounds.Select(r => r.Id).ToHashSet();
+        var existingMatchIds = entity.Rounds.SelectMany(r => r.Matches).Select(m => m.Id).ToHashSet();
+        var existingPrizeIds = entity.PrizeAllocations.Select(p => p.Id).ToHashSet();
 
         var timestamp = DateTime.UtcNow;
 
         // Update entity from new state
         EventMapper.UpdateEntityFromState(entity, newState, timestamp);
 
+        // Explicitly mark new entities as Added (EF doesn't auto-detect entities with pre-set GUIDs)
+        foreach (var round in entity.Rounds.Where(r => !existingRoundIds.Contains(r.Id)))
+        {
+            context.Entry(round).State = EntityState.Added;
+        }
+
+        foreach (var match in entity.Rounds.SelectMany(r => r.Matches).Where(m => !existingMatchIds.Contains(m.Id)))
+        {
+            context.Entry(match).State = EntityState.Added;
+        }
+
+        foreach (var prize in entity.PrizeAllocations.Where(p => !existingPrizeIds.Contains(p.Id)))
+        {
+            context.Entry(prize).State = EntityState.Added;
+        }
+
         // Increment version
         entity.Version = expectedVersion + 1;
 
         // Add audit log
-        auditLog.EventId = eventId;
+        auditLog.EventId = entity.Id;
         auditLog.CreatedAt = timestamp;
         context.AuditLogs.Add(auditLog);
 
         try
         {
-            await context.SaveChangesAsync(ct);
+            Console.WriteLine($"PersistEngineStateAsync: About to SaveChanges. entity.Version={entity.Version}");
+            var rowsAffected = await context.SaveChangesAsync(ct);
+            Console.WriteLine($"PersistEngineStateAsync: SaveChanges succeeded. rowsAffected={rowsAffected}, entity.Version={entity.Version}");
             return (true, entity.Version);
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateConcurrencyException ex)
         {
+            Console.WriteLine($"PersistEngineStateAsync: DbUpdateConcurrencyException - {ex.Message}");
             return (false, 0);
         }
     }

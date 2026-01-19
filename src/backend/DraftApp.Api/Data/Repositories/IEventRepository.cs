@@ -40,7 +40,7 @@ public interface IEventRepository
     /// Returns (true, newVersion) on success, (false, 0) on version conflict.
     /// </summary>
     Task<(bool Success, int NewVersion)> PersistEngineStateAsync(
-        Guid eventId,
+        EventEntity entity,
         int expectedVersion,
         EventState newState,
         AuditLogEntity auditLog,

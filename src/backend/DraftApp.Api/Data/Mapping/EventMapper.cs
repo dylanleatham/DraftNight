@@ -3,6 +3,7 @@ using System.Text.Json;
 using DraftApp.Api.Data.Entities;
 using DraftApp.Api.Data.Enums;
 using DraftApp.Engine.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DraftApp.Api.Data.Mapping;
 

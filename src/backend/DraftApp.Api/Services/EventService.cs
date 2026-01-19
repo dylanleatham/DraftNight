@@ -114,16 +114,25 @@ public class EventService(
             CreatedAt = DateTime.UtcNow
         };
 
-        eventEntity.Players.Add(player);
-        eventEntity.Version++;
-        eventEntity.UpdatedAt = DateTime.UtcNow;
+        // Add player directly to context to avoid collection tracking issues
+        context.Players.Add(player);
         context.AuditLogs.Add(auditLog);
+
+        // Update event version using raw SQL to avoid concurrency token issues
+        var newVersion = eventEntity.Version + 1;
+        await context.Database.ExecuteSqlInterpolatedAsync(
+            $"UPDATE Events SET Version = {newVersion}, UpdatedAt = {DateTime.UtcNow} WHERE Id = {eventEntity.Id}",
+            ct);
 
         await context.SaveChangesAsync(ct);
 
-        // Broadcast update to connected clients
-        var snapshot = MapToSnapshot(eventEntity);
-        await notificationService.BroadcastEventUpdateAsync(eventEntity.Id, snapshot, ct);
+        // Reload the event with updated data for broadcast
+        var updatedEntity = await repository.GetByIdAsync(eventEntity.Id, ct);
+        if (updatedEntity is not null)
+        {
+            var snapshot = MapToSnapshot(updatedEntity);
+            await notificationService.BroadcastEventUpdateAsync(eventEntity.Id, snapshot, ct);
+        }
 
         return new JoinEventResponse
         {
@@ -159,6 +168,8 @@ public class EventService(
         {
             return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
         }
+
+        Console.WriteLine($"StartEventAsync: expectedVersion={expectedVersion}, entity.Version={entity.Version}");
 
         if (entity.Version != expectedVersion)
         {
@@ -199,7 +210,8 @@ public class EventService(
                             AfterJson = $"{{\"playerCount\": {players.Count}, \"format\": \"{pairingState.Format}\", \"totalRounds\": {pairingState.TotalRounds}}}"
                         };
 
-                        var (success, newVersion) = await repository.PersistEngineStateAsync(eventId, expectedVersion, pairingState, auditLog, ct);
+                        var (success, newVersion) = await repository.PersistEngineStateAsync(entity, expectedVersion, pairingState, auditLog, ct);
+                        Console.WriteLine($"StartEventAsync: PersistEngineStateAsync returned success={success}, newVersion={newVersion}");
 
                         if (!success)
                         {
@@ -248,14 +260,14 @@ public class EventService(
                     AfterJson = $"{{\"roundNumber\": {roundNumber}}}"
                 };
 
-                var (success, newVersion) = await repository.PersistEngineStateAsync(eventId, expectedVersion, pairingState, auditLog, ct);
+                var (success, newVersion) = await repository.PersistEngineStateAsync(entity, expectedVersion, pairingState, auditLog, ct);
 
                 if (!success)
                 {
                     return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
                 }
 
-                // Broadcast update to connected clients
+                // Broadcast update to connected clients - reload to get updated data
                 var updatedEntity = await repository.GetByIdAsync(eventId, ct);
                 if (updatedEntity is not null)
                 {
@@ -305,7 +317,7 @@ public class EventService(
                     AfterJson = $"{{\"winnerId\": \"{winnerId}\"}}"
                 };
 
-                var (success, newVersion) = await repository.PersistEngineStateAsync(eventId, expectedVersion, finalizedState, auditLog, ct);
+                var (success, newVersion) = await repository.PersistEngineStateAsync(entity, expectedVersion, finalizedState, auditLog, ct);
 
                 if (!success)
                 {
@@ -353,7 +365,7 @@ public class EventService(
                     Reason = reason
                 };
 
-                var (success, newVersion) = await repository.PersistEngineStateAsync(eventId, expectedVersion, droppedState, auditLog, ct);
+                var (success, newVersion) = await repository.PersistEngineStateAsync(entity, expectedVersion, droppedState, auditLog, ct);
 
                 if (!success)
                 {
@@ -400,7 +412,7 @@ public class EventService(
                     EntityId = eventId
                 };
 
-                var (success, newVersion) = await repository.PersistEngineStateAsync(eventId, expectedVersion, prizeState, auditLog, ct);
+                var (success, newVersion) = await repository.PersistEngineStateAsync(entity, expectedVersion, prizeState, auditLog, ct);
 
                 if (!success)
                 {
@@ -512,7 +524,7 @@ public class EventService(
                     Reason = reason
                 };
 
-                var (success, newVersion) = await repository.PersistEngineStateAsync(eventId, expectedVersion, reopenedState, auditLog, ct);
+                var (success, newVersion) = await repository.PersistEngineStateAsync(entity, expectedVersion, reopenedState, auditLog, ct);
 
                 if (!success)
                 {
