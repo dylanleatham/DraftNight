@@ -65,4 +65,18 @@ public static class TournamentEngine
     /// <returns>Updated event state with prize allocations or an error.</returns>
     public static EngineResult<EventState> AllocatePrizes(EventState state) =>
         PrizeAllocator.Allocate(state);
+
+    /// <summary>
+    /// Reopens a finalized match, reversing the result.
+    /// This is a repair operation that allows correcting mistakes.
+    /// </summary>
+    /// <param name="state">Current event state.</param>
+    /// <param name="roundNumber">Round number.</param>
+    /// <param name="matchId">Match identifier.</param>
+    /// <returns>Updated event state or an error.</returns>
+    public static EngineResult<EventState> ReopenMatch(
+        EventState state,
+        int roundNumber,
+        string matchId) =>
+        MatchReopener.Reopen(state, roundNumber, matchId);
 }

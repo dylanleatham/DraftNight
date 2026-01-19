@@ -83,6 +83,39 @@ public sealed record Player
     public Player WithDropped() => this with { IsDropped = true };
 
     /// <summary>
+    /// Returns a new player with a decremented match win count.
+    /// </summary>
+    public Player WithMatchWinsDecreased() => this with { MatchWins = Math.Max(0, MatchWins - 1) };
+
+    /// <summary>
+    /// Returns a new player with a decremented match loss count.
+    /// </summary>
+    public Player WithMatchLossesDecreased() => this with { MatchLosses = Math.Max(0, MatchLosses - 1) };
+
+    /// <summary>
+    /// Returns a new player with an opponent removed (for match reopen).
+    /// </summary>
+    public Player WithOpponentRemoved(string opponentId, int round)
+    {
+        // Only remove if the last played round matches
+        if (LastPlayedRound.TryGetValue(opponentId, out var lastRound) && lastRound == round)
+        {
+            // Find and remove the last occurrence of this opponent
+            var lastIndex = Opponents.LastIndexOf(opponentId);
+            if (lastIndex >= 0)
+            {
+                return this with
+                {
+                    Opponents = Opponents.RemoveAt(lastIndex),
+                    LastPlayedRound = LastPlayedRound.Remove(opponentId)
+                };
+            }
+        }
+
+        return this;
+    }
+
+    /// <summary>
     /// Creates a new player with the specified ID, name, and seed.
     /// </summary>
     public static Player Create(string id, string name, int seed) => new()

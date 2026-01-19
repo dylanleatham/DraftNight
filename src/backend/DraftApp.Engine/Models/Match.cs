@@ -46,6 +46,11 @@ public sealed record Match
     public Match WithWinner(string winnerId) => this with { WinnerId = winnerId };
 
     /// <summary>
+    /// Returns a new match with the winner cleared (for reopening).
+    /// </summary>
+    public Match ClearWinner() => this with { WinnerId = null };
+
+    /// <summary>
     /// Creates a regular match between two players.
     /// </summary>
     public static Match Create(string id, int round, string playerAId, string playerBId) => new()
