@@ -74,10 +74,8 @@ public class EventRepository(DraftAppDbContext context) : IEventRepository
         CancellationToken ct = default)
     {
         // Version check already done by service - just verify it's still valid
-        Console.WriteLine($"PersistEngineStateAsync: entity.Version={entity.Version}, expectedVersion={expectedVersion}");
         if (entity.Version != expectedVersion)
         {
-            Console.WriteLine($"PersistEngineStateAsync: Version mismatch! Returning false.");
             return (false, 0);
         }
 
@@ -117,14 +115,11 @@ public class EventRepository(DraftAppDbContext context) : IEventRepository
 
         try
         {
-            Console.WriteLine($"PersistEngineStateAsync: About to SaveChanges. entity.Version={entity.Version}");
-            var rowsAffected = await context.SaveChangesAsync(ct);
-            Console.WriteLine($"PersistEngineStateAsync: SaveChanges succeeded. rowsAffected={rowsAffected}, entity.Version={entity.Version}");
+            await context.SaveChangesAsync(ct);
             return (true, entity.Version);
         }
-        catch (DbUpdateConcurrencyException ex)
+        catch (DbUpdateConcurrencyException)
         {
-            Console.WriteLine($"PersistEngineStateAsync: DbUpdateConcurrencyException - {ex.Message}");
             return (false, 0);
         }
     }

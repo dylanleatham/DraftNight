@@ -31,10 +31,8 @@ export function LobbyPage() {
   const activePlayers = snapshot.players.filter((p) => !p.isDropped);
 
   const handleStart = async () => {
-    console.log('handleStart called', { isHostUser, canStart, eventId });
     setIsStarting(true);
     const success = await startEvent();
-    console.log('startEvent returned', success);
     setIsStarting(false);
     if (success) {
       navigate(`/event/${eventId}/pairings`);

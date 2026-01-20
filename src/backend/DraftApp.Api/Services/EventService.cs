@@ -169,8 +169,6 @@ public class EventService(
             return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
         }
 
-        Console.WriteLine($"StartEventAsync: expectedVersion={expectedVersion}, entity.Version={entity.Version}");
-
         if (entity.Version != expectedVersion)
         {
             return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
@@ -211,7 +209,6 @@ public class EventService(
                         };
 
                         var (success, newVersion) = await repository.PersistEngineStateAsync(entity, expectedVersion, pairingState, auditLog, ct);
-                        Console.WriteLine($"StartEventAsync: PersistEngineStateAsync returned success={success}, newVersion={newVersion}");
 
                         if (!success)
                         {

@@ -37,9 +37,7 @@ export function useHostActions(eventId: string): UseHostActionsResult {
       }
       // Fetch latest snapshot to get current version (workaround for SignalR sync issues)
       const latestSnapshot = await api.getEvent(eventId);
-      console.log('startEvent: fetched snapshot version =', latestSnapshot.version, 'full snapshot:', latestSnapshot);
       const result = await api.startEvent(eventId, hostToken, latestSnapshot.version);
-      console.log('startEvent: API result =', result);
       return result.success;
     } catch (err) {
       console.error('Start event error', err);
