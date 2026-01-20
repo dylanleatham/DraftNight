@@ -152,6 +152,16 @@ function EventLayoutContent() {
             Prizes
           </NavLink>
         )}
+        {isHostUser && (
+          <NavLink
+            to={`/event/${eventId}/audit`}
+            className={({ isActive }) =>
+              `${styles.navLink} ${styles.navLinkHost} ${isActive ? styles.navLinkActive : ''}`
+            }
+          >
+            Audit
+          </NavLink>
+        )}
       </nav>
 
       <main className={styles.main}>

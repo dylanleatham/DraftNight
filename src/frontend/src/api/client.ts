@@ -6,6 +6,7 @@ import type {
   EventSnapshotResponse,
   MutationResponse,
   StandingsResponse,
+  AuditLogResponse,
   ErrorResponse,
 } from './types';
 
@@ -179,6 +180,13 @@ export const api = {
       headers: buildHeaders(),
     });
     return handleResponse<StandingsResponse>(response);
+  },
+
+  async getAuditLog(eventId: string, hostToken: string): Promise<AuditLogResponse> {
+    const response = await fetch(`${BASE_URL}/events/${eventId}/audit`, {
+      headers: buildHeaders(hostToken),
+    });
+    return handleResponse<AuditLogResponse>(response);
   },
 };
 

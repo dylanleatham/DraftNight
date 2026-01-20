@@ -42,6 +42,16 @@ export function HomePage() {
             Join Event
           </Button>
         </div>
+
+        <div className={styles.tools}>
+          <Button
+            variant="ghost"
+            size="medium"
+            onClick={() => navigate('/life-tracker')}
+          >
+            Life Tracker
+          </Button>
+        </div>
       </div>
     </div>
   );

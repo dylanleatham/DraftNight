@@ -1,0 +1,96 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.damageList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.damageRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}
+
+.lethal {
+  background: rgba(139, 0, 0, 0.4);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.playerName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.adjustButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.adjustButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.adjustButton:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.adjustButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.amount {
+  min-width: 2rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}

@@ -1,0 +1,131 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--color-background);
+  position: relative;
+}
+
+.centerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.exitButton,
+.resetButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all 0.15s ease;
+}
+
+.exitButton {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.exitButton:hover {
+  background: var(--color-surface-hover);
+}
+
+.resetButton {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.resetButton:hover {
+  background: var(--color-border);
+}
+
+.scoreDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.score {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  min-width: 2rem;
+  text-align: center;
+}
+
+.scoreDivider {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modalContent > p {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.modalActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.resetHint {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.winnerOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.winnerContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  background: var(--color-surface);
+  border-radius: 16px;
+  text-align: center;
+}
+
+.winnerLabel {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.winnerName {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.winnerActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}

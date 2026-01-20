@@ -141,3 +141,35 @@ export interface ReopenMatchRequest {
   expectedVersion: number;
   reason: string;
 }
+
+export interface DropPlayerRequest {
+  expectedVersion: number;
+  reason?: string;
+}
+
+// Audit Log types
+export const AuditActionType = {
+  EventCreated: 0,
+  EventStarted: 1,
+  PlayerJoined: 2,
+  PlayerDropped: 3,
+  PairingsGenerated: 4,
+  MatchFinalized: 5,
+  PrizesAllocated: 6,
+  HostRepair: 7,
+  MatchReopened: 8,
+} as const;
+export type AuditActionType = (typeof AuditActionType)[keyof typeof AuditActionType];
+
+export interface AuditLogEntry {
+  id: string;
+  actionType: AuditActionType;
+  entityType: string;
+  entityId: string | null;
+  reason: string | null;
+  createdAt: string;
+}
+
+export interface AuditLogResponse {
+  entries: AuditLogEntry[];
+}

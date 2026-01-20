@@ -1,0 +1,111 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  width: 100%;
+}
+
+.inverted {
+  transform: rotate(180deg);
+}
+
+.adjustButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.adjustButton {
+  min-width: 56px;
+  min-height: 56px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.adjustButton:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.adjustButton:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.lifeDisplay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  min-height: 100px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.lifeValue {
+  font-size: 5rem;
+  font-weight: 800;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+}
+
+.lifeInput {
+  width: 120px;
+  font-size: 4rem;
+  font-weight: 800;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  color: white;
+  outline: none;
+}
+
+.lifeInput:focus {
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Hide number input spinners */
+.lifeInput::-webkit-outer-spin-button,
+.lifeInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.lifeInput[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* Color variants */
+.blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.red {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+}
+
+.green {
+  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+}
+
+.purple {
+  background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+}
+
+.orange {
+  background: linear-gradient(135deg, #f97316 0%, #c2410c 100%);
+}
+
+.teal {
+  background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+}

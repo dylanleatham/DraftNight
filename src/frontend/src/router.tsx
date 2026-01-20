@@ -7,6 +7,9 @@ import { LobbyPage } from './pages/LobbyPage';
 import { PairingsPage } from './pages/PairingsPage';
 import { StandingsPage } from './pages/StandingsPage';
 import { PrizesPage } from './pages/PrizesPage';
+import { AuditLogPage } from './pages/AuditLogPage';
+import { LifeTrackerSetupPage } from './pages/LifeTrackerSetupPage';
+import { LifeTrackerPage } from './pages/LifeTrackerPage';
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +23,14 @@ export const router = createBrowserRouter([
   {
     path: '/join',
     element: <JoinEventPage />,
+  },
+  {
+    path: '/life-tracker',
+    element: <LifeTrackerSetupPage />,
+  },
+  {
+    path: '/life-tracker/game/:sessionId',
+    element: <LifeTrackerPage />,
   },
   {
     path: '/event/:eventId',
@@ -44,6 +55,14 @@ export const router = createBrowserRouter([
       {
         path: 'prizes',
         element: <PrizesPage />,
+      },
+      {
+        path: 'audit',
+        element: <AuditLogPage />,
+      },
+      {
+        path: 'match/:matchId/life',
+        element: <LifeTrackerPage />,
       },
     ],
   },

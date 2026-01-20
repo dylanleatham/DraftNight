@@ -1,0 +1,44 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.container:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.container:active {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.inverted {
+  transform: rotate(180deg);
+}
+
+.dots {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  transition: all 0.2s ease;
+}
+
+.won {
+  background: #fbbf24;
+  border-color: #f59e0b;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+}

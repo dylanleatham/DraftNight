@@ -92,7 +92,7 @@ export function LobbyPage() {
           players={snapshot.players}
           currentPlayerId={playerId}
           showStats={!isSetup}
-          onDropPlayer={isHostUser && isSetup ? handleDropClick : undefined}
+          onDropPlayer={isHostUser ? handleDropClick : undefined}
         />
       </div>
 

@@ -102,6 +102,16 @@
   border-bottom-color: var(--color-primary);
 }
 
+.navLinkHost {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  opacity: 0.8;
+}
+
+.navLinkHost:hover {
+  opacity: 1;
+}
+
 .main {
   flex: 1;
   padding: 1rem;

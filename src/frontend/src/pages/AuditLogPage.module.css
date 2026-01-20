@@ -1,0 +1,132 @@
+.container {
+  padding: 1rem;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.loading,
+.empty,
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.backLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.entry {
+  padding: 1rem;
+  border-left: 3px solid var(--color-border);
+}
+
+.entry.info {
+  border-left-color: var(--color-primary);
+}
+
+.entry.success {
+  border-left-color: var(--color-success);
+}
+
+.entry.warning {
+  border-left-color: #f59e0b;
+}
+
+.entry.error {
+  border-left-color: var(--color-error);
+}
+
+.entryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.actionType {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: var(--color-surface-hover);
+}
+
+.actionType.info {
+  color: var(--color-primary);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.actionType.success {
+  color: var(--color-success);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.actionType.warning {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.actionType.error {
+  color: var(--color-error);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.entityInfo {
+  font-size: 0.875rem;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.reason {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  padding: 0.5rem;
+  background: var(--color-background);
+  border-radius: 4px;
+  margin-top: 0.5rem;
+}
+
+.reasonLabel {
+  font-weight: 600;
+  color: var(--color-text);
+}

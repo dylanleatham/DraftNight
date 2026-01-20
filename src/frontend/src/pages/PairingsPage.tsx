@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Modal, Input } from '../components/ui';
 import { MatchCard } from '../components/event';
 import { useEvent } from '../context/EventContext';
@@ -10,6 +10,7 @@ import styles from './PairingsPage.module.css';
 
 export function PairingsPage() {
   const { eventId } = useParams<{ eventId: string }>();
+  const navigate = useNavigate();
   const { state, getPlayer } = useEvent();
   const { isHost, getPlayerId } = useAuth();
   const { finalizeMatch, reopenMatch, publishPairings } = useHostActions(eventId!);
@@ -64,6 +65,20 @@ export function PairingsPage() {
     setIsPublishing(false);
   };
 
+  const handleLaunchLifeTracker = (matchId: string, playerAId: string, playerBId: string | null) => {
+    const playerAObj = getPlayer(playerAId);
+    const playerBObj = playerBId ? getPlayer(playerBId) : undefined;
+    const sessionId = `event_${eventId}_match_${matchId}`;
+    const params = new URLSearchParams({
+      mode: 'draft',
+      playerA: playerAObj?.name || 'Player 1',
+      playerB: playerBObj?.name || 'Player 2',
+      eventId: eventId!,
+      matchId,
+    });
+    navigate(`/life-tracker/game/${sessionId}?${params.toString()}`);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.roundHeader}>
@@ -98,6 +113,11 @@ export function PairingsPage() {
             onReopen={
               isHostUser && match.status === MatchStatus.Final
                 ? () => handleReopenClick(match.id)
+                : undefined
+            }
+            onLifeTracker={
+              isPairingsPublished && !match.isBye
+                ? () => handleLaunchLifeTracker(match.id, match.playerAId, match.playerBId)
                 : undefined
             }
           />

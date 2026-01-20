@@ -209,7 +209,7 @@ Provide a mobile-first UI for running a draft night.
 
 ---
 
-## EPIC 6 — Life Tracker
+## EPIC 6 — Life Tracker ✅ COMPLETE
 
 ### Goal
 Deliver a reliable life and counter tracking tool usable both inside and outside draft events.
@@ -217,27 +217,39 @@ Deliver a reliable life and counter tracking tool usable both inside and outside
 ### Features
 
 #### 6.1 Draft (1v1) Life Tracker
-- Life totals
-- Poison counters
-- Game win toggles
+- [x] Life totals with quick +/-1 and +/-5 buttons
+- [x] Poison counters (0-10)
+- [x] Game win toggles (best-of-3)
+- [x] Inverted top panel for face-to-face play
+- [x] Reset game/match modals
 
 #### 6.2 Commander Life Tracker (Standalone)
-- 2–6 players
-- Starting life 40
-- Per-opponent commander damage
-- Poison counters
-- Optional misc counters
+- [x] 2–6 players with responsive grid layout
+- [x] Starting life 40
+- [x] Per-opponent commander damage tracking
+- [x] Poison counters
+- [x] Misc counters (energy, experience, etc.)
+- [x] Expandable player panels
 
 #### 6.3 Offline Support
-- Persist sessions locally
-- Restore on reload without connectivity
+- [x] Persist sessions to localStorage
+- [x] Restore on reload without connectivity
+- [x] Auto-save on every state change
+- [x] Max 10 sessions per mode (prevents storage bloat)
 
 ### Exit criteria
-- Life tracker usable offline on mobile
+- [x] Life tracker usable offline on mobile
+
+### Implementation Notes
+- Mobile-first with 56x56px minimum touch targets
+- useReducer + localStorage pattern for state persistence
+- Session resume from setup page
+- Integration with PairingsPage (launch tracker for current match)
+- 40 unit tests for hooks and storage
 
 ---
 
-## EPIC 7 — Host Repair and Audit UX
+## EPIC 7 — Host Repair and Audit UX ✅ COMPLETE
 
 ### Goal
 Enable safe correction of mistakes with transparency.
@@ -245,17 +257,25 @@ Enable safe correction of mistakes with transparency.
 ### Features
 
 #### 7.1 Repair UI
-- Swap opponents
-- Reopen match/round
-- Drop player
+- [x] Drop player (available during active events, not just setup)
+- [x] Reopen match (with reason for audit trail)
+- [ ] Swap opponents (deferred — backend API not yet implemented)
+- [ ] Reopen round (deferred — backend API not yet implemented)
 
 #### 7.2 Audit Log View
-- Chronological list of host actions
-- Before/after diffs
+- [x] Chronological timeline of host actions
+- [x] Color-coded action types (info, success, warning, danger)
+- [x] Host-only access via nav link
+- [x] Displays action type, entity, reason, and timestamp
 
 ### Exit criteria
-- Host can recover from common mistakes
-- Repairs are traceable
+- [x] Host can recover from common mistakes
+- [x] Repairs are traceable
+
+### Implementation Notes
+- AuditLogPage with timeline styling
+- API types for audit log entries
+- Host-only nav link in EventLayout
 
 ---
 

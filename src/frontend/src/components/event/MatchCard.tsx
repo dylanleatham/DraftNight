@@ -11,6 +11,7 @@ interface MatchCardProps {
   isHost: boolean;
   onSelectWinner?: (winnerId: string) => void;
   onReopen?: () => void;
+  onLifeTracker?: () => void;
 }
 
 export function MatchCard({
@@ -21,6 +22,7 @@ export function MatchCard({
   isHost,
   onSelectWinner,
   onReopen,
+  onLifeTracker,
 }: MatchCardProps) {
   const isUserMatch =
     currentPlayerId === match.playerAId || currentPlayerId === match.playerBId;
@@ -76,6 +78,12 @@ export function MatchCard({
             )}
           </button>
         </div>
+      )}
+
+      {!match.isBye && onLifeTracker && (
+        <button className={styles.lifeTrackerButton} onClick={onLifeTracker}>
+          Life Tracker
+        </button>
       )}
 
       {canReopen && (

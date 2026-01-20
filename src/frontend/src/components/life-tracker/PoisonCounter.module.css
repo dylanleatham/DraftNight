@@ -1,0 +1,96 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.inverted {
+  transform: rotate(180deg);
+}
+
+.compact {
+  padding: 0.25rem;
+  gap: 0.25rem;
+}
+
+.adjustButton {
+  min-width: 40px;
+  min-height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.adjustButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.adjustButton:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.adjustButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.compact .adjustButton {
+  min-width: 32px;
+  min-height: 32px;
+  font-size: 1rem;
+}
+
+.poisonDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  min-width: 70px;
+  justify-content: center;
+}
+
+.compact .poisonDisplay {
+  padding: 0.25rem 0.5rem;
+  min-width: 50px;
+}
+
+.lethal {
+  background: rgba(139, 0, 0, 0.5);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.poisonIcon {
+  font-size: 1.25rem;
+}
+
+.compact .poisonIcon {
+  font-size: 1rem;
+}
+
+.poisonValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.compact .poisonValue {
+  font-size: 1.125rem;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
