@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { Outlet, useParams, useNavigate, NavLink } from 'react-router-dom';
 import { EventProvider, useEvent } from '../context/EventContext';
 import { useEventConnection } from '../hooks/useEventConnection';
+import { useEventNotifications } from '../hooks/useEventNotifications';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import type { EventSnapshotResponse } from '../api/types';
@@ -41,6 +42,9 @@ function EventLayoutContent() {
   useEffect(() => {
     dispatch({ type: 'SET_CONNECTION_STATUS', payload: status });
   }, [status, dispatch]);
+
+  // Watch for event changes and show notifications
+  useEventNotifications(state.snapshot, eventId!);
 
   // Fetch initial snapshot if SignalR takes time to connect
   useEffect(() => {

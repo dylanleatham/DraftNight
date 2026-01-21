@@ -279,19 +279,27 @@ Enable safe correction of mistakes with transparency.
 
 ---
 
-## EPIC 8 — Notifications
+## EPIC 8 — Notifications ✅ COMPLETE
 
 ### Goal
 Provide minimal, high-signal in-app notifications.
 
 ### Features
-- Pairings published
-- Prize awarded
+- [x] Pairings published
+- [x] Prize awarded
 
 (No round or timing notifications.)
 
 ### Exit criteria
-- Notifications appear reliably on relevant events
+- [x] Notifications appear reliably on relevant events
+
+### Implementation Notes
+- Toast component with portal rendering and CSS animations
+- NotificationContext for global toast state management
+- useEventNotifications hook monitors SignalR snapshot changes
+- Personalized notifications (opponent name, prize count)
+- Auto-dismiss after 5 seconds with manual dismiss option
+- 30 new unit tests covering hooks and components
 
 ---
 
