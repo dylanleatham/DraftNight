@@ -5,6 +5,10 @@
   overflow: hidden;
 }
 
+.inverted {
+  transform: rotate(180deg);
+}
+
 .compactView {
   display: flex;
   flex-direction: column;

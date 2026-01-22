@@ -1,8 +1,8 @@
 import type { DraftPlayer } from '../../types/lifeTracker';
-import { LifeCounter } from './LifeCounter';
+import { BasePlayerPanel, type PlayerColor } from './BasePlayerPanel';
+import { LifeDisplay } from './LifeDisplay';
 import { PoisonCounter } from './PoisonCounter';
 import { GameWinToggle } from './GameWinToggle';
-import styles from './PlayerPanel.module.css';
 
 interface PlayerPanelProps {
   player: DraftPlayer;
@@ -11,7 +11,7 @@ interface PlayerPanelProps {
   onAdjustLife: (delta: number) => void;
   onAdjustPoison: (delta: number) => void;
   onToggleWin: () => void;
-  color: 'blue' | 'red' | 'green' | 'purple' | 'orange' | 'teal';
+  color: PlayerColor;
   inverted?: boolean;
 }
 
@@ -26,27 +26,26 @@ export function PlayerPanel({
   inverted = false,
 }: PlayerPanelProps) {
   return (
-    <div
-      className={`${styles.container} ${styles[color]} ${inverted ? styles.inverted : ''}`}
-    >
-      <div className={styles.header}>
-        <span className={styles.playerName}>{player.name}</span>
-        <GameWinToggle wins={gameWins} onToggle={onToggleWin} inverted={inverted} />
-      </div>
-      <LifeCounter
-        life={player.life}
-        onLifeChange={onLifeChange}
-        onAdjust={onAdjustLife}
-        color={color}
-        inverted={inverted}
-      />
-      <div className={styles.footer}>
+    <BasePlayerPanel
+      name={player.name}
+      color={color}
+      inverted={inverted}
+      headerContent={
+        <GameWinToggle wins={gameWins} onToggle={onToggleWin} />
+      }
+      footerContent={
         <PoisonCounter
           poison={player.poison}
           onAdjust={onAdjustPoison}
-          inverted={inverted}
         />
-      </div>
-    </div>
+      }
+    >
+      <LifeDisplay
+        life={player.life}
+        onLifeChange={onLifeChange}
+        onAdjust={onAdjustLife}
+        buttons={[1, 5]}
+      />
+    </BasePlayerPanel>
   );
 }

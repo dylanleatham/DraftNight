@@ -35,9 +35,13 @@ export function LifeTrackerSetupPage() {
   const [playerAName, setPlayerAName] = useState('');
   const [playerBName, setPlayerBName] = useState('');
   const [playerCount, setPlayerCount] = useState(4);
-  const [playerNames, setPlayerNames] = useState<string[]>(['', '', '', '', '', '']);
+  const [playerNames, setPlayerNames] = useState<string[]>(['', '', '', '']);
+  const [sessionsVersion, setSessionsVersion] = useState(0);
 
+  // Re-fetch sessions when version changes (after delete)
   const recentSessions = lifeTrackerStorage.getRecentSessions();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _forceUpdate = sessionsVersion; // Ensures re-render on delete
 
   const handleStartDraft = () => {
     const sessionId = generateSessionId();
@@ -71,8 +75,8 @@ export function LifeTrackerSetupPage() {
     } else {
       lifeTrackerStorage.deleteCommanderSession(session.id);
     }
-    // Force re-render by updating state
-    setMode(mode);
+    // Force re-render by incrementing version
+    setSessionsVersion((v) => v + 1);
   };
 
   const handlePlayerNameChange = (index: number, name: string) => {
@@ -133,7 +137,7 @@ export function LifeTrackerSetupPage() {
             <div className={styles.playerCountSelector}>
               <label className={styles.label}>Number of Players</label>
               <div className={styles.playerCountButtons}>
-                {[2, 3, 4, 5, 6].map((count) => (
+                {[2, 3, 4].map((count) => (
                   <button
                     key={count}
                     className={`${styles.countButton} ${playerCount === count ? styles.active : ''}`}

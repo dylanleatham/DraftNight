@@ -61,27 +61,36 @@ export function CommanderLifeTracker({
       </div>
 
       <div className={`${styles.grid} ${gridClass}`}>
-        {session.players.map((player, index) => (
-          <CommanderPlayerPanel
-            key={player.id}
-            player={player}
-            playerIndex={index}
-            playerNames={playerNames}
-            onAdjustLife={(delta) => onAdjustLife(player.id, delta)}
-            onSetLife={(life) => onSetLife(player.id, life)}
-            onAdjustPoison={(delta) => onAdjustPoison(player.id, delta)}
-            onAdjustCommanderDamage={(fromPlayerId, delta) =>
-              onAdjustCommanderDamage(player.id, fromPlayerId, delta)
-            }
-            onAddMiscCounter={(name) => onAddMiscCounter(player.id, name)}
-            onRemoveMiscCounter={(counterId) =>
-              onRemoveMiscCounter(player.id, counterId)
-            }
-            onAdjustMiscCounter={(counterId, delta) =>
-              onAdjustMiscCounter(player.id, counterId, delta)
-            }
-          />
-        ))}
+        {session.players.map((player, index) => {
+          // Invert top panels for face-to-face play:
+          // - 2 players: index 0 (top)
+          // - 3-4 players: indices 0-1 (top row)
+          const isTopPanel =
+            playerCount <= 2 ? index === 0 : index < 2;
+
+          return (
+            <CommanderPlayerPanel
+              key={player.id}
+              player={player}
+              playerIndex={index}
+              playerNames={playerNames}
+              inverted={isTopPanel}
+              onAdjustLife={(delta) => onAdjustLife(player.id, delta)}
+              onSetLife={(life) => onSetLife(player.id, life)}
+              onAdjustPoison={(delta) => onAdjustPoison(player.id, delta)}
+              onAdjustCommanderDamage={(fromPlayerId, delta) =>
+                onAdjustCommanderDamage(player.id, fromPlayerId, delta)
+              }
+              onAddMiscCounter={(name) => onAddMiscCounter(player.id, name)}
+              onRemoveMiscCounter={(counterId) =>
+                onRemoveMiscCounter(player.id, counterId)
+              }
+              onAdjustMiscCounter={(counterId, delta) =>
+                onAdjustMiscCounter(player.id, counterId, delta)
+              }
+            />
+          );
+        })}
       </div>
 
       <Modal

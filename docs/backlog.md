@@ -358,6 +358,57 @@ Make the system usable by others.
 
 ---
 
+## EPIC 11 — Life Tracker Overhaul & Bug Fixes
+
+### Goal
+Improve the life tracker UX, fix bugs, and unify the codebase.
+
+### Bugs (High Priority)
+
+- [x] Delete session doesn't remove it from UI
+- [ ] Pairings: Match status not updating after completing match in life tracker
+- [ ] Pairings: After reopening match (2 players), no UI to select winner or open life tracker
+- [ ] Navigation: "Go to Prizes" message shown but Prizes menu not visible/accessible
+
+### Refactoring (Do First)
+
+- [x] Unify Draft/Commander code — extract shared components for life display, adjustment buttons, counters, color picker; layer mode-specific features on top
+  - Created `LifeDisplay` component with configurable buttons
+  - Created `BasePlayerPanel` component for consistent theming
+  - Both modes now share the same core components
+
+### Life Tracker UX Improvements
+
+- [x] Rotate top player panel 180° for face-to-face play (Draft 1v1)
+- [x] Rotate top 2 panels 180° in 3-4 player Commander
+- [x] Make life total display larger, reduce empty space (8rem font, 64px buttons)
+- [ ] Persist new counter types on screen (like Poison counters)
+- [x] Add +/-5, +/-10 buttons to Commander mode (match Draft) — done via shared `LifeDisplay`
+- [x] Remove 5-6 player options from Commander mode
+- [ ] Make best-of-3 game win UI more obvious/clear
+- [ ] Add color picker for player panel backgrounds
+- [ ] [Stretch] Support image backgrounds for player panels
+
+### Tournament UX Improvements
+
+- [ ] Unclear icon in top-right corner of pairings — needs label or removal
+- [ ] Add bracket-style visual view of round match-ups
+- [ ] Show prize notification immediately when match win earns a prize (life tracker)
+- [ ] Show prize notification immediately when match is finalized (pairings view)
+
+### Exit criteria
+- [ ] Life tracker feels polished and intuitive
+- [ ] All bugs resolved
+- [x] Draft and Commander share unified component architecture
+
+### Implementation Notes (In Progress)
+- **Shared Components**: `LifeDisplay`, `BasePlayerPanel` in `src/frontend/src/components/life-tracker/`
+- **Rotation**: Top panels auto-rotate 180° via `inverted` prop for face-to-face play
+- **Delete Bug Fix**: Added `sessionsVersion` state to force re-render after deletion
+- **Larger Display**: Life total now 8rem (was 5rem), buttons 64px (was 56px)
+
+---
+
 ## Deferred Items (Future Enhancements)
 
 These items were intentionally deferred from the initial release:

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { CommanderPlayer } from '../../types/lifeTracker';
 import { MAX_POISON, COMMANDER_DAMAGE_LETHAL } from '../../types/lifeTracker';
+import { LifeDisplay } from './LifeDisplay';
 import { PoisonCounter } from './PoisonCounter';
 import { CommanderDamageTracker } from './CommanderDamageTracker';
 import { MiscCounterList } from './MiscCounter';
@@ -19,6 +20,8 @@ interface CommanderPlayerPanelProps {
   onAddMiscCounter: (name: string) => void;
   onRemoveMiscCounter: (counterId: string) => void;
   onAdjustMiscCounter: (counterId: string, delta: number) => void;
+  /** Whether this panel should be inverted (rotated 180deg) */
+  inverted?: boolean;
 }
 
 export function CommanderPlayerPanel({
@@ -32,10 +35,9 @@ export function CommanderPlayerPanel({
   onAddMiscCounter,
   onRemoveMiscCounter,
   onAdjustMiscCounter,
+  inverted = false,
 }: CommanderPlayerPanelProps) {
   const [expanded, setExpanded] = useState(false);
-  const [isEditingLife, setIsEditingLife] = useState(false);
-  const [editValue, setEditValue] = useState('');
 
   const color = PLAYER_COLORS[playerIndex % PLAYER_COLORS.length];
   const totalCommanderDamage = player.commanderDamage.reduce((sum, cd) => sum + cd.amount, 0);
@@ -44,29 +46,8 @@ export function CommanderPlayerPanel({
   );
   const hasLethalPoison = player.poison >= MAX_POISON;
 
-  const handleLifeClick = () => {
-    setEditValue(player.life.toString());
-    setIsEditingLife(true);
-  };
-
-  const handleLifeSubmit = () => {
-    const newLife = parseInt(editValue, 10);
-    if (!isNaN(newLife)) {
-      onSetLife(newLife);
-    }
-    setIsEditingLife(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleLifeSubmit();
-    } else if (e.key === 'Escape') {
-      setIsEditingLife(false);
-    }
-  };
-
   return (
-    <div className={`${styles.container} ${styles[color]}`}>
+    <div className={`${styles.container} ${styles[color]} ${inverted ? styles.inverted : ''}`}>
       {/* Compact View */}
       <div className={styles.compactView} onClick={() => setExpanded(!expanded)}>
         <div className={styles.header}>
@@ -79,49 +60,14 @@ export function CommanderPlayerPanel({
           </button>
         </div>
 
-        <div className={styles.lifeSection}>
-          <div className={styles.lifeControls}>
-            <button
-              className={styles.lifeButton}
-              onClick={(e) => {
-                e.stopPropagation();
-                onAdjustLife(-1);
-              }}
-            >
-              -
-            </button>
-            <div
-              className={styles.lifeDisplay}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleLifeClick();
-              }}
-            >
-              {isEditingLife ? (
-                <input
-                  type="number"
-                  className={styles.lifeInput}
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  onBlur={handleLifeSubmit}
-                  onKeyDown={handleKeyDown}
-                  onClick={(e) => e.stopPropagation()}
-                  autoFocus
-                />
-              ) : (
-                <span className={styles.lifeValue}>{player.life}</span>
-              )}
-            </div>
-            <button
-              className={styles.lifeButton}
-              onClick={(e) => {
-                e.stopPropagation();
-                onAdjustLife(1);
-              }}
-            >
-              +
-            </button>
-          </div>
+        <div className={styles.lifeSection} onClick={(e) => e.stopPropagation()}>
+          <LifeDisplay
+            life={player.life}
+            onLifeChange={onSetLife}
+            onAdjust={onAdjustLife}
+            buttons={[1, 5]}
+            size="compact"
+          />
         </div>
 
         <div className={styles.indicators}>
