@@ -315,4 +315,171 @@ public class SignalRIntegrationTests : IDisposable
         await client1.DisposeAsync();
         await client2.DisposeAsync();
     }
+
+    [Fact(Skip = "EF Core InMemory provider does not support ExecuteSqlInterpolatedAsync used in JoinEventAsync. This test passes with SQL Server.")]
+    public async Task RequestSnapshot_AfterStateChange_ReturnsUpdatedState()
+    {
+        // Arrange - Create an event
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Snapshot Update Test",
+            PacksInBox = 36,
+            HostPin = "1234"
+        };
+        var createResponse = await httpClient.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        var server = factory.Server;
+        var hubConnection = new HubConnectionBuilder()
+            .WithUrl(
+                server.BaseAddress + "hubs/event",
+                options => options.HttpMessageHandlerFactory = _ => server.CreateHandler())
+            .Build();
+
+        var snapshots = new List<EventSnapshotResponse>();
+        var snapshotReceived = new TaskCompletionSource<bool>();
+
+        hubConnection.On<EventSnapshotResponse>("EventUpdated", snapshot =>
+        {
+            snapshots.Add(snapshot);
+            snapshotReceived.TrySetResult(true);
+        });
+
+        await hubConnection.StartAsync();
+
+        // Join the event group
+        await hubConnection.InvokeAsync("JoinEventGroup", createResult.EventId);
+
+        // Wait for initial snapshot
+        await Task.WhenAny(snapshotReceived.Task, Task.Delay(5000));
+        Assert.True(snapshots.Count >= 1, "Did not receive initial snapshot");
+        Assert.Empty(snapshots[0].Players);
+
+        // Act - Add a player via REST API
+        var joinRequest = new JoinEventRequest
+        {
+            JoinCode = createResult.JoinCode,
+            PlayerName = "TestPlayer",
+            PlayerPin = "0000"
+        };
+        var joinResponse = await httpClient.PostAsJsonAsync("/api/events/join", joinRequest);
+        var joinContent = await joinResponse.Content.ReadAsStringAsync();
+        Assert.True(joinResponse.IsSuccessStatusCode, $"Join failed: {joinResponse.StatusCode} - {joinContent}");
+
+        // Now request a fresh snapshot
+        snapshots.Clear();
+        var updatedSnapshotReceived = new TaskCompletionSource<bool>();
+        hubConnection.Remove("EventUpdated");
+        hubConnection.On<EventSnapshotResponse>("EventUpdated", snapshot =>
+        {
+            snapshots.Add(snapshot);
+            updatedSnapshotReceived.TrySetResult(true);
+        });
+
+        await hubConnection.InvokeAsync("RequestSnapshot", createResult.EventId);
+
+        // Assert - Snapshot should include the new player
+        var received = await Task.WhenAny(updatedSnapshotReceived.Task, Task.Delay(5000)) == updatedSnapshotReceived.Task;
+        Assert.True(received, "Did not receive updated snapshot within timeout");
+        Assert.NotEmpty(snapshots);
+        var latestSnapshot = snapshots[^1];
+        Assert.Single(latestSnapshot.Players);
+        Assert.Equal("TestPlayer", latestSnapshot.Players[0].Name);
+
+        // Cleanup
+        await hubConnection.DisposeAsync();
+    }
+
+    [Fact(Skip = "EF Core InMemory provider does not support ExecuteSqlInterpolatedAsync used in JoinEventAsync. This test passes with SQL Server.")]
+    public async Task Client_RejoinsGroup_AfterReconnect_ReceivesCurrentState()
+    {
+        // Arrange - Create an event and add a player
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Reconnect Test",
+            PacksInBox = 36,
+            HostPin = "1234"
+        };
+        var createResponse = await httpClient.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        // Add a player before the client connects
+        var joinRequest = new JoinEventRequest
+        {
+            JoinCode = createResult.JoinCode,
+            PlayerName = "ExistingPlayer",
+            PlayerPin = "0000"
+        };
+        var joinResponse = await httpClient.PostAsJsonAsync("/api/events/join", joinRequest);
+        var joinContent = await joinResponse.Content.ReadAsStringAsync();
+        Assert.True(joinResponse.IsSuccessStatusCode, $"Join failed: {joinResponse.StatusCode} - {joinContent}");
+
+        var server = factory.Server;
+
+        // First connection - simulate initial connection
+        var connection1 = new HubConnectionBuilder()
+            .WithUrl(
+                server.BaseAddress + "hubs/event",
+                options => options.HttpMessageHandlerFactory = _ => server.CreateHandler())
+            .Build();
+
+        EventSnapshotResponse? initialSnapshot = null;
+        var initialReceived = new TaskCompletionSource<bool>();
+
+        connection1.On<EventSnapshotResponse>("EventUpdated", snapshot =>
+        {
+            initialSnapshot = snapshot;
+            initialReceived.TrySetResult(true);
+        });
+
+        await connection1.StartAsync();
+        await connection1.InvokeAsync("JoinEventGroup", createResult.EventId);
+
+        var received1 = await Task.WhenAny(initialReceived.Task, Task.Delay(5000)) == initialReceived.Task;
+        Assert.True(received1, "Did not receive initial snapshot");
+        Assert.NotNull(initialSnapshot);
+        Assert.Single(initialSnapshot.Players);
+
+        // Simulate disconnection
+        await connection1.StopAsync();
+        await connection1.DisposeAsync();
+
+        // Act - Simulate reconnection with a new connection (as would happen after network recovery)
+        var connection2 = new HubConnectionBuilder()
+            .WithUrl(
+                server.BaseAddress + "hubs/event",
+                options => options.HttpMessageHandlerFactory = _ => server.CreateHandler())
+            .Build();
+
+        EventSnapshotResponse? reconnectSnapshot = null;
+        var reconnectReceived = new TaskCompletionSource<bool>();
+
+        connection2.On<EventSnapshotResponse>("EventUpdated", snapshot =>
+        {
+            reconnectSnapshot = snapshot;
+            reconnectReceived.TrySetResult(true);
+        });
+
+        await connection2.StartAsync();
+
+        // Rejoin the event group (as the client would do after reconnect)
+        await connection2.InvokeAsync("JoinEventGroup", createResult.EventId);
+
+        // Assert - Should receive current state including the player
+        var received2 = await Task.WhenAny(reconnectReceived.Task, Task.Delay(5000)) == reconnectReceived.Task;
+        Assert.True(received2, "Did not receive snapshot after reconnect");
+        Assert.NotNull(reconnectSnapshot);
+        Assert.Equal(createResult.EventId, reconnectSnapshot.Id);
+        Assert.Single(reconnectSnapshot.Players);
+        Assert.Equal("ExistingPlayer", reconnectSnapshot.Players[0].Name);
+
+        // Cleanup
+        await connection2.DisposeAsync();
+    }
 }

@@ -242,13 +242,15 @@ public class EventRepositoryTests : IDisposable
         };
 
         // Act
-        var (success, newVersion) = await repository.PersistEngineStateAsync(eventId, 1, newState, updateLog);
+        var entity = await repository.GetByIdAsync(eventId);
+        Assert.NotNull(entity);
+        var (success, newVersion) = await repository.PersistEngineStateAsync(entity, 1, newState, updateLog);
 
         // Assert
         Assert.True(success);
         Assert.Equal(2, newVersion);
 
-        var entity = await repository.GetByIdAsync(eventId);
+        entity = await repository.GetByIdAsync(eventId);
         Assert.NotNull(entity);
         Assert.Equal(2, entity.Version);
         Assert.Equal(1, entity.Players.First().MatchWins);
@@ -286,7 +288,9 @@ public class EventRepositoryTests : IDisposable
         };
 
         // Act - Try to persist with wrong version (expecting 5 when actual is 1)
-        var (success, newVersion) = await repository.PersistEngineStateAsync(eventId, 5, state, updateLog);
+        var entity = await repository.GetByIdAsync(eventId);
+        Assert.NotNull(entity);
+        var (success, newVersion) = await repository.PersistEngineStateAsync(entity, 5, state, updateLog);
 
         // Assert
         Assert.False(success);
@@ -326,7 +330,9 @@ public class EventRepositoryTests : IDisposable
         };
 
         // Act
-        await repository.PersistEngineStateAsync(eventId, 1, state, updateLog);
+        var entity = await repository.GetByIdAsync(eventId);
+        Assert.NotNull(entity);
+        await repository.PersistEngineStateAsync(entity, 1, state, updateLog);
 
         // Assert
         var logs = await context.AuditLogs.Where(l => l.EventId == eventId).ToListAsync();
