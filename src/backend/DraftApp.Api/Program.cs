@@ -55,6 +55,13 @@ builder.Services.AddSingleton<IEventNotificationService, EventNotificationServic
 
 var app = builder.Build();
 
+// Apply pending migrations on startup
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<DraftAppDbContext>();
+    dbContext.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
