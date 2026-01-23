@@ -56,10 +56,23 @@ builder.Services.AddSingleton<IEventNotificationService, EventNotificationServic
 var app = builder.Build();
 
 // Apply pending migrations on startup
-using (var scope = app.Services.CreateScope())
+try
 {
+    using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<DraftAppDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("Attempting to apply database migrations...");
     dbContext.Database.Migrate();
+    logger.LogInformation("Database migrations applied successfully.");
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(
+        ex,
+        "Failed to apply database migrations. Connection string configured: {HasConnectionString}",
+        !string.IsNullOrEmpty(builder.Configuration.GetConnectionString("DefaultConnection")));
+    throw;
 }
 
 // Configure the HTTP request pipeline
