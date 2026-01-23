@@ -8,48 +8,48 @@ namespace DraftApp.Engine.Models;
 public sealed record Player
 {
     /// <summary>
-    /// Stable unique identifier.
+    /// Gets the stable unique identifier.
     /// </summary>
     public required string Id { get; init; }
 
     /// <summary>
-    /// Display name.
+    /// Gets the display name.
     /// </summary>
     public required string Name { get; init; }
 
     /// <summary>
-    /// Seed position (1..N, lower is earlier).
+    /// Gets the seed position (1..N, lower is earlier).
     /// </summary>
     public required int Seed { get; init; }
 
     /// <summary>
-    /// Match wins count.
+    /// Gets the match wins count.
     /// </summary>
     public int MatchWins { get; init; } = 0;
 
     /// <summary>
-    /// Match losses count.
+    /// Gets the match losses count.
     /// </summary>
     public int MatchLosses { get; init; } = 0;
 
     /// <summary>
-    /// Whether the player has received a BYE (Swiss only).
+    /// Gets a value indicating whether the player has received a BYE (Swiss only).
     /// </summary>
     public bool ByeReceived { get; init; } = false;
 
     /// <summary>
-    /// Ordered list of opponent player IDs (excludes BYE).
+    /// Gets the ordered list of opponent player IDs (excludes BYE).
     /// </summary>
     public ImmutableList<string> Opponents { get; init; } = ImmutableList<string>.Empty;
 
     /// <summary>
-    /// Maps opponent ID to the most recent round they played against.
+    /// Gets the map of opponent ID to the most recent round they played against.
     /// </summary>
     public ImmutableDictionary<string, int> LastPlayedRound { get; init; } =
         ImmutableDictionary<string, int>.Empty;
 
     /// <summary>
-    /// Whether the player has dropped from the tournament.
+    /// Gets a value indicating whether the player has dropped from the tournament.
     /// </summary>
     public bool IsDropped { get; init; } = false;
 

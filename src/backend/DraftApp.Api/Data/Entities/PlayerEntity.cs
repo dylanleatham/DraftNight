@@ -6,89 +6,89 @@ namespace DraftApp.Api.Data.Entities;
 public class PlayerEntity
 {
     /// <summary>
-    /// Unique identifier.
+    /// Gets or sets the unique identifier.
     /// </summary>
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Foreign key to the event.
+    /// Gets or sets the foreign key to the event.
     /// </summary>
     public Guid EventId { get; set; }
 
     /// <summary>
-    /// Player display name.
+    /// Gets or sets the player display name.
     /// </summary>
     public required string Name { get; set; }
 
     /// <summary>
-    /// Seed position (1..N, lower is earlier).
+    /// Gets or sets the seed position (1..N, lower is earlier).
     /// </summary>
     public int Seed { get; set; }
 
     /// <summary>
-    /// Match wins count.
+    /// Gets or sets the match wins count.
     /// </summary>
     public int MatchWins { get; set; }
 
     /// <summary>
-    /// Match losses count.
+    /// Gets or sets the match losses count.
     /// </summary>
     public int MatchLosses { get; set; }
 
     /// <summary>
-    /// Whether the player has received a BYE (Swiss only).
+    /// Gets or sets a value indicating whether the player has received a BYE (Swiss only).
     /// </summary>
     public bool ByeReceived { get; set; }
 
     /// <summary>
-    /// Whether the player has dropped from the tournament.
+    /// Gets or sets a value indicating whether the player has dropped from the tournament.
     /// </summary>
     public bool IsDropped { get; set; }
 
     /// <summary>
-    /// JSON array of opponent player IDs in order.
+    /// Gets or sets the JSON array of opponent player IDs in order.
     /// </summary>
     public string OpponentsJson { get; set; } = "[]";
 
     /// <summary>
-    /// JSON dictionary mapping opponent ID to last played round.
+    /// Gets or sets the JSON dictionary mapping opponent ID to last played round.
     /// </summary>
     public string LastPlayedRoundJson { get; set; } = "{}";
 
     /// <summary>
-    /// Salted hash of the player PIN.
+    /// Gets or sets the salted hash of the player PIN.
     /// </summary>
     public string? PinHash { get; set; }
 
     /// <summary>
-    /// Secret token for player authorization.
+    /// Gets or sets the secret token for player authorization.
     /// </summary>
     public string? PlayerToken { get; set; }
 
     // Navigation properties
 
     /// <summary>
-    /// The event this player belongs to.
+    /// Gets or sets the event this player belongs to.
     /// </summary>
     public EventEntity Event { get; set; } = null!;
 
     /// <summary>
-    /// Matches where this player is Player A.
+    /// Gets or sets the matches where this player is Player A.
     /// </summary>
     public ICollection<MatchEntity> MatchesAsPlayerA { get; set; } = new List<MatchEntity>();
 
     /// <summary>
-    /// Matches where this player is Player B.
+    /// Gets or sets the matches where this player is Player B.
     /// </summary>
     public ICollection<MatchEntity> MatchesAsPlayerB { get; set; } = new List<MatchEntity>();
 
     /// <summary>
-    /// Matches where this player won.
+    /// Gets or sets the matches where this player won.
     /// </summary>
     public ICollection<MatchEntity> MatchesWon { get; set; } = new List<MatchEntity>();
 
     /// <summary>
-    /// Prize allocation for this player, if any.
+    /// Gets or sets the prize allocation for this player, if any.
     /// </summary>
     public PrizeAllocationEntity? PrizeAllocation { get; set; }
 }

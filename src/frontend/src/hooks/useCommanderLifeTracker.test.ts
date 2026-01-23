@@ -15,7 +15,7 @@ vi.mock('../lib/lifeTrackerStorage', () => ({
 describe('useCommanderLifeTracker', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (lifeTrackerStorage.getCommanderSession as any).mockReturnValue(null);
+    vi.mocked(lifeTrackerStorage.getCommanderSession).mockReturnValue(null);
   });
 
   it('initializes with default values for new session', () => {
@@ -278,7 +278,7 @@ describe('useCommanderLifeTracker', () => {
       ],
     };
 
-    (lifeTrackerStorage.getCommanderSession as any).mockReturnValue(existingSession);
+    vi.mocked(lifeTrackerStorage.getCommanderSession).mockReturnValue(existingSession);
 
     const { result } = renderHook(() =>
       useCommanderLifeTracker({ sessionId: 'test-session' })

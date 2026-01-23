@@ -6,17 +6,17 @@ namespace DraftApp.Api.Models.Responses;
 public sealed record ErrorResponse
 {
     /// <summary>
-    /// Error code for client handling.
+    /// Gets the error code for client handling.
     /// </summary>
     public required string Code { get; init; }
 
     /// <summary>
-    /// Human-readable error message.
+    /// Gets the human-readable error message.
     /// </summary>
     public required string Message { get; init; }
 
     /// <summary>
-    /// Additional details (optional).
+    /// Gets the additional details (optional).
     /// </summary>
     public object? Details { get; init; }
 }

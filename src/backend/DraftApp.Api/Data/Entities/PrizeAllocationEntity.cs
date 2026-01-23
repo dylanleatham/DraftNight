@@ -6,34 +6,34 @@ namespace DraftApp.Api.Data.Entities;
 public class PrizeAllocationEntity
 {
     /// <summary>
-    /// Unique identifier.
+    /// Gets or sets the unique identifier.
     /// </summary>
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Foreign key to the event.
+    /// Gets or sets the foreign key to the event.
     /// </summary>
     public Guid EventId { get; set; }
 
     /// <summary>
-    /// Foreign key to the player.
+    /// Gets or sets the foreign key to the player.
     /// </summary>
     public Guid PlayerId { get; set; }
 
     /// <summary>
-    /// Number of packs awarded.
+    /// Gets or sets the number of packs awarded.
     /// </summary>
     public int PacksAwarded { get; set; }
 
     // Navigation properties
 
     /// <summary>
-    /// The event this allocation belongs to.
+    /// Gets or sets the event this allocation belongs to.
     /// </summary>
     public EventEntity Event { get; set; } = null!;
 
     /// <summary>
-    /// The player receiving the prize.
+    /// Gets or sets the player receiving the prize.
     /// </summary>
     public PlayerEntity Player { get; set; } = null!;
 }

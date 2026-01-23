@@ -8,54 +8,54 @@ namespace DraftApp.Api.Data.Entities;
 public class AuditLogEntity
 {
     /// <summary>
-    /// Unique identifier.
+    /// Gets or sets the unique identifier.
     /// </summary>
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Foreign key to the event.
+    /// Gets or sets the foreign key to the event.
     /// </summary>
     public Guid EventId { get; set; }
 
     /// <summary>
-    /// Type of action performed.
+    /// Gets or sets the type of action performed.
     /// </summary>
     public AuditActionType ActionType { get; set; }
 
     /// <summary>
-    /// Type of entity affected.
+    /// Gets or sets the type of entity affected.
     /// </summary>
     public required string EntityType { get; set; }
 
     /// <summary>
-    /// ID of the affected entity, if applicable.
+    /// Gets or sets the ID of the affected entity, if applicable.
     /// </summary>
     public Guid? EntityId { get; set; }
 
     /// <summary>
-    /// JSON representation of state before the change.
+    /// Gets or sets the JSON representation of state before the change.
     /// </summary>
     public string? BeforeJson { get; set; }
 
     /// <summary>
-    /// JSON representation of state after the change.
+    /// Gets or sets the JSON representation of state after the change.
     /// </summary>
     public string? AfterJson { get; set; }
 
     /// <summary>
-    /// Reason or description of the change.
+    /// Gets or sets the reason or description of the change.
     /// </summary>
     public string? Reason { get; set; }
 
     /// <summary>
-    /// When the audit entry was created.
+    /// Gets or sets when the audit entry was created.
     /// </summary>
     public DateTime CreatedAt { get; set; }
 
     // Navigation properties
 
     /// <summary>
-    /// The event this log entry belongs to.
+    /// Gets or sets the event this log entry belongs to.
     /// </summary>
     public EventEntity Event { get; set; } = null!;
 }

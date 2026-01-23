@@ -15,32 +15,32 @@ public class DraftAppDbContext : DbContext
     }
 
     /// <summary>
-    /// Tournament events.
+    /// Gets the tournament events.
     /// </summary>
     public DbSet<EventEntity> Events => Set<EventEntity>();
 
     /// <summary>
-    /// Players in tournaments.
+    /// Gets the players in tournaments.
     /// </summary>
     public DbSet<PlayerEntity> Players => Set<PlayerEntity>();
 
     /// <summary>
-    /// Tournament rounds.
+    /// Gets the tournament rounds.
     /// </summary>
     public DbSet<RoundEntity> Rounds => Set<RoundEntity>();
 
     /// <summary>
-    /// Match pairings and results.
+    /// Gets the match pairings and results.
     /// </summary>
     public DbSet<MatchEntity> Matches => Set<MatchEntity>();
 
     /// <summary>
-    /// Prize allocations.
+    /// Gets the prize allocations.
     /// </summary>
     public DbSet<PrizeAllocationEntity> PrizeAllocations => Set<PrizeAllocationEntity>();
 
     /// <summary>
-    /// Audit logs.
+    /// Gets the audit logs.
     /// </summary>
     public DbSet<AuditLogEntity> AuditLogs => Set<AuditLogEntity>();
 

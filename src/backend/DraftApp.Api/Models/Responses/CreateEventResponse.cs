@@ -6,17 +6,17 @@ namespace DraftApp.Api.Models.Responses;
 public sealed record CreateEventResponse
 {
     /// <summary>
-    /// The new event ID.
+    /// Gets the new event ID.
     /// </summary>
     public required Guid EventId { get; init; }
 
     /// <summary>
-    /// Join code for players.
+    /// Gets the join code for players.
     /// </summary>
     public required string JoinCode { get; init; }
 
     /// <summary>
-    /// Host token for authorization.
+    /// Gets the host token for authorization.
     /// </summary>
     public required string HostToken { get; init; }
 }

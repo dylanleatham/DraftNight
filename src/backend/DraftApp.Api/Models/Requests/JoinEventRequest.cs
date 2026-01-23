@@ -8,21 +8,21 @@ namespace DraftApp.Api.Models.Requests;
 public sealed record JoinEventRequest
 {
     /// <summary>
-    /// Join code for the event.
+    /// Gets the join code for the event.
     /// </summary>
     [Required]
     [StringLength(10, MinimumLength = 4)]
     public required string JoinCode { get; init; }
 
     /// <summary>
-    /// Player display name.
+    /// Gets the player display name.
     /// </summary>
     [Required]
     [StringLength(50, MinimumLength = 1)]
     public required string PlayerName { get; init; }
 
     /// <summary>
-    /// Player PIN for editing their own data.
+    /// Gets the player PIN for editing their own data.
     /// </summary>
     [Required]
     [StringLength(20, MinimumLength = 4)]

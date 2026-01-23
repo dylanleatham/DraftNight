@@ -8,13 +8,13 @@ namespace DraftApp.Api.Models.Requests;
 public sealed record HostActionRequest
 {
     /// <summary>
-    /// Expected event version for optimistic concurrency.
+    /// Gets the expected event version for optimistic concurrency.
     /// </summary>
     [Required]
     public required int ExpectedVersion { get; init; }
 
     /// <summary>
-    /// Optional reason for audit log.
+    /// Gets the optional reason for audit log.
     /// </summary>
     [StringLength(500)]
     public string? Reason { get; init; }

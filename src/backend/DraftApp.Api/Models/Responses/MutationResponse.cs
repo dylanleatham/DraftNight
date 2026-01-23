@@ -6,17 +6,17 @@ namespace DraftApp.Api.Models.Responses;
 public sealed record MutationResponse
 {
     /// <summary>
-    /// Whether the operation succeeded.
+    /// Gets a value indicating whether the operation succeeded.
     /// </summary>
     public required bool Success { get; init; }
 
     /// <summary>
-    /// New event version after mutation.
+    /// Gets the new event version after mutation.
     /// </summary>
     public required int NewVersion { get; init; }
 
     /// <summary>
-    /// Error message if operation failed.
+    /// Gets the error message if operation failed.
     /// </summary>
     public string? Error { get; init; }
 }

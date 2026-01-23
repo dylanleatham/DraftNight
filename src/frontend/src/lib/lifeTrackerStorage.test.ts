@@ -157,8 +157,7 @@ describe('lifeTrackerStorage', () => {
   describe('getRecentSessions', () => {
     it('returns combined recent sessions sorted by updatedAt', () => {
       const draftSession = createDraftSession('draft-1', { updatedAt: 1000 });
-      const commanderSession = createCommanderSession('commander-1', 4);
-      (commanderSession as any).updatedAt = 2000;
+      const commanderSession = { ...createCommanderSession('commander-1', 4), updatedAt: 2000 };
 
       lifeTrackerStorage.saveDraftSession(draftSession);
       lifeTrackerStorage.saveCommanderSession(commanderSession);

@@ -8,13 +8,13 @@ namespace DraftApp.Api.Models.Requests;
 public sealed record FinalizeMatchRequest
 {
     /// <summary>
-    /// The winner's player ID.
+    /// Gets the winner's player ID.
     /// </summary>
     [Required]
     public required Guid WinnerId { get; init; }
 
     /// <summary>
-    /// Expected event version for optimistic concurrency.
+    /// Gets the expected event version for optimistic concurrency.
     /// </summary>
     [Required]
     public required int ExpectedVersion { get; init; }

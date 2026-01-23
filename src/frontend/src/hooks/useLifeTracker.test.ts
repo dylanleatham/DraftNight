@@ -15,7 +15,7 @@ vi.mock('../lib/lifeTrackerStorage', () => ({
 describe('useLifeTracker', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (lifeTrackerStorage.getDraftSession as any).mockReturnValue(null);
+    vi.mocked(lifeTrackerStorage.getDraftSession).mockReturnValue(null);
   });
 
   it('initializes with default values for new session', () => {
@@ -205,7 +205,7 @@ describe('useLifeTracker', () => {
       gameWins: { playerA: 1, playerB: 0 },
     };
 
-    (lifeTrackerStorage.getDraftSession as any).mockReturnValue(existingSession);
+    vi.mocked(lifeTrackerStorage.getDraftSession).mockReturnValue(existingSession);
 
     const { result } = renderHook(() =>
       useLifeTracker({ sessionId: 'test-session' })

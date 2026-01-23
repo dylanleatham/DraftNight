@@ -8,21 +8,21 @@ namespace DraftApp.Api.Models.Requests;
 public sealed record CreateEventRequest
 {
     /// <summary>
-    /// Event display name.
+    /// Gets the event display name.
     /// </summary>
     [Required]
     [StringLength(100, MinimumLength = 1)]
     public required string Name { get; init; }
 
     /// <summary>
-    /// Total packs in the booster box.
+    /// Gets the total packs in the booster box.
     /// </summary>
     [Required]
     [Range(6, 48)]
     public required int PacksInBox { get; init; }
 
     /// <summary>
-    /// Host PIN for administrative access.
+    /// Gets the host PIN for administrative access.
     /// </summary>
     [Required]
     [StringLength(20, MinimumLength = 4)]

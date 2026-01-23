@@ -6,37 +6,37 @@ namespace DraftApp.Engine.Models;
 public sealed record Match
 {
     /// <summary>
-    /// Unique match identifier (format: r{round}-m{index}).
+    /// Gets the unique match identifier (format: r{round}-m{index}).
     /// </summary>
     public required string Id { get; init; }
 
     /// <summary>
-    /// Round number (1-indexed).
+    /// Gets the round number (1-indexed).
     /// </summary>
     public required int Round { get; init; }
 
     /// <summary>
-    /// First player ID.
+    /// Gets the first player ID.
     /// </summary>
     public required string PlayerAId { get; init; }
 
     /// <summary>
-    /// Second player ID, or null for a BYE match (Swiss only).
+    /// Gets the second player ID, or null for a BYE match (Swiss only).
     /// </summary>
     public string? PlayerBId { get; init; }
 
     /// <summary>
-    /// Winner ID if the match is complete, null otherwise.
+    /// Gets the winner ID if the match is complete, null otherwise.
     /// </summary>
     public string? WinnerId { get; init; }
 
     /// <summary>
-    /// Returns true if this is a BYE match (no opponent).
+    /// Gets a value indicating whether this is a BYE match (no opponent).
     /// </summary>
     public bool IsBye => PlayerBId is null;
 
     /// <summary>
-    /// Returns true if the match has a result.
+    /// Gets a value indicating whether the match has a result.
     /// </summary>
     public bool IsComplete => WinnerId is not null;
 
