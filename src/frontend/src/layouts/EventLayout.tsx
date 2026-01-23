@@ -107,11 +107,31 @@ function EventLayoutContent() {
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <h1 className={styles.eventName}>{snapshot.name}</h1>
-          <div className={styles.connectionBadge} data-status={status}>
-            {status === 'connected' && '●'}
-            {status === 'connecting' && '○'}
-            {status === 'reconnecting' && '◐'}
-            {status === 'disconnected' && '○'}
+          <div
+            className={styles.connectionBadge}
+            data-status={status}
+            title={
+              status === 'connected'
+                ? 'Live - updates sync automatically'
+                : status === 'connecting'
+                  ? 'Connecting to server...'
+                  : status === 'reconnecting'
+                    ? 'Reconnecting...'
+                    : 'Offline - changes may not sync'
+            }
+          >
+            <span className={styles.connectionDot}>
+              {status === 'connected' && '●'}
+              {status === 'connecting' && '○'}
+              {status === 'reconnecting' && '◐'}
+              {status === 'disconnected' && '○'}
+            </span>
+            <span className={styles.connectionLabel}>
+              {status === 'connected' && 'Live'}
+              {status === 'connecting' && 'Connecting'}
+              {status === 'reconnecting' && 'Reconnecting'}
+              {status === 'disconnected' && 'Offline'}
+            </span>
           </div>
         </div>
         <div className={styles.headerInfo}>

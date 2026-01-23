@@ -7,13 +7,58 @@
 .roundHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.roundInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .roundTitle {
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
+}
+
+.viewToggle {
+  display: flex;
+  gap: 0.25rem;
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 0.25rem;
+  border: 1px solid var(--color-border);
+}
+
+.viewButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.viewButton:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.viewButtonActive {
+  background: var(--color-primary);
+  color: white;
+}
+
+.viewButtonActive:hover {
+  background: var(--color-primary);
+  color: white;
 }
 
 .status {

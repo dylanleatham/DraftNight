@@ -27,9 +27,24 @@
 }
 
 .connectionBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
   flex-shrink: 0;
   font-size: 0.75rem;
-  padding: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  background: var(--color-surface-hover);
+  cursor: help;
+}
+
+.connectionDot {
+  font-size: 0.625rem;
+  line-height: 1;
+}
+
+.connectionLabel {
+  font-weight: 500;
 }
 
 .connectionBadge[data-status='connected'] {

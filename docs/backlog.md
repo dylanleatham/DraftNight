@@ -391,10 +391,10 @@ Improve the life tracker UX, fix bugs, and unify the codebase.
 
 ### Tournament UX Improvements
 
-- [ ] Unclear icon in top-right corner of pairings — needs label or removal
-- [ ] Add bracket-style visual view of round match-ups
-- [ ] Show prize notification immediately when match win earns a prize (life tracker)
-- [ ] Show prize notification immediately when match is finalized (pairings view)
+- [x] Unclear icon in top-right corner of pairings — added "Live/Offline" label with tooltip
+- [x] Add bracket-style visual view of round match-ups — toggle between card and bracket views
+- [x] Show prize notification immediately when match win earns a prize
+- [x] Show prize notification immediately when match is finalized
 
 ### Exit criteria
 - [x] Life tracker feels polished and intuitive

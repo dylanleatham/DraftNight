@@ -1,5 +1,6 @@
 export { PlayerCard } from './PlayerCard';
 export { PlayerList } from './PlayerList';
 export { MatchCard } from './MatchCard';
+export { BracketView } from './BracketView';
 export { StandingsTable } from './StandingsTable';
 export { PrizeDisplay } from './PrizeDisplay';

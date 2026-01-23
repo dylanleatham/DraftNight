@@ -2,11 +2,12 @@ import { useEffect, useRef } from 'react';
 import { useToast } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import type { EventSnapshotResponse } from '../api/types';
-import { RoundStatus } from '../api/types';
+import { RoundStatus, MatchStatus } from '../api/types';
 
 /**
  * Hook that monitors event state changes and shows notifications for:
  * - Pairings published (new round starts)
+ * - Match finalized (win/loss with potential prize info)
  * - Prizes awarded
  */
 export function useEventNotifications(
@@ -30,6 +31,9 @@ export function useEventNotifications(
 
     // Detect pairings published
     detectPairingsPublished(prevSnapshot, snapshot, playerId, toast);
+
+    // Detect match finalized (for prize eligibility)
+    detectMatchFinalized(prevSnapshot, snapshot, playerId, toast);
 
     // Detect prizes awarded
     detectPrizesAwarded(prevSnapshot, snapshot, playerId, toast);
@@ -95,6 +99,73 @@ function detectPairingsPublished(
         );
       }
       break; // Only show one notification per update
+    }
+  }
+}
+
+function detectMatchFinalized(
+  prev: EventSnapshotResponse,
+  curr: EventSnapshotResponse,
+  playerId: string | null,
+  toast: ReturnType<typeof useToast>
+): void {
+  if (!playerId) return;
+
+  // Look for matches that just became finalized involving the current player
+  for (const round of curr.rounds) {
+    const prevRound = prev.rounds.find((r) => r.roundNumber === round.roundNumber);
+    if (!prevRound) continue;
+
+    for (const match of round.matches) {
+      // Skip if not involving current player
+      if (match.playerAId !== playerId && match.playerBId !== playerId) continue;
+
+      // Skip BYE matches
+      if (match.isBye) continue;
+
+      const prevMatch = prevRound.matches.find((m) => m.id === match.id);
+      if (!prevMatch) continue;
+
+      // Check if match just became finalized
+      if (prevMatch.status !== MatchStatus.Final && match.status === MatchStatus.Final) {
+        const isWinner = match.winnerId === playerId;
+        const opponentId = match.playerAId === playerId ? match.playerBId : match.playerAId;
+        const opponent = opponentId ? curr.players.find((p) => p.id === opponentId) : null;
+
+        if (isWinner) {
+          // Calculate if this win could earn a prize
+          // Prize packs = B - 3N, each round win is eligible for 1 pack
+          const prizePacks = curr.prizePacks;
+          const totalRounds = curr.totalRounds;
+
+          // Later rounds have priority, so wins in later rounds are more likely to earn prizes
+          const isPrizeEligible = prizePacks > 0;
+          const isLaterRound = round.roundNumber > Math.floor(totalRounds / 2);
+
+          if (isPrizeEligible && isLaterRound) {
+            toast.success(
+              'Match Won!',
+              `Victory against ${opponent?.name || 'opponent'}! This win is prize-eligible.`
+            );
+          } else if (isPrizeEligible) {
+            toast.success(
+              'Match Won!',
+              `Victory against ${opponent?.name || 'opponent'}!`
+            );
+          } else {
+            toast.info(
+              'Match Won!',
+              `Victory against ${opponent?.name || 'opponent'}!`
+            );
+          }
+        } else {
+          toast.info(
+            'Match Complete',
+            `${opponent?.name || 'Opponent'} wins the match.`
+          );
+        }
+        return; // Only one notification per update
+      }
     }
   }
 }
