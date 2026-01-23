@@ -410,6 +410,9 @@ Improve the life tracker UX, fix bugs, and unify the codebase.
 - **Trophy Icons**: Game wins display as animated trophy SVGs (28px) with pop animation
 - **Color Picker**: 6 preset colors + custom hex input, accessible by tapping player name
 - **Background Images**: URL input or file upload (data URI), dark overlay ensures text readability
+- **Connection Badge**: Labeled "Live/Offline/Connecting" with status dot and tooltip
+- **Bracket View**: `BracketView` component in `src/frontend/src/components/event/` with horizontal scroll
+- **Match Notifications**: `detectMatchFinalized` in `useEventNotifications` hook shows win/loss toasts
 
 ---
 

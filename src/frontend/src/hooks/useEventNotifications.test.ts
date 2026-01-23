@@ -333,6 +333,281 @@ describe('useEventNotifications', () => {
     });
   });
 
+  describe('match finalization notifications', () => {
+    it('shows success notification when player wins a match', () => {
+      const initialSnapshot = createSnapshot({
+        rounds: [
+          {
+            roundNumber: 1,
+            status: RoundStatus.PairingsPublished,
+            matches: [
+              {
+                id: 'match-1',
+                matchCode: 'R1M1',
+                playerAId: 'player-1',
+                playerBId: 'player-2',
+                winnerId: null,
+                status: MatchStatus.InProgress,
+                isBye: false,
+              },
+            ],
+          },
+        ],
+      });
+
+      const updatedSnapshot = createSnapshot({
+        rounds: [
+          {
+            roundNumber: 1,
+            status: RoundStatus.PairingsPublished,
+            matches: [
+              {
+                id: 'match-1',
+                matchCode: 'R1M1',
+                playerAId: 'player-1',
+                playerBId: 'player-2',
+                winnerId: 'player-1',
+                status: MatchStatus.Final,
+                isBye: false,
+              },
+            ],
+          },
+        ],
+      });
+
+      const { rerender } = renderHook(
+        ({ snapshot }) => useEventNotifications(snapshot, 'event-1'),
+        { initialProps: { snapshot: initialSnapshot } }
+      );
+
+      rerender({ snapshot: updatedSnapshot });
+
+      expect(mockToast.success).toHaveBeenCalledWith(
+        'Match Won!',
+        'Victory against Bob!'
+      );
+    });
+
+    it('shows info notification when player loses a match', () => {
+      const initialSnapshot = createSnapshot({
+        rounds: [
+          {
+            roundNumber: 1,
+            status: RoundStatus.PairingsPublished,
+            matches: [
+              {
+                id: 'match-1',
+                matchCode: 'R1M1',
+                playerAId: 'player-1',
+                playerBId: 'player-2',
+                winnerId: null,
+                status: MatchStatus.InProgress,
+                isBye: false,
+              },
+            ],
+          },
+        ],
+      });
+
+      const updatedSnapshot = createSnapshot({
+        rounds: [
+          {
+            roundNumber: 1,
+            status: RoundStatus.PairingsPublished,
+            matches: [
+              {
+                id: 'match-1',
+                matchCode: 'R1M1',
+                playerAId: 'player-1',
+                playerBId: 'player-2',
+                winnerId: 'player-2',
+                status: MatchStatus.Final,
+                isBye: false,
+              },
+            ],
+          },
+        ],
+      });
+
+      const { rerender } = renderHook(
+        ({ snapshot }) => useEventNotifications(snapshot, 'event-1'),
+        { initialProps: { snapshot: initialSnapshot } }
+      );
+
+      rerender({ snapshot: updatedSnapshot });
+
+      expect(mockToast.info).toHaveBeenCalledWith(
+        'Match Complete',
+        'Bob wins the match.'
+      );
+    });
+
+    it('shows prize-eligible message for later round wins', () => {
+      const initialSnapshot = createSnapshot({
+        currentRound: 3,
+        totalRounds: 3,
+        prizePacks: 10,
+        rounds: [
+          {
+            roundNumber: 3,
+            status: RoundStatus.PairingsPublished,
+            matches: [
+              {
+                id: 'match-1',
+                matchCode: 'R3M1',
+                playerAId: 'player-1',
+                playerBId: 'player-2',
+                winnerId: null,
+                status: MatchStatus.InProgress,
+                isBye: false,
+              },
+            ],
+          },
+        ],
+      });
+
+      const updatedSnapshot = createSnapshot({
+        currentRound: 3,
+        totalRounds: 3,
+        prizePacks: 10,
+        rounds: [
+          {
+            roundNumber: 3,
+            status: RoundStatus.PairingsPublished,
+            matches: [
+              {
+                id: 'match-1',
+                matchCode: 'R3M1',
+                playerAId: 'player-1',
+                playerBId: 'player-2',
+                winnerId: 'player-1',
+                status: MatchStatus.Final,
+                isBye: false,
+              },
+            ],
+          },
+        ],
+      });
+
+      const { rerender } = renderHook(
+        ({ snapshot }) => useEventNotifications(snapshot, 'event-1'),
+        { initialProps: { snapshot: initialSnapshot } }
+      );
+
+      rerender({ snapshot: updatedSnapshot });
+
+      expect(mockToast.success).toHaveBeenCalledWith(
+        'Match Won!',
+        'Victory against Bob! This win is prize-eligible.'
+      );
+    });
+
+    it('does not show notification for matches not involving the player', () => {
+      const initialSnapshot = createSnapshot({
+        rounds: [
+          {
+            roundNumber: 1,
+            status: RoundStatus.PairingsPublished,
+            matches: [
+              {
+                id: 'match-1',
+                matchCode: 'R1M1',
+                playerAId: 'player-3',
+                playerBId: 'player-4',
+                winnerId: null,
+                status: MatchStatus.InProgress,
+                isBye: false,
+              },
+            ],
+          },
+        ],
+      });
+
+      const updatedSnapshot = createSnapshot({
+        rounds: [
+          {
+            roundNumber: 1,
+            status: RoundStatus.PairingsPublished,
+            matches: [
+              {
+                id: 'match-1',
+                matchCode: 'R1M1',
+                playerAId: 'player-3',
+                playerBId: 'player-4',
+                winnerId: 'player-3',
+                status: MatchStatus.Final,
+                isBye: false,
+              },
+            ],
+          },
+        ],
+      });
+
+      const { rerender } = renderHook(
+        ({ snapshot }) => useEventNotifications(snapshot, 'event-1'),
+        { initialProps: { snapshot: initialSnapshot } }
+      );
+
+      rerender({ snapshot: updatedSnapshot });
+
+      // Should not show any notification for other players' matches
+      expect(mockToast.success).not.toHaveBeenCalled();
+      expect(mockToast.info).not.toHaveBeenCalled();
+    });
+
+    it('does not show notification for BYE matches', () => {
+      const initialSnapshot = createSnapshot({
+        rounds: [
+          {
+            roundNumber: 1,
+            status: RoundStatus.PairingsPublished,
+            matches: [
+              {
+                id: 'match-1',
+                matchCode: 'R1M1',
+                playerAId: 'player-1',
+                playerBId: null,
+                winnerId: null,
+                status: MatchStatus.InProgress,
+                isBye: true,
+              },
+            ],
+          },
+        ],
+      });
+
+      const updatedSnapshot = createSnapshot({
+        rounds: [
+          {
+            roundNumber: 1,
+            status: RoundStatus.PairingsPublished,
+            matches: [
+              {
+                id: 'match-1',
+                matchCode: 'R1M1',
+                playerAId: 'player-1',
+                playerBId: null,
+                winnerId: 'player-1',
+                status: MatchStatus.Final,
+                isBye: true,
+              },
+            ],
+          },
+        ],
+      });
+
+      const { rerender } = renderHook(
+        ({ snapshot }) => useEventNotifications(snapshot, 'event-1'),
+        { initialProps: { snapshot: initialSnapshot } }
+      );
+
+      rerender({ snapshot: updatedSnapshot });
+
+      // BYE matches should not trigger match finalization notification
+      expect(mockToast.success).not.toHaveBeenCalled();
+    });
+  });
+
   describe('edge cases', () => {
     it('does not show notification if round status unchanged', () => {
       const snapshot = createSnapshot({
