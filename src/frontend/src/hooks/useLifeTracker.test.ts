@@ -200,8 +200,8 @@ describe('useLifeTracker', () => {
       createdAt: Date.now(),
       updatedAt: Date.now(),
       startingLife: DRAFT_STARTING_LIFE,
-      playerA: { id: 'playerA', name: 'Existing Player A', life: 15, poison: 2 },
-      playerB: { id: 'playerB', name: 'Existing Player B', life: 18, poison: 0 },
+      playerA: { id: 'playerA', name: 'Existing Player A', life: 15, poison: 2, miscCounters: [] },
+      playerB: { id: 'playerB', name: 'Existing Player B', life: 18, poison: 0, miscCounters: [] },
       gameWins: { playerA: 1, playerB: 0 },
     };
 
