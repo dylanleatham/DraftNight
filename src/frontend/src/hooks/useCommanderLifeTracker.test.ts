@@ -226,11 +226,14 @@ describe('useCommanderLifeTracker', () => {
       result.current.resetAll();
     });
 
-    // Check all players are reset
+    // Check all players are reset (life, poison, commander damage)
+    // but misc counters are sticky (preserved across reset)
     expect(result.current.players[0].life).toBe(COMMANDER_STARTING_LIFE);
     expect(result.current.players[1].poison).toBe(0);
     expect(result.current.players[0].commanderDamage.every((cd) => cd.amount === 0)).toBe(true);
-    expect(result.current.players[2].miscCounters).toHaveLength(0);
+    // Misc counters are sticky and should persist
+    expect(result.current.players[2].miscCounters).toHaveLength(1);
+    expect(result.current.players[2].miscCounters[0].name).toBe('Energy');
   });
 
   it('saves to storage on state change', () => {

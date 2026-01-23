@@ -12,7 +12,12 @@ interface DraftLifeTrackerProps {
   onToggleWin: (player: 'playerA' | 'playerB') => void;
   onResetGame: () => void;
   onResetMatch: () => void;
-  onExit: () => void;
+  onExit: (matchWinner?: 'playerA' | 'playerB') => void;
+  onAddMiscCounter?: (playerId: string, name: string) => void;
+  onRemoveMiscCounter?: (playerId: string, counterId: string) => void;
+  onAdjustMiscCounter?: (playerId: string, counterId: string, delta: number) => void;
+  onSetPanelColor?: (playerId: string, color: string) => void;
+  onSetBackgroundImage?: (playerId: string, imageUrl: string | undefined) => void;
 }
 
 export function DraftLifeTracker({
@@ -24,15 +29,21 @@ export function DraftLifeTracker({
   onResetGame,
   onResetMatch,
   onExit,
+  onAddMiscCounter,
+  onRemoveMiscCounter,
+  onAdjustMiscCounter,
+  onSetPanelColor,
+  onSetBackgroundImage,
 }: DraftLifeTrackerProps) {
   const [showResetModal, setShowResetModal] = useState(false);
 
-  const matchWinner =
+  const matchWinnerKey: 'playerA' | 'playerB' | null =
     session.gameWins.playerA >= 2
-      ? session.playerA.name
+      ? 'playerA'
       : session.gameWins.playerB >= 2
-        ? session.playerB.name
+        ? 'playerB'
         : null;
+  const matchWinner = matchWinnerKey ? session[matchWinnerKey].name : null;
 
   return (
     <div className={styles.container}>
@@ -44,13 +55,18 @@ export function DraftLifeTracker({
         onAdjustLife={(delta) => onAdjustLife('playerA', delta)}
         onAdjustPoison={(delta) => onAdjustPoison('playerA', delta)}
         onToggleWin={() => onToggleWin('playerA')}
+        onAddMiscCounter={onAddMiscCounter ? (name) => onAddMiscCounter('playerA', name) : undefined}
+        onRemoveMiscCounter={onRemoveMiscCounter ? (id) => onRemoveMiscCounter('playerA', id) : undefined}
+        onAdjustMiscCounter={onAdjustMiscCounter ? (id, delta) => onAdjustMiscCounter('playerA', id, delta) : undefined}
+        onSetPanelColor={onSetPanelColor ? (color) => onSetPanelColor('playerA', color) : undefined}
+        onSetBackgroundImage={onSetBackgroundImage ? (url) => onSetBackgroundImage('playerA', url) : undefined}
         color="blue"
         inverted
       />
 
       {/* Center bar */}
       <div className={styles.centerBar}>
-        <button className={styles.exitButton} onClick={onExit}>
+        <button className={styles.exitButton} onClick={() => onExit()}>
           Exit
         </button>
         <div className={styles.scoreDisplay}>
@@ -74,6 +90,11 @@ export function DraftLifeTracker({
         onAdjustLife={(delta) => onAdjustLife('playerB', delta)}
         onAdjustPoison={(delta) => onAdjustPoison('playerB', delta)}
         onToggleWin={() => onToggleWin('playerB')}
+        onAddMiscCounter={onAddMiscCounter ? (name) => onAddMiscCounter('playerB', name) : undefined}
+        onRemoveMiscCounter={onRemoveMiscCounter ? (id) => onRemoveMiscCounter('playerB', id) : undefined}
+        onAdjustMiscCounter={onAdjustMiscCounter ? (id, delta) => onAdjustMiscCounter('playerB', id, delta) : undefined}
+        onSetPanelColor={onSetPanelColor ? (color) => onSetPanelColor('playerB', color) : undefined}
+        onSetBackgroundImage={onSetBackgroundImage ? (url) => onSetBackgroundImage('playerB', url) : undefined}
         color="red"
       />
 
@@ -126,7 +147,7 @@ export function DraftLifeTracker({
               <Button variant="secondary" onClick={() => setShowResetModal(true)}>
                 Reset
               </Button>
-              <Button onClick={onExit}>Done</Button>
+              <Button onClick={() => onExit(matchWinnerKey ?? undefined)}>Done</Button>
             </div>
           </div>
         </div>

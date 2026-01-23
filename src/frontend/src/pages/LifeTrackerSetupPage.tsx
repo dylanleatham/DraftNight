@@ -39,9 +39,9 @@ export function LifeTrackerSetupPage() {
   const [sessionsVersion, setSessionsVersion] = useState(0);
 
   // Re-fetch sessions when version changes (after delete)
+  // sessionsVersion dependency ensures component re-renders when sessions are deleted
+  void sessionsVersion;
   const recentSessions = lifeTrackerStorage.getRecentSessions();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _forceUpdate = sessionsVersion; // Ensures re-render on delete
 
   const handleStartDraft = () => {
     const sessionId = generateSessionId();

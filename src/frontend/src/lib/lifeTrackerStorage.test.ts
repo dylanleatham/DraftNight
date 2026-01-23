@@ -24,8 +24,8 @@ function createDraftSession(id: string, overrides: Partial<DraftSession> = {}): 
     createdAt: now,
     updatedAt: now,
     startingLife: DRAFT_STARTING_LIFE,
-    playerA: { id: 'playerA', name: 'Player 1', life: DRAFT_STARTING_LIFE, poison: 0 },
-    playerB: { id: 'playerB', name: 'Player 2', life: DRAFT_STARTING_LIFE, poison: 0 },
+    playerA: { id: 'playerA', name: 'Player 1', life: DRAFT_STARTING_LIFE, poison: 0, miscCounters: [] },
+    playerB: { id: 'playerB', name: 'Player 2', life: DRAFT_STARTING_LIFE, poison: 0, miscCounters: [] },
     gameWins: { playerA: 0, playerB: 0 },
     ...overrides,
   };

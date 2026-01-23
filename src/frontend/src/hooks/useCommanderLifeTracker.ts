@@ -194,6 +194,24 @@ function commanderReducer(
       };
     }
 
+    case 'SET_PANEL_COLOR': {
+      return {
+        ...state,
+        players: state.players.map((p) =>
+          p.id === action.playerId ? { ...p, panelColor: action.color } : p
+        ),
+      };
+    }
+
+    case 'SET_BACKGROUND_IMAGE': {
+      return {
+        ...state,
+        players: state.players.map((p) =>
+          p.id === action.playerId ? { ...p, backgroundImage: action.imageUrl } : p
+        ),
+      };
+    }
+
     case 'RESET_ALL': {
       const playerIds = state.players.map((p) => p.id);
       return {
@@ -205,7 +223,7 @@ function commanderReducer(
           commanderDamage: playerIds
             .filter((pid) => pid !== p.id)
             .map((pid) => ({ fromPlayerId: pid, amount: 0 })),
-          miscCounters: [],
+          // miscCounters, panelColor, backgroundImage preserved (sticky)
         })),
       };
     }
@@ -298,6 +316,14 @@ export function useCommanderLifeTracker(options: UseCommanderLifeTrackerOptions)
     dispatch({ type: 'RESET_ALL' });
   }, []);
 
+  const setPanelColor = useCallback((playerId: string, color: string) => {
+    dispatch({ type: 'SET_PANEL_COLOR', playerId, color });
+  }, []);
+
+  const setBackgroundImage = useCallback((playerId: string, imageUrl: string | undefined) => {
+    dispatch({ type: 'SET_BACKGROUND_IMAGE', playerId, imageUrl });
+  }, []);
+
   return {
     session,
     players: session.players,
@@ -313,5 +339,7 @@ export function useCommanderLifeTracker(options: UseCommanderLifeTrackerOptions)
     setMiscCounter,
     setPlayerName,
     resetAll,
+    setPanelColor,
+    setBackgroundImage,
   };
 }

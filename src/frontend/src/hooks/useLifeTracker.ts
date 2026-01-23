@@ -3,12 +3,17 @@ import type { DraftSession, DraftAction, DraftPlayer } from '../types/lifeTracke
 import { DRAFT_STARTING_LIFE, MAX_POISON } from '../types/lifeTracker';
 import { lifeTrackerStorage } from '../lib/lifeTrackerStorage';
 
+function generateId(): string {
+  return Math.random().toString(36).substring(2, 9);
+}
+
 function createPlayer(id: string, name: string, startingLife: number): DraftPlayer {
   return {
     id,
     name,
     life: startingLife,
     poison: 0,
+    miscCounters: [],
   };
 }
 
@@ -92,35 +97,39 @@ function draftReducer(state: DraftSession, action: DraftAction): DraftSession {
     }
 
     case 'RESET_GAME': {
-      // Reset life and poison but keep game wins
+      // Reset life and poison but keep game wins and misc counters (sticky)
       return {
         ...state,
         playerA: {
           ...state.playerA,
           life: state.startingLife,
           poison: 0,
+          // miscCounters, panelColor, backgroundImage preserved
         },
         playerB: {
           ...state.playerB,
           life: state.startingLife,
           poison: 0,
+          // miscCounters, panelColor, backgroundImage preserved
         },
       };
     }
 
     case 'RESET_MATCH': {
-      // Reset everything
+      // Reset life, poison, and game wins but keep misc counters (sticky)
       return {
         ...state,
         playerA: {
           ...state.playerA,
           life: state.startingLife,
           poison: 0,
+          // miscCounters, panelColor, backgroundImage preserved
         },
         playerB: {
           ...state.playerB,
           life: state.startingLife,
           poison: 0,
+          // miscCounters, panelColor, backgroundImage preserved
         },
         gameWins: {
           playerA: 0,
@@ -134,6 +143,75 @@ function draftReducer(state: DraftSession, action: DraftAction): DraftSession {
       return {
         ...state,
         [player]: { ...state[player], name: action.name },
+      };
+    }
+
+    case 'ADD_MISC_COUNTER': {
+      const player = action.playerId === 'playerA' ? 'playerA' : 'playerB';
+      return {
+        ...state,
+        [player]: {
+          ...state[player],
+          miscCounters: [
+            ...state[player].miscCounters,
+            { id: generateId(), name: action.name, value: 0 },
+          ],
+        },
+      };
+    }
+
+    case 'REMOVE_MISC_COUNTER': {
+      const player = action.playerId === 'playerA' ? 'playerA' : 'playerB';
+      return {
+        ...state,
+        [player]: {
+          ...state[player],
+          miscCounters: state[player].miscCounters.filter(
+            (c) => c.id !== action.counterId
+          ),
+        },
+      };
+    }
+
+    case 'SET_MISC_COUNTER': {
+      const player = action.playerId === 'playerA' ? 'playerA' : 'playerB';
+      return {
+        ...state,
+        [player]: {
+          ...state[player],
+          miscCounters: state[player].miscCounters.map((c) =>
+            c.id === action.counterId ? { ...c, value: action.value } : c
+          ),
+        },
+      };
+    }
+
+    case 'ADJUST_MISC_COUNTER': {
+      const player = action.playerId === 'playerA' ? 'playerA' : 'playerB';
+      return {
+        ...state,
+        [player]: {
+          ...state[player],
+          miscCounters: state[player].miscCounters.map((c) =>
+            c.id === action.counterId ? { ...c, value: c.value + action.delta } : c
+          ),
+        },
+      };
+    }
+
+    case 'SET_PANEL_COLOR': {
+      const player = action.playerId === 'playerA' ? 'playerA' : 'playerB';
+      return {
+        ...state,
+        [player]: { ...state[player], panelColor: action.color },
+      };
+    }
+
+    case 'SET_BACKGROUND_IMAGE': {
+      const player = action.playerId === 'playerA' ? 'playerA' : 'playerB';
+      return {
+        ...state,
+        [player]: { ...state[player], backgroundImage: action.imageUrl },
       };
     }
 
@@ -200,6 +278,36 @@ export function useLifeTracker(options: UseLifeTrackerOptions) {
     dispatch({ type: 'SET_PLAYER_NAME', playerId, name });
   }, []);
 
+  const addMiscCounter = useCallback((playerId: string, name: string) => {
+    dispatch({ type: 'ADD_MISC_COUNTER', playerId, name });
+  }, []);
+
+  const removeMiscCounter = useCallback((playerId: string, counterId: string) => {
+    dispatch({ type: 'REMOVE_MISC_COUNTER', playerId, counterId });
+  }, []);
+
+  const adjustMiscCounter = useCallback(
+    (playerId: string, counterId: string, delta: number) => {
+      dispatch({ type: 'ADJUST_MISC_COUNTER', playerId, counterId, delta });
+    },
+    []
+  );
+
+  const setMiscCounter = useCallback(
+    (playerId: string, counterId: string, value: number) => {
+      dispatch({ type: 'SET_MISC_COUNTER', playerId, counterId, value });
+    },
+    []
+  );
+
+  const setPanelColor = useCallback((playerId: string, color: string) => {
+    dispatch({ type: 'SET_PANEL_COLOR', playerId, color });
+  }, []);
+
+  const setBackgroundImage = useCallback((playerId: string, imageUrl: string | undefined) => {
+    dispatch({ type: 'SET_BACKGROUND_IMAGE', playerId, imageUrl });
+  }, []);
+
   return {
     session,
     playerA: session.playerA,
@@ -213,5 +321,11 @@ export function useLifeTracker(options: UseLifeTrackerOptions) {
     resetGame,
     resetMatch,
     setPlayerName,
+    addMiscCounter,
+    removeMiscCounter,
+    adjustMiscCounter,
+    setMiscCounter,
+    setPanelColor,
+    setBackgroundImage,
   };
 }

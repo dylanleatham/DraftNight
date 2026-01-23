@@ -75,6 +75,8 @@ export function PairingsPage() {
       playerB: playerBObj?.name || 'Player 2',
       eventId: eventId!,
       matchId,
+      playerAId,
+      ...(playerBId && { playerBId }),
     });
     navigate(`/life-tracker/game/${sessionId}?${params.toString()}`);
   };

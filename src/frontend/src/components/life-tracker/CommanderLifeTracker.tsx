@@ -13,6 +13,8 @@ interface CommanderLifeTrackerProps {
   onAddMiscCounter: (playerId: string, name: string) => void;
   onRemoveMiscCounter: (playerId: string, counterId: string) => void;
   onAdjustMiscCounter: (playerId: string, counterId: string, delta: number) => void;
+  onSetPanelColor?: (playerId: string, color: string) => void;
+  onSetBackgroundImage?: (playerId: string, imageUrl: string | undefined) => void;
   onResetAll: () => void;
   onExit: () => void;
 }
@@ -26,6 +28,8 @@ export function CommanderLifeTracker({
   onAddMiscCounter,
   onRemoveMiscCounter,
   onAdjustMiscCounter,
+  onSetPanelColor,
+  onSetBackgroundImage,
   onResetAll,
   onExit,
 }: CommanderLifeTrackerProps) {
@@ -88,6 +92,8 @@ export function CommanderLifeTracker({
               onAdjustMiscCounter={(counterId, delta) =>
                 onAdjustMiscCounter(player.id, counterId, delta)
               }
+              onSetPanelColor={onSetPanelColor ? (color) => onSetPanelColor(player.id, color) : undefined}
+              onSetBackgroundImage={onSetBackgroundImage ? (url) => onSetBackgroundImage(player.id, url) : undefined}
             />
           );
         })}

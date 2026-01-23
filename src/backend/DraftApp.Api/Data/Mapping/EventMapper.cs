@@ -300,5 +300,11 @@ public static class EventMapper
             entity.Status = MatchStatus.Final;
             entity.FinalizedAt = timestamp;
         }
+        else if (!match.IsComplete && entity.Status == MatchStatus.Final)
+        {
+            // Revert status when match is reopened (winner cleared)
+            entity.Status = MatchStatus.InProgress;
+            entity.FinalizedAt = null;
+        }
     }
 }

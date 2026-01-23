@@ -1,6 +1,9 @@
+import { useState, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useLifeTracker } from '../hooks/useLifeTracker';
 import { useCommanderLifeTracker } from '../hooks/useCommanderLifeTracker';
+import { useAuth } from '../context/AuthContext';
+import { api } from '../api/client';
 import { DraftLifeTracker } from '../components/life-tracker';
 import { CommanderLifeTracker } from '../components/life-tracker/CommanderLifeTracker';
 import type { TrackerMode } from '../types/lifeTracker';
@@ -9,6 +12,8 @@ export function LifeTrackerPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { isHost, getHostToken } = useAuth();
+  const [isExiting, setIsExiting] = useState(false);
 
   const mode = (searchParams.get('mode') || 'draft') as TrackerMode;
   const playerAName = searchParams.get('playerA') || 'Player 1';
@@ -18,14 +23,37 @@ export function LifeTrackerPage() {
   // Event integration params
   const eventId = searchParams.get('eventId') || undefined;
   const matchId = searchParams.get('matchId') || undefined;
+  const playerAId = searchParams.get('playerAId') || undefined;
+  const playerBId = searchParams.get('playerBId') || undefined;
 
-  const handleExit = () => {
+  const handleExit = useCallback(async (matchWinner?: 'playerA' | 'playerB') => {
+    if (isExiting) return;
+
+    // If we have a winner and we're in event mode, finalize the match
+    if (eventId && matchId && matchWinner && isHost(eventId)) {
+      const winnerId = matchWinner === 'playerA' ? playerAId : playerBId;
+      if (winnerId) {
+        setIsExiting(true);
+        try {
+          const hostToken = getHostToken(eventId);
+          if (hostToken) {
+            const snapshot = await api.getEvent(eventId);
+            await api.finalizeMatch(eventId, matchId, hostToken, winnerId, snapshot.version);
+          }
+        } catch (err) {
+          console.error('Failed to finalize match:', err);
+        }
+        setIsExiting(false);
+      }
+    }
+
+    // Navigate back
     if (eventId && matchId) {
       navigate(`/event/${eventId}/pairings`);
     } else {
       navigate('/life-tracker');
     }
-  };
+  }, [eventId, matchId, playerAId, playerBId, isHost, getHostToken, navigate, isExiting]);
 
   if (!sessionId) {
     return null;
@@ -59,7 +87,7 @@ interface DraftLifeTrackerViewProps {
   playerBName: string;
   eventId?: string;
   matchId?: string;
-  onExit: () => void;
+  onExit: (matchWinner?: 'playerA' | 'playerB') => void;
 }
 
 function DraftLifeTrackerView({
@@ -78,6 +106,11 @@ function DraftLifeTrackerView({
     toggleGameWin,
     resetGame,
     resetMatch,
+    addMiscCounter,
+    removeMiscCounter,
+    adjustMiscCounter,
+    setPanelColor,
+    setBackgroundImage,
   } = useLifeTracker({
     sessionId,
     playerAName,
@@ -96,6 +129,11 @@ function DraftLifeTrackerView({
       onResetGame={resetGame}
       onResetMatch={resetMatch}
       onExit={onExit}
+      onAddMiscCounter={addMiscCounter}
+      onRemoveMiscCounter={removeMiscCounter}
+      onAdjustMiscCounter={adjustMiscCounter}
+      onSetPanelColor={setPanelColor}
+      onSetBackgroundImage={setBackgroundImage}
     />
   );
 }
@@ -103,7 +141,7 @@ function DraftLifeTrackerView({
 interface CommanderLifeTrackerViewProps {
   sessionId: string;
   playerNames: string[];
-  onExit: () => void;
+  onExit: (matchWinner?: 'playerA' | 'playerB') => void;
 }
 
 function CommanderLifeTrackerView({
@@ -121,6 +159,8 @@ function CommanderLifeTrackerView({
     removeMiscCounter,
     adjustMiscCounter,
     resetAll,
+    setPanelColor,
+    setBackgroundImage,
   } = useCommanderLifeTracker({
     sessionId,
     playerNames,
@@ -136,8 +176,10 @@ function CommanderLifeTrackerView({
       onAddMiscCounter={addMiscCounter}
       onRemoveMiscCounter={removeMiscCounter}
       onAdjustMiscCounter={adjustMiscCounter}
+      onSetPanelColor={setPanelColor}
+      onSetBackgroundImage={setBackgroundImage}
       onResetAll={resetAll}
-      onExit={onExit}
+      onExit={() => onExit()}
     />
   );
 }

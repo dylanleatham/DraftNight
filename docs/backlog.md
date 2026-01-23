@@ -366,9 +366,9 @@ Improve the life tracker UX, fix bugs, and unify the codebase.
 ### Bugs (High Priority)
 
 - [x] Delete session doesn't remove it from UI
-- [ ] Pairings: Match status not updating after completing match in life tracker
-- [ ] Pairings: After reopening match (2 players), no UI to select winner or open life tracker
-- [ ] Navigation: "Go to Prizes" message shown but Prizes menu not visible/accessible
+- [x] Pairings: Match status not updating after completing match in life tracker
+- [x] Pairings: After reopening match (2 players), no UI to select winner or open life tracker
+- [x] Navigation: "Go to Prizes" message shown but Prizes menu not visible/accessible
 
 ### Refactoring (Do First)
 
@@ -382,12 +382,12 @@ Improve the life tracker UX, fix bugs, and unify the codebase.
 - [x] Rotate top player panel 180° for face-to-face play (Draft 1v1)
 - [x] Rotate top 2 panels 180° in 3-4 player Commander
 - [x] Make life total display larger, reduce empty space (8rem font, 64px buttons)
-- [ ] Persist new counter types on screen (like Poison counters)
+- [x] Persist new counter types on screen (like Poison counters) — misc counters now sticky across game/match resets
 - [x] Add +/-5, +/-10 buttons to Commander mode (match Draft) — done via shared `LifeDisplay`
 - [x] Remove 5-6 player options from Commander mode
-- [ ] Make best-of-3 game win UI more obvious/clear
-- [ ] Add color picker for player panel backgrounds
-- [ ] [Stretch] Support image backgrounds for player panels
+- [x] Make best-of-3 game win UI more obvious/clear — replaced dots with animated trophy icons
+- [x] Add color picker for player panel backgrounds — tap player name to customize
+- [x] [Stretch] Support image backgrounds for player panels — URL or upload with dark overlay
 
 ### Tournament UX Improvements
 
@@ -397,15 +397,19 @@ Improve the life tracker UX, fix bugs, and unify the codebase.
 - [ ] Show prize notification immediately when match is finalized (pairings view)
 
 ### Exit criteria
-- [ ] Life tracker feels polished and intuitive
-- [ ] All bugs resolved
+- [x] Life tracker feels polished and intuitive
+- [x] All bugs resolved
 - [x] Draft and Commander share unified component architecture
 
-### Implementation Notes (In Progress)
-- **Shared Components**: `LifeDisplay`, `BasePlayerPanel` in `src/frontend/src/components/life-tracker/`
+### Implementation Notes
+- **Shared Components**: `LifeDisplay`, `BasePlayerPanel`, `ColorPicker` in `src/frontend/src/components/life-tracker/`
 - **Rotation**: Top panels auto-rotate 180° via `inverted` prop for face-to-face play
 - **Delete Bug Fix**: Added `sessionsVersion` state to force re-render after deletion
 - **Larger Display**: Life total now 8rem (was 5rem), buttons 64px (was 56px)
+- **Sticky Counters**: Misc counters persist across game/match resets in both Draft and Commander modes
+- **Trophy Icons**: Game wins display as animated trophy SVGs (28px) with pop animation
+- **Color Picker**: 6 preset colors + custom hex input, accessible by tapping player name
+- **Background Images**: URL input or file upload (data URI), dark overlay ensures text readability
 
 ---
 

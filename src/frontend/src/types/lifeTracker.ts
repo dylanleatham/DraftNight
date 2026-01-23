@@ -8,6 +8,9 @@ export interface DraftPlayer {
   name: string;
   life: number;
   poison: number;
+  miscCounters: MiscCounter[];
+  panelColor?: string;  // PlayerColor name or hex string
+  backgroundImage?: string;  // URL or data URI
 }
 
 export interface DraftSession {
@@ -46,6 +49,8 @@ export interface CommanderPlayer {
   poison: number;
   commanderDamage: CommanderDamage[];
   miscCounters: MiscCounter[];
+  panelColor?: string;  // PlayerColor name or hex string
+  backgroundImage?: string;  // URL or data URI
 }
 
 export interface CommanderSession {
@@ -69,6 +74,12 @@ export type DraftAction =
   | { type: 'RESET_GAME' }
   | { type: 'RESET_MATCH' }
   | { type: 'SET_PLAYER_NAME'; playerId: string; name: string }
+  | { type: 'ADD_MISC_COUNTER'; playerId: string; name: string }
+  | { type: 'REMOVE_MISC_COUNTER'; playerId: string; counterId: string }
+  | { type: 'SET_MISC_COUNTER'; playerId: string; counterId: string; value: number }
+  | { type: 'ADJUST_MISC_COUNTER'; playerId: string; counterId: string; delta: number }
+  | { type: 'SET_PANEL_COLOR'; playerId: string; color: string }
+  | { type: 'SET_BACKGROUND_IMAGE'; playerId: string; imageUrl: string | undefined }
   | { type: 'LOAD_SESSION'; session: DraftSession };
 
 // Reducer Actions for Commander Mode
@@ -84,6 +95,8 @@ export type CommanderAction =
   | { type: 'SET_MISC_COUNTER'; playerId: string; counterId: string; value: number }
   | { type: 'ADJUST_MISC_COUNTER'; playerId: string; counterId: string; delta: number }
   | { type: 'SET_PLAYER_NAME'; playerId: string; name: string }
+  | { type: 'SET_PANEL_COLOR'; playerId: string; color: string }
+  | { type: 'SET_BACKGROUND_IMAGE'; playerId: string; imageUrl: string | undefined }
   | { type: 'RESET_ALL' }
   | { type: 'LOAD_SESSION'; session: CommanderSession };
 

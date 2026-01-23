@@ -32,6 +32,29 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.playerName.clickable {
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  margin: -0.25rem -0.5rem;
+  transition: background 0.15s ease;
+}
+
+.playerName.clickable:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.editHint {
+  font-size: 0.5rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .expandButton {
@@ -170,30 +193,7 @@
   justify-content: center;
 }
 
-/* Color variants */
-.blue {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-}
-
-.red {
-  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-}
-
-.green {
-  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
-}
-
-.purple {
-  background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
-}
-
-.orange {
-  background: linear-gradient(135deg, #f97316 0%, #c2410c 100%);
-}
-
-.teal {
-  background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
-}
+/* Color variants are now applied via inline styles for custom color support */
 
 @keyframes pulse {
   0%, 100% {

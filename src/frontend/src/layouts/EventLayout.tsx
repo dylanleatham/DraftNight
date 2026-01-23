@@ -6,7 +6,7 @@ import { useEventNotifications } from '../hooks/useEventNotifications';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import type { EventSnapshotResponse } from '../api/types';
-import { EventStatus } from '../api/types';
+import { EventStatus, RoundStatus } from '../api/types';
 import styles from './EventLayout.module.css';
 
 function EventLayoutContent() {
@@ -91,8 +91,16 @@ function EventLayoutContent() {
   }
 
   const showPairings = snapshot.status !== EventStatus.Setup;
+  const currentRound = snapshot.rounds.find(
+    (r) => r.roundNumber === snapshot.currentRound
+  );
+  const isTournamentReady =
+    snapshot.currentRound === snapshot.totalRounds &&
+    currentRound?.status === RoundStatus.Closed;
   const showPrizes =
-    snapshot.status === EventStatus.Completed || snapshot.prizesAllocated;
+    snapshot.status === EventStatus.Completed ||
+    snapshot.prizesAllocated ||
+    isTournamentReady;
 
   return (
     <div className={styles.layout}>
