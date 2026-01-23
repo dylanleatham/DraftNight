@@ -1,11 +1,11 @@
-import { MAX_POISON } from '../../types/lifeTracker';
-import styles from './PoisonCounter.module.css';
+import { MAX_POISON } from '../../types/lifeTracker'
+import styles from './PoisonCounter.module.css'
 
 interface PoisonCounterProps {
-  poison: number;
-  onAdjust: (delta: number) => void;
-  inverted?: boolean;
-  compact?: boolean;
+  poison: number
+  onAdjust: (delta: number) => void
+  inverted?: boolean
+  compact?: boolean
 }
 
 export function PoisonCounter({
@@ -14,7 +14,7 @@ export function PoisonCounter({
   inverted = false,
   compact = false,
 }: PoisonCounterProps) {
-  const isLethal = poison >= MAX_POISON;
+  const isLethal = poison >= MAX_POISON
 
   return (
     <div
@@ -28,7 +28,9 @@ export function PoisonCounter({
       >
         -
       </button>
-      <div className={`${styles.poisonDisplay} ${isLethal ? styles.lethal : ''}`}>
+      <div
+        className={`${styles.poisonDisplay} ${isLethal ? styles.lethal : ''}`}
+      >
         <span className={styles.poisonIcon}>☠</span>
         <span className={styles.poisonValue}>{poison}</span>
       </div>
@@ -41,5 +43,5 @@ export function PoisonCounter({
         +
       </button>
     </div>
-  );
+  )
 }

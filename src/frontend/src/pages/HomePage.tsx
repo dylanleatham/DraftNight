@@ -1,21 +1,21 @@
-import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { Button } from '../components/ui';
-import { useAuth } from '../context/AuthContext';
-import styles from './HomePage.module.css';
+import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Button } from '../components/ui'
+import { useAuth } from '../context/AuthContext'
+import styles from './HomePage.module.css'
 
 export function HomePage() {
-  const navigate = useNavigate();
-  const { hostSession, playerSession } = useAuth();
+  const navigate = useNavigate()
+  const { hostSession, playerSession } = useAuth()
 
   // Check for existing session and redirect
   useEffect(() => {
     if (hostSession) {
-      navigate(`/event/${hostSession.eventId}/lobby`, { replace: true });
+      navigate(`/event/${hostSession.eventId}/lobby`, { replace: true })
     } else if (playerSession) {
-      navigate(`/event/${playerSession.eventId}/lobby`, { replace: true });
+      navigate(`/event/${playerSession.eventId}/lobby`, { replace: true })
     }
-  }, [hostSession, playerSession, navigate]);
+  }, [hostSession, playerSession, navigate])
 
   return (
     <div className={styles.container}>
@@ -26,11 +26,7 @@ export function HomePage() {
         </p>
 
         <div className={styles.actions}>
-          <Button
-            size="large"
-            fullWidth
-            onClick={() => navigate('/create')}
-          >
+          <Button size="large" fullWidth onClick={() => navigate('/create')}>
             Create Event
           </Button>
           <Button
@@ -54,5 +50,5 @@ export function HomePage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

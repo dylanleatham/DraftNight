@@ -1,30 +1,30 @@
-import { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
-import { StandingsTable } from '../components/event';
-import { useEvent } from '../context/EventContext';
-import { useAuth } from '../context/AuthContext';
-import type { StandingEntry } from '../api/types';
-import styles from './StandingsPage.module.css';
+import { useMemo } from 'react'
+import { useParams } from 'react-router-dom'
+import { StandingsTable } from '../components/event'
+import { useEvent } from '../context/EventContext'
+import { useAuth } from '../context/AuthContext'
+import type { StandingEntry } from '../api/types'
+import styles from './StandingsPage.module.css'
 
 export function StandingsPage() {
-  const { eventId } = useParams<{ eventId: string }>();
-  const { state } = useEvent();
-  const { getPlayerId } = useAuth();
+  const { eventId } = useParams<{ eventId: string }>()
+  const { state } = useEvent()
+  const { getPlayerId } = useAuth()
 
-  const snapshot = state.snapshot;
-  const playerId = getPlayerId(eventId!);
+  const snapshot = state.snapshot
+  const playerId = getPlayerId(eventId!)
 
   // Compute standings from snapshot players
   const standings = useMemo((): StandingEntry[] => {
-    if (!snapshot) return [];
+    if (!snapshot) return []
 
     // Sort players by MW desc, then seed asc for tie-break
     const sorted = [...snapshot.players].sort((a, b) => {
       if (b.matchWins !== a.matchWins) {
-        return b.matchWins - a.matchWins;
+        return b.matchWins - a.matchWins
       }
-      return a.seed - b.seed;
-    });
+      return a.seed - b.seed
+    })
 
     return sorted.map((player, index) => ({
       rank: index + 1,
@@ -34,10 +34,10 @@ export function StandingsPage() {
       matchLosses: player.matchLosses,
       byeReceived: player.byeReceived,
       isDropped: player.isDropped,
-    }));
-  }, [snapshot]);
+    }))
+  }, [snapshot])
 
-  if (!snapshot) return null;
+  if (!snapshot) return null
 
   return (
     <div className={styles.container}>
@@ -54,5 +54,5 @@ export function StandingsPage() {
         <p>Tie-break: Match wins, then seed order</p>
       </div>
     </div>
-  );
+  )
 }

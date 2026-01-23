@@ -1,22 +1,33 @@
-import { useState, useMemo } from 'react';
-import type { CommanderSession } from '../../types/lifeTracker';
-import { CommanderPlayerPanel } from './CommanderPlayerPanel';
-import { Modal, Button } from '../ui';
-import styles from './CommanderLifeTracker.module.css';
+import { useState, useMemo } from 'react'
+import type { CommanderSession } from '../../types/lifeTracker'
+import { CommanderPlayerPanel } from './CommanderPlayerPanel'
+import { Modal, Button } from '../ui'
+import styles from './CommanderLifeTracker.module.css'
 
 interface CommanderLifeTrackerProps {
-  session: CommanderSession;
-  onAdjustLife: (playerId: string, delta: number) => void;
-  onSetLife: (playerId: string, life: number) => void;
-  onAdjustPoison: (playerId: string, delta: number) => void;
-  onAdjustCommanderDamage: (playerId: string, fromPlayerId: string, delta: number) => void;
-  onAddMiscCounter: (playerId: string, name: string) => void;
-  onRemoveMiscCounter: (playerId: string, counterId: string) => void;
-  onAdjustMiscCounter: (playerId: string, counterId: string, delta: number) => void;
-  onSetPanelColor?: (playerId: string, color: string) => void;
-  onSetBackgroundImage?: (playerId: string, imageUrl: string | undefined) => void;
-  onResetAll: () => void;
-  onExit: () => void;
+  session: CommanderSession
+  onAdjustLife: (playerId: string, delta: number) => void
+  onSetLife: (playerId: string, life: number) => void
+  onAdjustPoison: (playerId: string, delta: number) => void
+  onAdjustCommanderDamage: (
+    playerId: string,
+    fromPlayerId: string,
+    delta: number
+  ) => void
+  onAddMiscCounter: (playerId: string, name: string) => void
+  onRemoveMiscCounter: (playerId: string, counterId: string) => void
+  onAdjustMiscCounter: (
+    playerId: string,
+    counterId: string,
+    delta: number
+  ) => void
+  onSetPanelColor?: (playerId: string, color: string) => void
+  onSetBackgroundImage?: (
+    playerId: string,
+    imageUrl: string | undefined
+  ) => void
+  onResetAll: () => void
+  onExit: () => void
 }
 
 export function CommanderLifeTracker({
@@ -33,21 +44,21 @@ export function CommanderLifeTracker({
   onResetAll,
   onExit,
 }: CommanderLifeTrackerProps) {
-  const [showResetModal, setShowResetModal] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false)
 
   const playerNames = useMemo(() => {
-    const map = new Map<string, string>();
-    session.players.forEach((p) => map.set(p.id, p.name));
-    return map;
-  }, [session.players]);
+    const map = new Map<string, string>()
+    session.players.forEach((p) => map.set(p.id, p.name))
+    return map
+  }, [session.players])
 
-  const playerCount = session.players.length;
+  const playerCount = session.players.length
   const gridClass =
     playerCount <= 2
       ? styles.grid2
       : playerCount <= 4
         ? styles.grid4
-        : styles.grid6;
+        : styles.grid6
 
   return (
     <div className={styles.container}>
@@ -69,8 +80,7 @@ export function CommanderLifeTracker({
           // Invert top panels for face-to-face play:
           // - 2 players: index 0 (top)
           // - 3-4 players: indices 0-1 (top row)
-          const isTopPanel =
-            playerCount <= 2 ? index === 0 : index < 2;
+          const isTopPanel = playerCount <= 2 ? index === 0 : index < 2
 
           return (
             <CommanderPlayerPanel
@@ -92,10 +102,18 @@ export function CommanderLifeTracker({
               onAdjustMiscCounter={(counterId, delta) =>
                 onAdjustMiscCounter(player.id, counterId, delta)
               }
-              onSetPanelColor={onSetPanelColor ? (color) => onSetPanelColor(player.id, color) : undefined}
-              onSetBackgroundImage={onSetBackgroundImage ? (url) => onSetBackgroundImage(player.id, url) : undefined}
+              onSetPanelColor={
+                onSetPanelColor
+                  ? (color) => onSetPanelColor(player.id, color)
+                  : undefined
+              }
+              onSetBackgroundImage={
+                onSetBackgroundImage
+                  ? (url) => onSetBackgroundImage(player.id, url)
+                  : undefined
+              }
             />
-          );
+          )
         })}
       </div>
 
@@ -119,8 +137,8 @@ export function CommanderLifeTracker({
             <Button
               variant="danger"
               onClick={() => {
-                onResetAll();
-                setShowResetModal(false);
+                onResetAll()
+                setShowResetModal(false)
               }}
             >
               Reset All
@@ -129,5 +147,5 @@ export function CommanderLifeTracker({
         </div>
       </Modal>
     </div>
-  );
+  )
 }

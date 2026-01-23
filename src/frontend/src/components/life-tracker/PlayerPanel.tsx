@@ -1,27 +1,27 @@
-import { useState } from 'react';
-import type { DraftPlayer } from '../../types/lifeTracker';
-import { BasePlayerPanel, type PlayerColor } from './BasePlayerPanel';
-import { LifeDisplay } from './LifeDisplay';
-import { PoisonCounter } from './PoisonCounter';
-import { GameWinToggle } from './GameWinToggle';
-import { MiscCounterList } from './MiscCounter';
-import { ColorPicker } from './ColorPicker';
-import styles from './PlayerPanel.module.css';
+import { useState } from 'react'
+import type { DraftPlayer } from '../../types/lifeTracker'
+import { BasePlayerPanel, type PlayerColor } from './BasePlayerPanel'
+import { LifeDisplay } from './LifeDisplay'
+import { PoisonCounter } from './PoisonCounter'
+import { GameWinToggle } from './GameWinToggle'
+import { MiscCounterList } from './MiscCounter'
+import { ColorPicker } from './ColorPicker'
+import styles from './PlayerPanel.module.css'
 
 interface PlayerPanelProps {
-  player: DraftPlayer;
-  gameWins: number;
-  onLifeChange: (life: number) => void;
-  onAdjustLife: (delta: number) => void;
-  onAdjustPoison: (delta: number) => void;
-  onToggleWin: () => void;
-  onAddMiscCounter?: (name: string) => void;
-  onRemoveMiscCounter?: (counterId: string) => void;
-  onAdjustMiscCounter?: (counterId: string, delta: number) => void;
-  onSetPanelColor?: (color: string) => void;
-  onSetBackgroundImage?: (imageUrl: string | undefined) => void;
-  color: PlayerColor;
-  inverted?: boolean;
+  player: DraftPlayer
+  gameWins: number
+  onLifeChange: (life: number) => void
+  onAdjustLife: (delta: number) => void
+  onAdjustPoison: (delta: number) => void
+  onToggleWin: () => void
+  onAddMiscCounter?: (name: string) => void
+  onRemoveMiscCounter?: (counterId: string) => void
+  onAdjustMiscCounter?: (counterId: string, delta: number) => void
+  onSetPanelColor?: (color: string) => void
+  onSetBackgroundImage?: (imageUrl: string | undefined) => void
+  color: PlayerColor
+  inverted?: boolean
 }
 
 export function PlayerPanel({
@@ -39,10 +39,11 @@ export function PlayerPanel({
   color,
   inverted = false,
 }: PlayerPanelProps) {
-  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false)
 
-  const effectiveColor = player.panelColor ?? color;
-  const hasMiscCounterSupport = onAddMiscCounter && onRemoveMiscCounter && onAdjustMiscCounter;
+  const effectiveColor = player.panelColor ?? color
+  const hasMiscCounterSupport =
+    onAddMiscCounter && onRemoveMiscCounter && onAdjustMiscCounter
 
   return (
     <>
@@ -51,16 +52,19 @@ export function PlayerPanel({
         color={effectiveColor}
         backgroundImage={player.backgroundImage}
         inverted={inverted}
-        onNameClick={onSetPanelColor ? () => setShowColorPicker(true) : undefined}
+        onNameClick={
+          onSetPanelColor ? () => setShowColorPicker(true) : undefined
+        }
         headerContent={
-          <GameWinToggle wins={gameWins} onToggle={onToggleWin} inverted={inverted} />
+          <GameWinToggle
+            wins={gameWins}
+            onToggle={onToggleWin}
+            inverted={inverted}
+          />
         }
         footerContent={
           <div className={styles.footerContent}>
-            <PoisonCounter
-              poison={player.poison}
-              onAdjust={onAdjustPoison}
-            />
+            <PoisonCounter poison={player.poison} onAdjust={onAdjustPoison} />
             {hasMiscCounterSupport && player.miscCounters.length > 0 && (
               <MiscCounterList
                 counters={player.miscCounters}
@@ -73,9 +77,9 @@ export function PlayerPanel({
               <button
                 className={styles.addCounterButton}
                 onClick={() => {
-                  const name = prompt('Counter name:');
+                  const name = prompt('Counter name:')
                   if (name?.trim()) {
-                    onAddMiscCounter(name.trim());
+                    onAddMiscCounter(name.trim())
                   }
                 }}
               >
@@ -103,5 +107,5 @@ export function PlayerPanel({
         />
       )}
     </>
-  );
+  )
 }

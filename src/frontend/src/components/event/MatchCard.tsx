@@ -1,17 +1,17 @@
-import type { MatchResponse, PlayerResponse } from '../../api/types';
-import { MatchStatus } from '../../api/types';
-import { Badge } from '../ui';
-import styles from './MatchCard.module.css';
+import type { MatchResponse, PlayerResponse } from '../../api/types'
+import { MatchStatus } from '../../api/types'
+import { Badge } from '../ui'
+import styles from './MatchCard.module.css'
 
 interface MatchCardProps {
-  match: MatchResponse;
-  playerA: PlayerResponse | undefined;
-  playerB: PlayerResponse | undefined;
-  currentPlayerId?: string | null;
-  isHost: boolean;
-  onSelectWinner?: (winnerId: string) => void;
-  onReopen?: () => void;
-  onLifeTracker?: () => void;
+  match: MatchResponse
+  playerA: PlayerResponse | undefined
+  playerB: PlayerResponse | undefined
+  currentPlayerId?: string | null
+  isHost: boolean
+  onSelectWinner?: (winnerId: string) => void
+  onReopen?: () => void
+  onLifeTracker?: () => void
 }
 
 export function MatchCard({
@@ -25,15 +25,18 @@ export function MatchCard({
   onLifeTracker,
 }: MatchCardProps) {
   const isUserMatch =
-    currentPlayerId === match.playerAId || currentPlayerId === match.playerBId;
+    currentPlayerId === match.playerAId || currentPlayerId === match.playerBId
   const canSelectWinner =
-    isHost && match.status !== MatchStatus.Final && !match.isBye && onSelectWinner;
-  const canReopen = isHost && match.status === MatchStatus.Final && onReopen;
+    isHost &&
+    match.status !== MatchStatus.Final &&
+    !match.isBye &&
+    onSelectWinner
+  const canReopen = isHost && match.status === MatchStatus.Final && onReopen
 
   const getPlayerWinStatus = (playerId: string) => {
-    if (match.status !== MatchStatus.Final) return null;
-    return match.winnerId === playerId ? 'winner' : 'loser';
-  };
+    if (match.status !== MatchStatus.Final) return null
+    return match.winnerId === playerId ? 'winner' : 'loser'
+  }
 
   return (
     <div className={`${styles.card} ${isUserMatch ? styles.userMatch : ''}`}>
@@ -47,7 +50,9 @@ export function MatchCard({
 
       {match.isBye ? (
         <div className={styles.byeContent}>
-          <span className={styles.playerName}>{playerA?.name ?? 'Unknown'}</span>
+          <span className={styles.playerName}>
+            {playerA?.name ?? 'Unknown'}
+          </span>
           <span className={styles.byeText}>receives a bye</span>
         </div>
       ) : (
@@ -57,7 +62,9 @@ export function MatchCard({
             disabled={!canSelectWinner}
             onClick={() => canSelectWinner && onSelectWinner(match.playerAId)}
           >
-            <span className={styles.playerName}>{playerA?.name ?? 'Unknown'}</span>
+            <span className={styles.playerName}>
+              {playerA?.name ?? 'Unknown'}
+            </span>
             {getPlayerWinStatus(match.playerAId) === 'winner' && (
               <span className={styles.winnerIcon}>W</span>
             )}
@@ -69,10 +76,14 @@ export function MatchCard({
             className={`${styles.playerButton} ${getPlayerWinStatus(match.playerBId!) === 'winner' ? styles.winner : ''} ${getPlayerWinStatus(match.playerBId!) === 'loser' ? styles.loser : ''}`}
             disabled={!canSelectWinner}
             onClick={() =>
-              canSelectWinner && match.playerBId && onSelectWinner(match.playerBId)
+              canSelectWinner &&
+              match.playerBId &&
+              onSelectWinner(match.playerBId)
             }
           >
-            <span className={styles.playerName}>{playerB?.name ?? 'Unknown'}</span>
+            <span className={styles.playerName}>
+              {playerB?.name ?? 'Unknown'}
+            </span>
             {getPlayerWinStatus(match.playerBId!) === 'winner' && (
               <span className={styles.winnerIcon}>W</span>
             )}
@@ -92,5 +103,5 @@ export function MatchCard({
         </button>
       )}
     </div>
-  );
+  )
 }

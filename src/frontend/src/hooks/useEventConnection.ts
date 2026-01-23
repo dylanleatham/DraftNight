@@ -1,23 +1,27 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react'
 import {
   HubConnection,
   HubConnectionBuilder,
   HubConnectionState,
   LogLevel,
-} from '@microsoft/signalr';
-import type { EventSnapshotResponse } from '../api/types';
+} from '@microsoft/signalr'
+import type { EventSnapshotResponse } from '../api/types'
 
-export type ConnectionStatus = 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
+export type ConnectionStatus =
+  | 'connecting'
+  | 'connected'
+  | 'reconnecting'
+  | 'disconnected'
 
 interface UseEventConnectionOptions {
-  eventId: string;
-  onSnapshot: (snapshot: EventSnapshotResponse) => void;
-  onError?: (code: string, message: string) => void;
+  eventId: string
+  onSnapshot: (snapshot: EventSnapshotResponse) => void
+  onError?: (code: string, message: string) => void
 }
 
 interface UseEventConnectionResult {
-  status: ConnectionStatus;
-  requestSnapshot: () => Promise<void>;
+  status: ConnectionStatus
+  requestSnapshot: () => Promise<void>
 }
 
 export function useEventConnection({
@@ -25,82 +29,82 @@ export function useEventConnection({
   onSnapshot,
   onError,
 }: UseEventConnectionOptions): UseEventConnectionResult {
-  const [status, setStatus] = useState<ConnectionStatus>('disconnected');
-  const connectionRef = useRef<HubConnection | null>(null);
-  const eventIdRef = useRef(eventId);
+  const [status, setStatus] = useState<ConnectionStatus>('disconnected')
+  const connectionRef = useRef<HubConnection | null>(null)
+  const eventIdRef = useRef(eventId)
 
   // Keep eventId ref updated
   useEffect(() => {
-    eventIdRef.current = eventId;
-  }, [eventId]);
+    eventIdRef.current = eventId
+  }, [eventId])
 
   // Request fresh snapshot
   const requestSnapshot = useCallback(async () => {
-    const connection = connectionRef.current;
+    const connection = connectionRef.current
     if (connection?.state === HubConnectionState.Connected) {
       try {
-        await connection.invoke('RequestSnapshot', eventIdRef.current);
+        await connection.invoke('RequestSnapshot', eventIdRef.current)
       } catch (err) {
-        console.error('Failed to request snapshot:', err);
+        console.error('Failed to request snapshot:', err)
       }
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    const hubUrl = `${window.location.origin}/hubs/event`;
+    const hubUrl = `${window.location.origin}/hubs/event`
 
     const connection = new HubConnectionBuilder()
       .withUrl(hubUrl)
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(LogLevel.Warning)
-      .build();
+      .build()
 
-    connectionRef.current = connection;
+    connectionRef.current = connection
 
     // Handle snapshot updates
     connection.on('EventUpdated', (snapshot: EventSnapshotResponse) => {
-      onSnapshot(snapshot);
-    });
+      onSnapshot(snapshot)
+    })
 
     // Handle errors
     connection.on('Error', (code: string, message: string) => {
-      onError?.(code, message);
-    });
+      onError?.(code, message)
+    })
 
     // Connection state changes
     connection.onreconnecting(() => {
-      setStatus('reconnecting');
-    });
+      setStatus('reconnecting')
+    })
 
     connection.onreconnected(async () => {
-      setStatus('connected');
+      setStatus('connected')
       // Rejoin the event group after reconnection
       try {
-        await connection.invoke('JoinEventGroup', eventIdRef.current);
+        await connection.invoke('JoinEventGroup', eventIdRef.current)
       } catch (err) {
-        console.error('Failed to rejoin event group:', err);
+        console.error('Failed to rejoin event group:', err)
       }
-    });
+    })
 
     connection.onclose(() => {
-      setStatus('disconnected');
-    });
+      setStatus('disconnected')
+    })
 
     // Start connection
     const startConnection = async () => {
-      setStatus('connecting');
+      setStatus('connecting')
       try {
-        await connection.start();
-        setStatus('connected');
+        await connection.start()
+        setStatus('connected')
         // Join the event group
-        await connection.invoke('JoinEventGroup', eventId);
+        await connection.invoke('JoinEventGroup', eventId)
       } catch (err) {
-        console.error('Failed to connect to SignalR hub:', err);
-        setStatus('disconnected');
+        console.error('Failed to connect to SignalR hub:', err)
+        setStatus('disconnected')
       }
-    };
+    }
 
-    startConnection();
+    startConnection()
 
     // Request snapshot on visibility change (tab switch)
     const handleVisibilityChange = () => {
@@ -108,23 +112,25 @@ export function useEventConnection({
         document.visibilityState === 'visible' &&
         connection.state === HubConnectionState.Connected
       ) {
-        connection.invoke('RequestSnapshot', eventIdRef.current).catch(console.error);
+        connection
+          .invoke('RequestSnapshot', eventIdRef.current)
+          .catch(console.error)
       }
-    };
+    }
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
     // Cleanup
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      connection.off('EventUpdated');
-      connection.off('Error');
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      connection.off('EventUpdated')
+      connection.off('Error')
       if (connection.state === HubConnectionState.Connected) {
-        connection.invoke('LeaveEventGroup', eventIdRef.current).catch(() => {});
+        connection.invoke('LeaveEventGroup', eventIdRef.current).catch(() => {})
       }
-      connection.stop();
-    };
-  }, [eventId, onSnapshot, onError]);
+      connection.stop()
+    }
+  }, [eventId, onSnapshot, onError])
 
-  return { status, requestSnapshot };
+  return { status, requestSnapshot }
 }

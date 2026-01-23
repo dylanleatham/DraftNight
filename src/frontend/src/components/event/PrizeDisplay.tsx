@@ -1,12 +1,12 @@
-import type { PrizeAllocationResponse, PlayerResponse } from '../../api/types';
-import { Badge } from '../ui';
-import styles from './PrizeDisplay.module.css';
+import type { PrizeAllocationResponse, PlayerResponse } from '../../api/types'
+import { Badge } from '../ui'
+import styles from './PrizeDisplay.module.css'
 
 interface PrizeDisplayProps {
-  prizeAllocations: PrizeAllocationResponse[];
-  players: PlayerResponse[];
-  currentPlayerId?: string | null;
-  totalPrizePacks: number;
+  prizeAllocations: PrizeAllocationResponse[]
+  players: PlayerResponse[]
+  currentPlayerId?: string | null
+  totalPrizePacks: number
 }
 
 export function PrizeDisplay({
@@ -16,18 +16,18 @@ export function PrizeDisplay({
   totalPrizePacks,
 }: PrizeDisplayProps) {
   const getPlayer = (playerId: string) => {
-    return players.find((p) => p.id === playerId);
-  };
+    return players.find((p) => p.id === playerId)
+  }
 
   // Sort by packs awarded descending
   const sortedAllocations = [...prizeAllocations].sort(
     (a, b) => b.packsAwarded - a.packsAwarded
-  );
+  )
 
   const allocatedPacks = prizeAllocations.reduce(
     (sum, a) => sum + a.packsAwarded,
     0
-  );
+  )
 
   return (
     <div className={styles.container}>
@@ -40,8 +40,8 @@ export function PrizeDisplay({
 
       <div className={styles.list}>
         {sortedAllocations.map((allocation) => {
-          const player = getPlayer(allocation.playerId);
-          const isCurrentUser = allocation.playerId === currentPlayerId;
+          const player = getPlayer(allocation.playerId)
+          const isCurrentUser = allocation.playerId === currentPlayerId
 
           return (
             <div
@@ -55,13 +55,15 @@ export function PrizeDisplay({
                 {isCurrentUser && <Badge variant="info">You</Badge>}
               </div>
               <div className={styles.packsAwarded}>
-                <span className={styles.packsCount}>{allocation.packsAwarded}</span>
+                <span className={styles.packsCount}>
+                  {allocation.packsAwarded}
+                </span>
                 <span className={styles.packsLabel}>packs</span>
               </div>
             </div>
-          );
+          )
         })}
       </div>
     </div>
-  );
+  )
 }

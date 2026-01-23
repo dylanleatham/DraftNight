@@ -5,56 +5,64 @@ import {
   useCallback,
   useState,
   type ReactNode,
-} from 'react';
-import { ToastContainer, type ToastData, type ToastVariant } from '../components/ui/Toast';
+} from 'react'
+import {
+  ToastContainer,
+  type ToastData,
+  type ToastVariant,
+} from '../components/ui/Toast'
 
-type ToastInput = Omit<ToastData, 'id'>;
+type ToastInput = Omit<ToastData, 'id'>
 
 interface NotificationContextValue {
-  showToast: (toast: ToastInput) => void;
-  dismissToast: (id: string) => void;
-  clearToasts: () => void;
+  showToast: (toast: ToastInput) => void
+  dismissToast: (id: string) => void
+  clearToasts: () => void
 }
 
-const NotificationContext = createContext<NotificationContextValue | null>(null);
+const NotificationContext = createContext<NotificationContextValue | null>(null)
 
-let toastIdCounter = 0;
+let toastIdCounter = 0
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
-  const [toasts, setToasts] = useState<ToastData[]>([]);
+  const [toasts, setToasts] = useState<ToastData[]>([])
 
   const showToast = useCallback((toast: ToastInput) => {
-    const id = `toast-${++toastIdCounter}`;
-    setToasts((prev) => [...prev, { ...toast, id }]);
-  }, []);
+    const id = `toast-${++toastIdCounter}`
+    setToasts((prev) => [...prev, { ...toast, id }])
+  }, [])
 
   const dismissToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }, [])
 
   const clearToasts = useCallback(() => {
-    setToasts([]);
-  }, []);
+    setToasts([])
+  }, [])
 
   return (
-    <NotificationContext.Provider value={{ showToast, dismissToast, clearToasts }}>
+    <NotificationContext.Provider
+      value={{ showToast, dismissToast, clearToasts }}
+    >
       {children}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </NotificationContext.Provider>
-  );
+  )
 }
 
 export function useNotification(): NotificationContextValue {
-  const context = useContext(NotificationContext);
+  const context = useContext(NotificationContext)
   if (!context) {
-    throw new Error('useNotification must be used within a NotificationProvider');
+    throw new Error(
+      'useNotification must be used within a NotificationProvider'
+    )
   }
-  return context;
+  return context
 }
 
 // Convenience hooks for common toast types
 export function useToast() {
-  const { showToast } = useNotification();
+  const { showToast } = useNotification()
 
   return {
     success: (title: string, message?: string) =>
@@ -65,7 +73,11 @@ export function useToast() {
       showToast({ variant: 'warning', title, message }),
     info: (title: string, message?: string) =>
       showToast({ variant: 'info', title, message }),
-    show: (variant: ToastVariant, title: string, message?: string, duration?: number) =>
-      showToast({ variant, title, message, duration }),
-  };
+    show: (
+      variant: ToastVariant,
+      title: string,
+      message?: string,
+      duration?: number
+    ) => showToast({ variant, title, message, duration }),
+  }
 }

@@ -1,77 +1,82 @@
-import { useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Modal, Input } from '../components/ui';
-import { MatchCard, BracketView } from '../components/event';
-import { useEvent } from '../context/EventContext';
-import { useAuth } from '../context/AuthContext';
-import { useHostActions } from '../hooks/useHostActions';
-import { RoundStatus, MatchStatus } from '../api/types';
-import styles from './PairingsPage.module.css';
+import { useState, useMemo } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { Button, Modal, Input } from '../components/ui'
+import { MatchCard, BracketView } from '../components/event'
+import { useEvent } from '../context/EventContext'
+import { useAuth } from '../context/AuthContext'
+import { useHostActions } from '../hooks/useHostActions'
+import { RoundStatus, MatchStatus } from '../api/types'
+import styles from './PairingsPage.module.css'
 
-type ViewMode = 'cards' | 'bracket';
+type ViewMode = 'cards' | 'bracket'
 
 export function PairingsPage() {
-  const { eventId } = useParams<{ eventId: string }>();
-  const navigate = useNavigate();
-  const { state, getPlayer } = useEvent();
-  const { isHost, getPlayerId } = useAuth();
-  const { finalizeMatch, reopenMatch, publishPairings } = useHostActions(eventId!);
+  const { eventId } = useParams<{ eventId: string }>()
+  const navigate = useNavigate()
+  const { state, getPlayer } = useEvent()
+  const { isHost, getPlayerId } = useAuth()
+  const { finalizeMatch, reopenMatch, publishPairings } = useHostActions(
+    eventId!
+  )
 
-  const [reopenModalOpen, setReopenModalOpen] = useState(false);
-  const [matchToReopen, setMatchToReopen] = useState<string | null>(null);
-  const [reopenReason, setReopenReason] = useState('');
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('cards');
+  const [reopenModalOpen, setReopenModalOpen] = useState(false)
+  const [matchToReopen, setMatchToReopen] = useState<string | null>(null)
+  const [reopenReason, setReopenReason] = useState('')
+  const [isPublishing, setIsPublishing] = useState(false)
+  const [viewMode, setViewMode] = useState<ViewMode>('cards')
 
-  const snapshot = state.snapshot;
-  const isHostUser = isHost(eventId!);
-  const playerId = getPlayerId(eventId!);
+  const snapshot = state.snapshot
+  const isHostUser = isHost(eventId!)
+  const playerId = getPlayerId(eventId!)
 
   const currentRound = useMemo(() => {
-    if (!snapshot) return null;
-    return snapshot.rounds.find((r) => r.roundNumber === snapshot.currentRound);
-  }, [snapshot]);
+    if (!snapshot) return null
+    return snapshot.rounds.find((r) => r.roundNumber === snapshot.currentRound)
+  }, [snapshot])
 
-  if (!snapshot || !currentRound) return null;
+  if (!snapshot || !currentRound) return null
 
-  const isPairingsPublished = currentRound.status === RoundStatus.PairingsPublished;
-  const isRoundClosed = currentRound.status === RoundStatus.Closed;
+  const isPairingsPublished =
+    currentRound.status === RoundStatus.PairingsPublished
+  const isRoundClosed = currentRound.status === RoundStatus.Closed
   const allMatchesFinalized = currentRound.matches.every(
     (m) => m.status === MatchStatus.Final
-  );
+  )
   const canPublishNextRound =
-    isHostUser &&
-    isRoundClosed &&
-    snapshot.currentRound < snapshot.totalRounds;
+    isHostUser && isRoundClosed && snapshot.currentRound < snapshot.totalRounds
 
   const handleSelectWinner = async (matchId: string, winnerId: string) => {
-    await finalizeMatch(matchId, winnerId);
-  };
+    await finalizeMatch(matchId, winnerId)
+  }
 
   const handleReopenClick = (matchId: string) => {
-    setMatchToReopen(matchId);
-    setReopenReason('');
-    setReopenModalOpen(true);
-  };
+    setMatchToReopen(matchId)
+    setReopenReason('')
+    setReopenModalOpen(true)
+  }
 
   const handleReopenConfirm = async () => {
-    if (!matchToReopen || !reopenReason.trim()) return;
-    await reopenMatch(matchToReopen, reopenReason.trim());
-    setReopenModalOpen(false);
-    setMatchToReopen(null);
-    setReopenReason('');
-  };
+    if (!matchToReopen || !reopenReason.trim()) return
+    await reopenMatch(matchToReopen, reopenReason.trim())
+    setReopenModalOpen(false)
+    setMatchToReopen(null)
+    setReopenReason('')
+  }
 
   const handlePublishNextRound = async () => {
-    setIsPublishing(true);
-    await publishPairings(snapshot.currentRound + 1);
-    setIsPublishing(false);
-  };
+    setIsPublishing(true)
+    await publishPairings(snapshot.currentRound + 1)
+    setIsPublishing(false)
+  }
 
-  const handleLaunchLifeTracker = (matchId: string, playerAId: string, playerBId: string | null) => {
-    const playerAObj = getPlayer(playerAId);
-    const playerBObj = playerBId ? getPlayer(playerBId) : undefined;
-    const sessionId = `event_${eventId}_match_${matchId}`;
+  const handleLaunchLifeTracker = (
+    matchId: string,
+    playerAId: string,
+    playerBId: string | null
+  ) => {
+    const playerAObj = getPlayer(playerAId)
+    const playerBObj = playerBId ? getPlayer(playerBId) : undefined
+    const sessionId = `event_${eventId}_match_${matchId}`
     const params = new URLSearchParams({
       mode: 'draft',
       playerA: playerAObj?.name || 'Player 1',
@@ -80,9 +85,9 @@ export function PairingsPage() {
       matchId,
       playerAId,
       ...(playerBId && { playerBId }),
-    });
-    navigate(`/life-tracker/game/${sessionId}?${params.toString()}`);
-  };
+    })
+    navigate(`/life-tracker/game/${sessionId}?${params.toString()}`)
+  }
 
   return (
     <div className={styles.container}>
@@ -126,7 +131,12 @@ export function PairingsPage() {
               <rect x="1" y="11" width="4" height="3" rx="0.5" />
               <rect x="6" y="5.5" width="4" height="5" rx="0.5" />
               <rect x="11" y="6.5" width="4" height="3" rx="0.5" />
-              <path d="M5 3.5h1.5v4h-1.5M5 12.5h1.5v-4h-1.5" stroke="currentColor" strokeWidth="1" fill="none" />
+              <path
+                d="M5 3.5h1.5v4h-1.5M5 12.5h1.5v-4h-1.5"
+                stroke="currentColor"
+                strokeWidth="1"
+                fill="none"
+              />
               <path d="M10 8h1" stroke="currentColor" strokeWidth="1" />
             </svg>
           </button>
@@ -155,7 +165,12 @@ export function PairingsPage() {
               }
               onLifeTracker={
                 isPairingsPublished && !match.isBye
-                  ? () => handleLaunchLifeTracker(match.id, match.playerAId, match.playerBId)
+                  ? () =>
+                      handleLaunchLifeTracker(
+                        match.id,
+                        match.playerAId,
+                        match.playerBId
+                      )
                   : undefined
               }
             />
@@ -181,11 +196,13 @@ export function PairingsPage() {
         </Button>
       )}
 
-      {isHostUser && isRoundClosed && snapshot.currentRound === snapshot.totalRounds && (
-        <div className={styles.tournamentComplete}>
-          <p>Tournament complete! Go to Prizes to allocate prize packs.</p>
-        </div>
-      )}
+      {isHostUser &&
+        isRoundClosed &&
+        snapshot.currentRound === snapshot.totalRounds && (
+          <div className={styles.tournamentComplete}>
+            <p>Tournament complete! Go to Prizes to allocate prize packs.</p>
+          </div>
+        )}
 
       <Modal
         open={reopenModalOpen}
@@ -221,5 +238,5 @@ export function PairingsPage() {
         </div>
       </Modal>
     </div>
-  );
+  )
 }

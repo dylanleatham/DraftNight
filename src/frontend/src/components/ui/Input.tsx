@@ -1,18 +1,20 @@
-import { type InputHTMLAttributes, forwardRef } from 'react';
-import styles from './Input.module.css';
+import { type InputHTMLAttributes, forwardRef } from 'react'
+import styles from './Input.module.css'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  fullWidth?: boolean;
+  label?: string
+  error?: string
+  fullWidth?: boolean
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, fullWidth = true, className, id, ...props }, ref) => {
-    const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
+    const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-')
 
     return (
-      <div className={`${styles.container} ${fullWidth ? styles.fullWidth : ''}`}>
+      <div
+        className={`${styles.container} ${fullWidth ? styles.fullWidth : ''}`}
+      >
         {label && (
           <label htmlFor={inputId} className={styles.label}>
             {label}
@@ -26,8 +28,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         />
         {error && <span className={styles.error}>{error}</span>}
       </div>
-    );
+    )
   }
-);
+)
 
-Input.displayName = 'Input';
+Input.displayName = 'Input'

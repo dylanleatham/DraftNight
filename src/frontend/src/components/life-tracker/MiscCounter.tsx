@@ -1,10 +1,10 @@
-import type { MiscCounter as MiscCounterType } from '../../types/lifeTracker';
-import styles from './MiscCounter.module.css';
+import type { MiscCounter as MiscCounterType } from '../../types/lifeTracker'
+import styles from './MiscCounter.module.css'
 
 interface MiscCounterProps {
-  counter: MiscCounterType;
-  onAdjust: (delta: number) => void;
-  onRemove: () => void;
+  counter: MiscCounterType
+  onAdjust: (delta: number) => void
+  onRemove: () => void
 }
 
 export function MiscCounter({ counter, onAdjust, onRemove }: MiscCounterProps) {
@@ -12,7 +12,11 @@ export function MiscCounter({ counter, onAdjust, onRemove }: MiscCounterProps) {
     <div className={styles.container}>
       <div className={styles.header}>
         <span className={styles.name}>{counter.name}</span>
-        <button className={styles.removeButton} onClick={onRemove} aria-label="Remove counter">
+        <button
+          className={styles.removeButton}
+          onClick={onRemove}
+          aria-label="Remove counter"
+        >
           ×
         </button>
       </div>
@@ -26,14 +30,14 @@ export function MiscCounter({ counter, onAdjust, onRemove }: MiscCounterProps) {
         </button>
       </div>
     </div>
-  );
+  )
 }
 
 interface MiscCounterListProps {
-  counters: MiscCounterType[];
-  onAdjust: (counterId: string, delta: number) => void;
-  onRemove: (counterId: string) => void;
-  onAdd: (name: string) => void;
+  counters: MiscCounterType[]
+  onAdjust: (counterId: string, delta: number) => void
+  onRemove: (counterId: string) => void
+  onAdd: (name: string) => void
 }
 
 export function MiscCounterList({
@@ -43,11 +47,11 @@ export function MiscCounterList({
   onAdd,
 }: MiscCounterListProps) {
   const handleAddCounter = () => {
-    const name = prompt('Counter name:');
+    const name = prompt('Counter name:')
     if (name?.trim()) {
-      onAdd(name.trim());
+      onAdd(name.trim())
     }
-  };
+  }
 
   return (
     <div className={styles.listContainer}>
@@ -63,5 +67,5 @@ export function MiscCounterList({
         + Add Counter
       </button>
     </div>
-  );
+  )
 }

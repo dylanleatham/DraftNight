@@ -1,15 +1,15 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { HomePage } from './pages/HomePage';
-import { CreateEventPage } from './pages/CreateEventPage';
-import { JoinEventPage } from './pages/JoinEventPage';
-import { EventLayout } from './layouts/EventLayout';
-import { LobbyPage } from './pages/LobbyPage';
-import { PairingsPage } from './pages/PairingsPage';
-import { StandingsPage } from './pages/StandingsPage';
-import { PrizesPage } from './pages/PrizesPage';
-import { AuditLogPage } from './pages/AuditLogPage';
-import { LifeTrackerSetupPage } from './pages/LifeTrackerSetupPage';
-import { LifeTrackerPage } from './pages/LifeTrackerPage';
+import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { HomePage } from './pages/HomePage'
+import { CreateEventPage } from './pages/CreateEventPage'
+import { JoinEventPage } from './pages/JoinEventPage'
+import { EventLayout } from './layouts/EventLayout'
+import { LobbyPage } from './pages/LobbyPage'
+import { PairingsPage } from './pages/PairingsPage'
+import { StandingsPage } from './pages/StandingsPage'
+import { PrizesPage } from './pages/PrizesPage'
+import { AuditLogPage } from './pages/AuditLogPage'
+import { LifeTrackerSetupPage } from './pages/LifeTrackerSetupPage'
+import { LifeTrackerPage } from './pages/LifeTrackerPage'
 
 export const router = createBrowserRouter([
   {
@@ -66,4 +66,4 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+])

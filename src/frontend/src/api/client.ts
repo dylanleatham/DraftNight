@@ -8,19 +8,19 @@ import type {
   StandingsResponse,
   AuditLogResponse,
   ErrorResponse,
-} from './types';
+} from './types'
 
-const BASE_URL = '/api';
+const BASE_URL = '/api'
 
 class ApiError extends Error {
-  status: number;
-  code: string;
+  status: number
+  code: string
 
   constructor(status: number, code: string, message: string) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
-    this.code = code;
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+    this.code = code
   }
 }
 
@@ -29,20 +29,20 @@ async function handleResponse<T>(response: Response): Promise<T> {
     const error: ErrorResponse = await response.json().catch(() => ({
       code: 'UNKNOWN_ERROR',
       message: response.statusText,
-    }));
-    throw new ApiError(response.status, error.code, error.message);
+    }))
+    throw new ApiError(response.status, error.code, error.message)
   }
-  return response.json();
+  return response.json()
 }
 
 function buildHeaders(hostToken?: string): HeadersInit {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-  };
-  if (hostToken) {
-    headers['X-Host-Token'] = hostToken;
   }
-  return headers;
+  if (hostToken) {
+    headers['X-Host-Token'] = hostToken
+  }
+  return headers
 }
 
 export const api = {
@@ -52,8 +52,8 @@ export const api = {
       method: 'POST',
       headers: buildHeaders(),
       body: JSON.stringify(request),
-    });
-    return handleResponse<CreateEventResponse>(response);
+    })
+    return handleResponse<CreateEventResponse>(response)
   },
 
   async joinEvent(request: JoinEventRequest): Promise<JoinEventResponse> {
@@ -61,15 +61,15 @@ export const api = {
       method: 'POST',
       headers: buildHeaders(),
       body: JSON.stringify(request),
-    });
-    return handleResponse<JoinEventResponse>(response);
+    })
+    return handleResponse<JoinEventResponse>(response)
   },
 
   async getEvent(eventId: string): Promise<EventSnapshotResponse> {
     const response = await fetch(`${BASE_URL}/events/${eventId}`, {
       headers: buildHeaders(),
-    });
-    return handleResponse<EventSnapshotResponse>(response);
+    })
+    return handleResponse<EventSnapshotResponse>(response)
   },
 
   // Host Control
@@ -82,8 +82,8 @@ export const api = {
       method: 'POST',
       headers: buildHeaders(hostToken),
       body: JSON.stringify({ expectedVersion }),
-    });
-    return handleResponse<MutationResponse>(response);
+    })
+    return handleResponse<MutationResponse>(response)
   },
 
   async publishPairings(
@@ -99,8 +99,8 @@ export const api = {
         headers: buildHeaders(hostToken),
         body: JSON.stringify({ expectedVersion }),
       }
-    );
-    return handleResponse<MutationResponse>(response);
+    )
+    return handleResponse<MutationResponse>(response)
   },
 
   async finalizeMatch(
@@ -117,8 +117,8 @@ export const api = {
         headers: buildHeaders(hostToken),
         body: JSON.stringify({ winnerId, expectedVersion }),
       }
-    );
-    return handleResponse<MutationResponse>(response);
+    )
+    return handleResponse<MutationResponse>(response)
   },
 
   async dropPlayer(
@@ -135,8 +135,8 @@ export const api = {
         headers: buildHeaders(hostToken),
         body: JSON.stringify({ expectedVersion, reason }),
       }
-    );
-    return handleResponse<MutationResponse>(response);
+    )
+    return handleResponse<MutationResponse>(response)
   },
 
   async allocatePrizes(
@@ -151,8 +151,8 @@ export const api = {
         headers: buildHeaders(hostToken),
         body: JSON.stringify({ expectedVersion }),
       }
-    );
-    return handleResponse<MutationResponse>(response);
+    )
+    return handleResponse<MutationResponse>(response)
   },
 
   // Host Repair
@@ -170,24 +170,27 @@ export const api = {
         headers: buildHeaders(hostToken),
         body: JSON.stringify({ expectedVersion, reason }),
       }
-    );
-    return handleResponse<MutationResponse>(response);
+    )
+    return handleResponse<MutationResponse>(response)
   },
 
   // Read-Only
   async getStandings(eventId: string): Promise<StandingsResponse> {
     const response = await fetch(`${BASE_URL}/events/${eventId}/standings`, {
       headers: buildHeaders(),
-    });
-    return handleResponse<StandingsResponse>(response);
+    })
+    return handleResponse<StandingsResponse>(response)
   },
 
-  async getAuditLog(eventId: string, hostToken: string): Promise<AuditLogResponse> {
+  async getAuditLog(
+    eventId: string,
+    hostToken: string
+  ): Promise<AuditLogResponse> {
     const response = await fetch(`${BASE_URL}/events/${eventId}/audit`, {
       headers: buildHeaders(hostToken),
-    });
-    return handleResponse<AuditLogResponse>(response);
+    })
+    return handleResponse<AuditLogResponse>(response)
   },
-};
+}
 
-export { ApiError };
+export { ApiError }

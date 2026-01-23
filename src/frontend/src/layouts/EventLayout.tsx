@@ -1,50 +1,50 @@
-import { useCallback, useEffect } from 'react';
-import { Outlet, useParams, useNavigate, NavLink } from 'react-router-dom';
-import { EventProvider, useEvent } from '../context/EventContext';
-import { useEventConnection } from '../hooks/useEventConnection';
-import { useEventNotifications } from '../hooks/useEventNotifications';
-import { useAuth } from '../context/AuthContext';
-import { api } from '../api/client';
-import type { EventSnapshotResponse } from '../api/types';
-import { EventStatus, RoundStatus } from '../api/types';
-import styles from './EventLayout.module.css';
+import { useCallback, useEffect } from 'react'
+import { Outlet, useParams, useNavigate, NavLink } from 'react-router-dom'
+import { EventProvider, useEvent } from '../context/EventContext'
+import { useEventConnection } from '../hooks/useEventConnection'
+import { useEventNotifications } from '../hooks/useEventNotifications'
+import { useAuth } from '../context/AuthContext'
+import { api } from '../api/client'
+import type { EventSnapshotResponse } from '../api/types'
+import { EventStatus, RoundStatus } from '../api/types'
+import styles from './EventLayout.module.css'
 
 function EventLayoutContent() {
-  const { eventId } = useParams<{ eventId: string }>();
-  const navigate = useNavigate();
-  const { state, dispatch, getPlayer } = useEvent();
-  const { isHost, getPlayerId } = useAuth();
+  const { eventId } = useParams<{ eventId: string }>()
+  const navigate = useNavigate()
+  const { state, dispatch, getPlayer } = useEvent()
+  const { isHost, getPlayerId } = useAuth()
 
   const handleSnapshot = useCallback(
     (snapshot: EventSnapshotResponse) => {
-      dispatch({ type: 'SET_SNAPSHOT', payload: snapshot });
+      dispatch({ type: 'SET_SNAPSHOT', payload: snapshot })
     },
     [dispatch]
-  );
+  )
 
   const handleError = useCallback(
     (code: string, message: string) => {
-      dispatch({ type: 'SET_ERROR', payload: message });
+      dispatch({ type: 'SET_ERROR', payload: message })
       if (code === 'EVENT_NOT_FOUND') {
-        navigate('/', { replace: true });
+        navigate('/', { replace: true })
       }
     },
     [dispatch, navigate]
-  );
+  )
 
   const { status } = useEventConnection({
     eventId: eventId!,
     onSnapshot: handleSnapshot,
     onError: handleError,
-  });
+  })
 
   // Update connection status in state
   useEffect(() => {
-    dispatch({ type: 'SET_CONNECTION_STATUS', payload: status });
-  }, [status, dispatch]);
+    dispatch({ type: 'SET_CONNECTION_STATUS', payload: status })
+  }, [status, dispatch])
 
   // Watch for event changes and show notifications
-  useEventNotifications(state.snapshot, eventId!);
+  useEventNotifications(state.snapshot, eventId!)
 
   // Fetch initial snapshot if SignalR takes time to connect
   useEffect(() => {
@@ -52,18 +52,18 @@ function EventLayoutContent() {
       api
         .getEvent(eventId!)
         .then((snapshot) => {
-          dispatch({ type: 'SET_SNAPSHOT', payload: snapshot });
+          dispatch({ type: 'SET_SNAPSHOT', payload: snapshot })
         })
         .catch((err) => {
-          dispatch({ type: 'SET_ERROR', payload: err.message });
-        });
+          dispatch({ type: 'SET_ERROR', payload: err.message })
+        })
     }
-  }, [eventId, state.isLoading, state.snapshot, dispatch]);
+  }, [eventId, state.isLoading, state.snapshot, dispatch])
 
-  const isHostUser = isHost(eventId!);
-  const playerId = getPlayerId(eventId!);
-  const currentPlayer = playerId ? getPlayer(playerId) : null;
-  const snapshot = state.snapshot;
+  const isHostUser = isHost(eventId!)
+  const playerId = getPlayerId(eventId!)
+  const currentPlayer = playerId ? getPlayer(playerId) : null
+  const snapshot = state.snapshot
 
   // Show loading state
   if (state.isLoading && !snapshot) {
@@ -72,7 +72,7 @@ function EventLayoutContent() {
         <div className={styles.spinner} />
         <p>Loading event...</p>
       </div>
-    );
+    )
   }
 
   // Show error state
@@ -83,24 +83,24 @@ function EventLayoutContent() {
         <p>{state.error}</p>
         <button onClick={() => navigate('/')}>Go Home</button>
       </div>
-    );
+    )
   }
 
   if (!snapshot) {
-    return null;
+    return null
   }
 
-  const showPairings = snapshot.status !== EventStatus.Setup;
+  const showPairings = snapshot.status !== EventStatus.Setup
   const currentRound = snapshot.rounds.find(
     (r) => r.roundNumber === snapshot.currentRound
-  );
+  )
   const isTournamentReady =
     snapshot.currentRound === snapshot.totalRounds &&
-    currentRound?.status === RoundStatus.Closed;
+    currentRound?.status === RoundStatus.Closed
   const showPrizes =
     snapshot.status === EventStatus.Completed ||
     snapshot.prizesAllocated ||
-    isTournamentReady;
+    isTournamentReady
 
   return (
     <div className={styles.layout}>
@@ -200,7 +200,7 @@ function EventLayoutContent() {
         <Outlet />
       </main>
     </div>
-  );
+  )
 }
 
 export function EventLayout() {
@@ -208,5 +208,5 @@ export function EventLayout() {
     <EventProvider>
       <EventLayoutContent />
     </EventProvider>
-  );
+  )
 }

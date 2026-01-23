@@ -1,10 +1,14 @@
-import { useReducer, useEffect, useCallback } from 'react';
-import type { CommanderSession, CommanderAction, CommanderPlayer } from '../types/lifeTracker';
-import { COMMANDER_STARTING_LIFE, MAX_POISON } from '../types/lifeTracker';
-import { lifeTrackerStorage } from '../lib/lifeTrackerStorage';
+import { useReducer, useEffect, useCallback } from 'react'
+import type {
+  CommanderSession,
+  CommanderAction,
+  CommanderPlayer,
+} from '../types/lifeTracker'
+import { COMMANDER_STARTING_LIFE, MAX_POISON } from '../types/lifeTracker'
+import { lifeTrackerStorage } from '../lib/lifeTrackerStorage'
 
 function generateId(): string {
-  return Math.random().toString(36).substring(2, 9);
+  return Math.random().toString(36).substring(2, 9)
 }
 
 function createPlayer(
@@ -12,7 +16,7 @@ function createPlayer(
   name: string,
   allPlayerIds: string[]
 ): CommanderPlayer {
-  const id = `player_${index}`;
+  const id = `player_${index}`
   return {
     id,
     name,
@@ -22,15 +26,15 @@ function createPlayer(
       .filter((pid) => pid !== id)
       .map((pid) => ({ fromPlayerId: pid, amount: 0 })),
     miscCounters: [],
-  };
+  }
 }
 
 function createSession(
   sessionId: string,
   playerNames: string[]
 ): CommanderSession {
-  const now = Date.now();
-  const playerIds = playerNames.map((_, i) => `player_${i}`);
+  const now = Date.now()
+  const playerIds = playerNames.map((_, i) => `player_${i}`)
 
   return {
     id: sessionId,
@@ -39,7 +43,7 @@ function createSession(
     updatedAt: now,
     startingLife: COMMANDER_STARTING_LIFE,
     players: playerNames.map((name, i) => createPlayer(i, name, playerIds)),
-  };
+  }
 }
 
 function commanderReducer(
@@ -53,7 +57,7 @@ function commanderReducer(
         players: state.players.map((p) =>
           p.id === action.playerId ? { ...p, life: action.life } : p
         ),
-      };
+      }
     }
 
     case 'ADJUST_LIFE': {
@@ -62,17 +66,17 @@ function commanderReducer(
         players: state.players.map((p) =>
           p.id === action.playerId ? { ...p, life: p.life + action.delta } : p
         ),
-      };
+      }
     }
 
     case 'SET_POISON': {
-      const poison = Math.max(0, Math.min(MAX_POISON, action.poison));
+      const poison = Math.max(0, Math.min(MAX_POISON, action.poison))
       return {
         ...state,
         players: state.players.map((p) =>
           p.id === action.playerId ? { ...p, poison } : p
         ),
-      };
+      }
     }
 
     case 'ADJUST_POISON': {
@@ -80,10 +84,16 @@ function commanderReducer(
         ...state,
         players: state.players.map((p) =>
           p.id === action.playerId
-            ? { ...p, poison: Math.max(0, Math.min(MAX_POISON, p.poison + action.delta)) }
+            ? {
+                ...p,
+                poison: Math.max(
+                  0,
+                  Math.min(MAX_POISON, p.poison + action.delta)
+                ),
+              }
             : p
         ),
-      };
+      }
     }
 
     case 'SET_COMMANDER_DAMAGE': {
@@ -101,7 +111,7 @@ function commanderReducer(
               }
             : p
         ),
-      };
+      }
     }
 
     case 'ADJUST_COMMANDER_DAMAGE': {
@@ -119,7 +129,7 @@ function commanderReducer(
               }
             : p
         ),
-      };
+      }
     }
 
     case 'ADD_MISC_COUNTER': {
@@ -136,7 +146,7 @@ function commanderReducer(
               }
             : p
         ),
-      };
+      }
     }
 
     case 'REMOVE_MISC_COUNTER': {
@@ -146,11 +156,13 @@ function commanderReducer(
           p.id === action.playerId
             ? {
                 ...p,
-                miscCounters: p.miscCounters.filter((c) => c.id !== action.counterId),
+                miscCounters: p.miscCounters.filter(
+                  (c) => c.id !== action.counterId
+                ),
               }
             : p
         ),
-      };
+      }
     }
 
     case 'SET_MISC_COUNTER': {
@@ -166,7 +178,7 @@ function commanderReducer(
               }
             : p
         ),
-      };
+      }
     }
 
     case 'ADJUST_MISC_COUNTER': {
@@ -177,12 +189,14 @@ function commanderReducer(
             ? {
                 ...p,
                 miscCounters: p.miscCounters.map((c) =>
-                  c.id === action.counterId ? { ...c, value: c.value + action.delta } : c
+                  c.id === action.counterId
+                    ? { ...c, value: c.value + action.delta }
+                    : c
                 ),
               }
             : p
         ),
-      };
+      }
     }
 
     case 'SET_PLAYER_NAME': {
@@ -191,7 +205,7 @@ function commanderReducer(
         players: state.players.map((p) =>
           p.id === action.playerId ? { ...p, name: action.name } : p
         ),
-      };
+      }
     }
 
     case 'SET_PANEL_COLOR': {
@@ -200,20 +214,22 @@ function commanderReducer(
         players: state.players.map((p) =>
           p.id === action.playerId ? { ...p, panelColor: action.color } : p
         ),
-      };
+      }
     }
 
     case 'SET_BACKGROUND_IMAGE': {
       return {
         ...state,
         players: state.players.map((p) =>
-          p.id === action.playerId ? { ...p, backgroundImage: action.imageUrl } : p
+          p.id === action.playerId
+            ? { ...p, backgroundImage: action.imageUrl }
+            : p
         ),
-      };
+      }
     }
 
     case 'RESET_ALL': {
-      const playerIds = state.players.map((p) => p.id);
+      const playerIds = state.players.map((p) => p.id)
       return {
         ...state,
         players: state.players.map((p) => ({
@@ -225,104 +241,121 @@ function commanderReducer(
             .map((pid) => ({ fromPlayerId: pid, amount: 0 })),
           // miscCounters, panelColor, backgroundImage preserved (sticky)
         })),
-      };
+      }
     }
 
     case 'LOAD_SESSION':
-      return action.session;
+      return action.session
 
     default:
-      return state;
+      return state
   }
 }
 
 interface UseCommanderLifeTrackerOptions {
-  sessionId: string;
-  playerNames?: string[];
+  sessionId: string
+  playerNames?: string[]
 }
 
-export function useCommanderLifeTracker(options: UseCommanderLifeTrackerOptions) {
-  const { sessionId, playerNames = ['Player 1', 'Player 2', 'Player 3', 'Player 4'] } = options;
+export function useCommanderLifeTracker(
+  options: UseCommanderLifeTrackerOptions
+) {
+  const {
+    sessionId,
+    playerNames = ['Player 1', 'Player 2', 'Player 3', 'Player 4'],
+  } = options
 
   // Try to load existing session or create new one
-  const initialSession = lifeTrackerStorage.getCommanderSession(sessionId)
-    ?? createSession(sessionId, playerNames);
+  const initialSession =
+    lifeTrackerStorage.getCommanderSession(sessionId) ??
+    createSession(sessionId, playerNames)
 
-  const [session, dispatch] = useReducer(commanderReducer, initialSession);
+  const [session, dispatch] = useReducer(commanderReducer, initialSession)
 
   // Auto-save on every state change
   useEffect(() => {
-    lifeTrackerStorage.saveCommanderSession(session);
-  }, [session]);
+    lifeTrackerStorage.saveCommanderSession(session)
+  }, [session])
 
   // Action helpers
   const adjustLife = useCallback((playerId: string, delta: number) => {
-    dispatch({ type: 'ADJUST_LIFE', playerId, delta });
-  }, []);
+    dispatch({ type: 'ADJUST_LIFE', playerId, delta })
+  }, [])
 
   const setLife = useCallback((playerId: string, life: number) => {
-    dispatch({ type: 'SET_LIFE', playerId, life });
-  }, []);
+    dispatch({ type: 'SET_LIFE', playerId, life })
+  }, [])
 
   const adjustPoison = useCallback((playerId: string, delta: number) => {
-    dispatch({ type: 'ADJUST_POISON', playerId, delta });
-  }, []);
+    dispatch({ type: 'ADJUST_POISON', playerId, delta })
+  }, [])
 
   const setPoison = useCallback((playerId: string, poison: number) => {
-    dispatch({ type: 'SET_POISON', playerId, poison });
-  }, []);
+    dispatch({ type: 'SET_POISON', playerId, poison })
+  }, [])
 
   const adjustCommanderDamage = useCallback(
     (playerId: string, fromPlayerId: string, delta: number) => {
-      dispatch({ type: 'ADJUST_COMMANDER_DAMAGE', playerId, fromPlayerId, delta });
+      dispatch({
+        type: 'ADJUST_COMMANDER_DAMAGE',
+        playerId,
+        fromPlayerId,
+        delta,
+      })
     },
     []
-  );
+  )
 
   const setCommanderDamage = useCallback(
     (playerId: string, fromPlayerId: string, amount: number) => {
-      dispatch({ type: 'SET_COMMANDER_DAMAGE', playerId, fromPlayerId, amount });
+      dispatch({ type: 'SET_COMMANDER_DAMAGE', playerId, fromPlayerId, amount })
     },
     []
-  );
+  )
 
   const addMiscCounter = useCallback((playerId: string, name: string) => {
-    dispatch({ type: 'ADD_MISC_COUNTER', playerId, name });
-  }, []);
+    dispatch({ type: 'ADD_MISC_COUNTER', playerId, name })
+  }, [])
 
-  const removeMiscCounter = useCallback((playerId: string, counterId: string) => {
-    dispatch({ type: 'REMOVE_MISC_COUNTER', playerId, counterId });
-  }, []);
+  const removeMiscCounter = useCallback(
+    (playerId: string, counterId: string) => {
+      dispatch({ type: 'REMOVE_MISC_COUNTER', playerId, counterId })
+    },
+    []
+  )
 
   const adjustMiscCounter = useCallback(
     (playerId: string, counterId: string, delta: number) => {
-      dispatch({ type: 'ADJUST_MISC_COUNTER', playerId, counterId, delta });
+      dispatch({ type: 'ADJUST_MISC_COUNTER', playerId, counterId, delta })
     },
     []
-  );
+  )
 
   const setMiscCounter = useCallback(
     (playerId: string, counterId: string, value: number) => {
-      dispatch({ type: 'SET_MISC_COUNTER', playerId, counterId, value });
+      dispatch({ type: 'SET_MISC_COUNTER', playerId, counterId, value })
     },
     []
-  );
+  )
 
   const setPlayerName = useCallback((playerId: string, name: string) => {
-    dispatch({ type: 'SET_PLAYER_NAME', playerId, name });
-  }, []);
+    dispatch({ type: 'SET_PLAYER_NAME', playerId, name })
+  }, [])
 
   const resetAll = useCallback(() => {
-    dispatch({ type: 'RESET_ALL' });
-  }, []);
+    dispatch({ type: 'RESET_ALL' })
+  }, [])
 
   const setPanelColor = useCallback((playerId: string, color: string) => {
-    dispatch({ type: 'SET_PANEL_COLOR', playerId, color });
-  }, []);
+    dispatch({ type: 'SET_PANEL_COLOR', playerId, color })
+  }, [])
 
-  const setBackgroundImage = useCallback((playerId: string, imageUrl: string | undefined) => {
-    dispatch({ type: 'SET_BACKGROUND_IMAGE', playerId, imageUrl });
-  }, []);
+  const setBackgroundImage = useCallback(
+    (playerId: string, imageUrl: string | undefined) => {
+      dispatch({ type: 'SET_BACKGROUND_IMAGE', playerId, imageUrl })
+    },
+    []
+  )
 
   return {
     session,
@@ -341,5 +374,5 @@ export function useCommanderLifeTracker(options: UseCommanderLifeTrackerOptions)
     resetAll,
     setPanelColor,
     setBackgroundImage,
-  };
+  }
 }

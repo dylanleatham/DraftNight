@@ -1,12 +1,12 @@
-import type { PlayerResponse } from '../../api/types';
-import { Badge } from '../ui';
-import styles from './PlayerCard.module.css';
+import type { PlayerResponse } from '../../api/types'
+import { Badge } from '../ui'
+import styles from './PlayerCard.module.css'
 
 interface PlayerCardProps {
-  player: PlayerResponse;
-  isCurrentUser?: boolean;
-  showStats?: boolean;
-  onDrop?: () => void;
+  player: PlayerResponse
+  isCurrentUser?: boolean
+  showStats?: boolean
+  onDrop?: () => void
 }
 
 export function PlayerCard({
@@ -16,7 +16,9 @@ export function PlayerCard({
   onDrop,
 }: PlayerCardProps) {
   return (
-    <div className={`${styles.card} ${isCurrentUser ? styles.currentUser : ''} ${player.isDropped ? styles.dropped : ''}`}>
+    <div
+      className={`${styles.card} ${isCurrentUser ? styles.currentUser : ''} ${player.isDropped ? styles.dropped : ''}`}
+    >
       <div className={styles.info}>
         <span className={styles.seed}>#{player.seed}</span>
         <span className={styles.name}>{player.name}</span>
@@ -32,10 +34,14 @@ export function PlayerCard({
         </div>
       )}
       {onDrop && !player.isDropped && (
-        <button className={styles.dropButton} onClick={onDrop} aria-label="Drop player">
+        <button
+          className={styles.dropButton}
+          onClick={onDrop}
+          aria-label="Drop player"
+        >
           Drop
         </button>
       )}
     </div>
-  );
+  )
 }

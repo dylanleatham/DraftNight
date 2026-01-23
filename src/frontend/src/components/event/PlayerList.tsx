@@ -1,12 +1,12 @@
-import type { PlayerResponse } from '../../api/types';
-import { PlayerCard } from './PlayerCard';
-import styles from './PlayerList.module.css';
+import type { PlayerResponse } from '../../api/types'
+import { PlayerCard } from './PlayerCard'
+import styles from './PlayerList.module.css'
 
 interface PlayerListProps {
-  players: PlayerResponse[];
-  currentPlayerId?: string | null;
-  showStats?: boolean;
-  onDropPlayer?: (playerId: string) => void;
+  players: PlayerResponse[]
+  currentPlayerId?: string | null
+  showStats?: boolean
+  onDropPlayer?: (playerId: string) => void
 }
 
 export function PlayerList({
@@ -16,7 +16,7 @@ export function PlayerList({
   onDropPlayer,
 }: PlayerListProps) {
   // Sort by seed
-  const sortedPlayers = [...players].sort((a, b) => a.seed - b.seed);
+  const sortedPlayers = [...players].sort((a, b) => a.seed - b.seed)
 
   return (
     <div className={styles.list}>
@@ -30,5 +30,5 @@ export function PlayerList({
         />
       ))}
     </div>
-  );
+  )
 }

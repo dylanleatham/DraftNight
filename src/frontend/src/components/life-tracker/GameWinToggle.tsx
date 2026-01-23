@@ -1,10 +1,10 @@
-import styles from './GameWinToggle.module.css';
+import styles from './GameWinToggle.module.css'
 
 interface GameWinToggleProps {
-  wins: number;
-  maxWins?: number;
-  onToggle: () => void;
-  inverted?: boolean;
+  wins: number
+  maxWins?: number
+  onToggle: () => void
+  inverted?: boolean
 }
 
 function TrophyIcon({ won }: { won: boolean }) {
@@ -19,7 +19,7 @@ function TrophyIcon({ won }: { won: boolean }) {
       <path d="M3 6h2v3a2 2 0 0 0 2 2h.17A6.98 6.98 0 0 1 5 7V6H3zm16 0h2v1h-2v-1a6.98 6.98 0 0 1-2.17 4H17a2 2 0 0 0 2-2V6z" />
       <rect x="8" y="18" width="8" height="2" rx="1" />
     </svg>
-  );
+  )
 }
 
 export function GameWinToggle({
@@ -40,5 +40,5 @@ export function GameWinToggle({
         ))}
       </div>
     </button>
-  );
+  )
 }

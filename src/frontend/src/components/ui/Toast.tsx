@@ -1,55 +1,55 @@
-import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
-import styles from './Toast.module.css';
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
+import styles from './Toast.module.css'
 
-export type ToastVariant = 'success' | 'warning' | 'error' | 'info';
+export type ToastVariant = 'success' | 'warning' | 'error' | 'info'
 
 export interface ToastData {
-  id: string;
-  variant: ToastVariant;
-  title: string;
-  message?: string;
-  duration?: number;
+  id: string
+  variant: ToastVariant
+  title: string
+  message?: string
+  duration?: number
 }
 
 interface ToastItemProps {
-  toast: ToastData;
-  onDismiss: (id: string) => void;
+  toast: ToastData
+  onDismiss: (id: string) => void
 }
 
 const icons: Record<ToastVariant, string> = {
   success: '\u2713', // checkmark
   warning: '\u26A0', // warning sign
-  error: '\u2717',   // x mark
-  info: '\u2139',    // info
-};
+  error: '\u2717', // x mark
+  info: '\u2139', // info
+}
 
 function ToastItem({ toast, onDismiss }: ToastItemProps) {
-  const [exiting, setExiting] = useState(false);
-  const duration = toast.duration ?? 5000;
+  const [exiting, setExiting] = useState(false)
+  const duration = toast.duration ?? 5000
 
   useEffect(() => {
-    if (duration <= 0) return;
+    if (duration <= 0) return
 
     const timer = setTimeout(() => {
-      setExiting(true);
-    }, duration);
+      setExiting(true)
+    }, duration)
 
-    return () => clearTimeout(timer);
-  }, [duration]);
+    return () => clearTimeout(timer)
+  }, [duration])
 
   useEffect(() => {
     if (exiting) {
       const timer = setTimeout(() => {
-        onDismiss(toast.id);
-      }, 200); // match animation duration
-      return () => clearTimeout(timer);
+        onDismiss(toast.id)
+      }, 200) // match animation duration
+      return () => clearTimeout(timer)
     }
-  }, [exiting, onDismiss, toast.id]);
+  }, [exiting, onDismiss, toast.id])
 
   const handleDismiss = () => {
-    setExiting(true);
-  };
+    setExiting(true)
+  }
 
   return (
     <div
@@ -72,16 +72,16 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
         &times;
       </button>
     </div>
-  );
+  )
 }
 
 interface ToastContainerProps {
-  toasts: ToastData[];
-  onDismiss: (id: string) => void;
+  toasts: ToastData[]
+  onDismiss: (id: string) => void
 }
 
 export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
-  if (toasts.length === 0) return null;
+  if (toasts.length === 0) return null
 
   return createPortal(
     <div className={styles.container}>
@@ -90,5 +90,5 @@ export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
       ))}
     </div>,
     document.body
-  );
+  )
 }

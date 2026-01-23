@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import type { PlayerColor } from './BasePlayerPanel';
-import styles from './ColorPicker.module.css';
+import { useState } from 'react'
+import type { PlayerColor } from './BasePlayerPanel'
+import styles from './ColorPicker.module.css'
 
 const PRESET_COLORS: { name: PlayerColor; hex: string; label: string }[] = [
   { name: 'blue', hex: '#3b82f6', label: 'Blue' },
@@ -9,14 +9,14 @@ const PRESET_COLORS: { name: PlayerColor; hex: string; label: string }[] = [
   { name: 'purple', hex: '#a855f7', label: 'Purple' },
   { name: 'orange', hex: '#f97316', label: 'Orange' },
   { name: 'teal', hex: '#14b8a6', label: 'Teal' },
-];
+]
 
 interface ColorPickerProps {
-  currentColor: string;
-  onSelectColor: (color: string) => void;
-  onSelectImage?: (imageUrl: string | undefined) => void;
-  currentImage?: string;
-  onClose: () => void;
+  currentColor: string
+  onSelectColor: (color: string) => void
+  onSelectImage?: (imageUrl: string | undefined) => void
+  currentImage?: string
+  onClose: () => void
 }
 
 export function ColorPicker({
@@ -26,57 +26,61 @@ export function ColorPicker({
   currentImage,
   onClose,
 }: ColorPickerProps) {
-  const [customHex, setCustomHex] = useState('');
-  const [imageUrl, setImageUrl] = useState(currentImage ?? '');
-  const [activeTab, setActiveTab] = useState<'color' | 'image'>('color');
+  const [customHex, setCustomHex] = useState('')
+  const [imageUrl, setImageUrl] = useState(currentImage ?? '')
+  const [activeTab, setActiveTab] = useState<'color' | 'image'>('color')
 
   const handlePresetSelect = (color: PlayerColor) => {
-    onSelectColor(color);
-    onClose();
-  };
+    onSelectColor(color)
+    onClose()
+  }
 
   const handleCustomHex = () => {
-    const hex = customHex.trim();
+    const hex = customHex.trim()
     if (/^#?[0-9A-Fa-f]{6}$/.test(hex)) {
-      const normalizedHex = hex.startsWith('#') ? hex : `#${hex}`;
-      onSelectColor(normalizedHex);
-      onClose();
+      const normalizedHex = hex.startsWith('#') ? hex : `#${hex}`
+      onSelectColor(normalizedHex)
+      onClose()
     }
-  };
+  }
 
   const handleImageUrl = () => {
     if (onSelectImage) {
-      onSelectImage(imageUrl.trim() || undefined);
-      onClose();
+      onSelectImage(imageUrl.trim() || undefined)
+      onClose()
     }
-  };
+  }
 
   const handleClearImage = () => {
     if (onSelectImage) {
-      onSelectImage(undefined);
-      setImageUrl('');
+      onSelectImage(undefined)
+      setImageUrl('')
     }
-  };
+  }
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !onSelectImage) return;
+    const file = e.target.files?.[0]
+    if (!file || !onSelectImage) return
 
     // Check file size (warn if > 500KB)
     if (file.size > 500 * 1024) {
-      if (!confirm('Image is larger than 500KB. Large images may slow down the app. Continue?')) {
-        return;
+      if (
+        !confirm(
+          'Image is larger than 500KB. Large images may slow down the app. Continue?'
+        )
+      ) {
+        return
       }
     }
 
-    const reader = new FileReader();
+    const reader = new FileReader()
     reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      onSelectImage(dataUrl);
-      onClose();
-    };
-    reader.readAsDataURL(file);
-  };
+      const dataUrl = event.target?.result as string
+      onSelectImage(dataUrl)
+      onClose()
+    }
+    reader.readAsDataURL(file)
+  }
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -131,7 +135,10 @@ export function ColorPicker({
                   placeholder="ff5500"
                   maxLength={6}
                 />
-                <button className={styles.applyButton} onClick={handleCustomHex}>
+                <button
+                  className={styles.applyButton}
+                  onClick={handleCustomHex}
+                >
                   Apply
                 </button>
               </div>
@@ -170,7 +177,10 @@ export function ColorPicker({
               </div>
 
               {currentImage && (
-                <button className={styles.clearButton} onClick={handleClearImage}>
+                <button
+                  className={styles.clearButton}
+                  onClick={handleClearImage}
+                >
                   Clear Image
                 </button>
               )}
@@ -179,5 +189,5 @@ export function ColorPicker({
         )}
       </div>
     </div>
-  );
+  )
 }

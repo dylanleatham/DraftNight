@@ -1,89 +1,89 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Button, Input, Card } from '../components/ui';
-import { lifeTrackerStorage } from '../lib/lifeTrackerStorage';
-import type { TrackerMode, LifeTrackerSession } from '../types/lifeTracker';
-import styles from './LifeTrackerSetupPage.module.css';
+import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { Button, Input, Card } from '../components/ui'
+import { lifeTrackerStorage } from '../lib/lifeTrackerStorage'
+import type { TrackerMode, LifeTrackerSession } from '../types/lifeTracker'
+import styles from './LifeTrackerSetupPage.module.css'
 
 function generateSessionId(): string {
-  return `lt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  return `lt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 }
 
 function formatSessionTime(timestamp: number): string {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diff = now.getTime() - timestamp;
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diff = now.getTime() - timestamp
 
-  if (diff < 60000) return 'Just now';
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  if (diff < 60000) return 'Just now'
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
 
-  return date.toLocaleDateString();
+  return date.toLocaleDateString()
 }
 
 function getSessionDescription(session: LifeTrackerSession): string {
   if (session.mode === 'draft') {
-    return `${session.playerA.name} vs ${session.playerB.name}`;
+    return `${session.playerA.name} vs ${session.playerB.name}`
   }
-  return `${session.players.length} players`;
+  return `${session.players.length} players`
 }
 
 export function LifeTrackerSetupPage() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  const [mode, setMode] = useState<TrackerMode>('draft');
-  const [playerAName, setPlayerAName] = useState('');
-  const [playerBName, setPlayerBName] = useState('');
-  const [playerCount, setPlayerCount] = useState(4);
-  const [playerNames, setPlayerNames] = useState<string[]>(['', '', '', '']);
-  const [sessionsVersion, setSessionsVersion] = useState(0);
+  const [mode, setMode] = useState<TrackerMode>('draft')
+  const [playerAName, setPlayerAName] = useState('')
+  const [playerBName, setPlayerBName] = useState('')
+  const [playerCount, setPlayerCount] = useState(4)
+  const [playerNames, setPlayerNames] = useState<string[]>(['', '', '', ''])
+  const [sessionsVersion, setSessionsVersion] = useState(0)
 
   // Re-fetch sessions when version changes (after delete)
   // sessionsVersion dependency ensures component re-renders when sessions are deleted
-  void sessionsVersion;
-  const recentSessions = lifeTrackerStorage.getRecentSessions();
+  void sessionsVersion
+  const recentSessions = lifeTrackerStorage.getRecentSessions()
 
   const handleStartDraft = () => {
-    const sessionId = generateSessionId();
+    const sessionId = generateSessionId()
     const params = new URLSearchParams({
       mode: 'draft',
       playerA: playerAName || 'Player 1',
       playerB: playerBName || 'Player 2',
-    });
-    navigate(`/life-tracker/game/${sessionId}?${params.toString()}`);
-  };
+    })
+    navigate(`/life-tracker/game/${sessionId}?${params.toString()}`)
+  }
 
   const handleStartCommander = () => {
-    const sessionId = generateSessionId();
-    const names = playerNames.slice(0, playerCount).map(
-      (name, i) => name || `Player ${i + 1}`
-    );
+    const sessionId = generateSessionId()
+    const names = playerNames
+      .slice(0, playerCount)
+      .map((name, i) => name || `Player ${i + 1}`)
     const params = new URLSearchParams({
       mode: 'commander',
       players: names.join(','),
-    });
-    navigate(`/life-tracker/game/${sessionId}?${params.toString()}`);
-  };
+    })
+    navigate(`/life-tracker/game/${sessionId}?${params.toString()}`)
+  }
 
   const handleResumeSession = (session: LifeTrackerSession) => {
-    navigate(`/life-tracker/game/${session.id}?mode=${session.mode}`);
-  };
+    navigate(`/life-tracker/game/${session.id}?mode=${session.mode}`)
+  }
 
   const handleDeleteSession = (session: LifeTrackerSession) => {
     if (session.mode === 'draft') {
-      lifeTrackerStorage.deleteDraftSession(session.id);
+      lifeTrackerStorage.deleteDraftSession(session.id)
     } else {
-      lifeTrackerStorage.deleteCommanderSession(session.id);
+      lifeTrackerStorage.deleteCommanderSession(session.id)
     }
     // Force re-render by incrementing version
-    setSessionsVersion((v) => v + 1);
-  };
+    setSessionsVersion((v) => v + 1)
+  }
 
   const handlePlayerNameChange = (index: number, name: string) => {
-    const newNames = [...playerNames];
-    newNames[index] = name;
-    setPlayerNames(newNames);
-  };
+    const newNames = [...playerNames]
+    newNames[index] = name
+    setPlayerNames(newNames)
+  }
 
   return (
     <div className={styles.container}>
@@ -205,5 +205,5 @@ export function LifeTrackerSetupPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

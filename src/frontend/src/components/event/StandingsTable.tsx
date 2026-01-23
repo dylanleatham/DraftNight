@@ -1,13 +1,16 @@
-import type { StandingEntry } from '../../api/types';
-import { Badge } from '../ui';
-import styles from './StandingsTable.module.css';
+import type { StandingEntry } from '../../api/types'
+import { Badge } from '../ui'
+import styles from './StandingsTable.module.css'
 
 interface StandingsTableProps {
-  standings: StandingEntry[];
-  currentPlayerId?: string | null;
+  standings: StandingEntry[]
+  currentPlayerId?: string | null
 }
 
-export function StandingsTable({ standings, currentPlayerId }: StandingsTableProps) {
+export function StandingsTable({
+  standings,
+  currentPlayerId,
+}: StandingsTableProps) {
   return (
     <div className={styles.container}>
       <table className={styles.table}>
@@ -40,5 +43,5 @@ export function StandingsTable({ standings, currentPlayerId }: StandingsTablePro
         </tbody>
       </table>
     </div>
-  );
+  )
 }

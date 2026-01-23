@@ -1,12 +1,12 @@
-import { type ButtonHTMLAttributes, type ReactNode } from 'react';
-import styles from './Button.module.css';
+import { type ButtonHTMLAttributes, type ReactNode } from 'react'
+import styles from './Button.module.css'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
-  size?: 'small' | 'medium' | 'large';
-  fullWidth?: boolean;
-  loading?: boolean;
-  children: ReactNode;
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
+  size?: 'small' | 'medium' | 'large'
+  fullWidth?: boolean
+  loading?: boolean
+  children: ReactNode
 }
 
 export function Button({
@@ -25,11 +25,7 @@ export function Button({
       disabled={disabled || loading}
       {...props}
     >
-      {loading ? (
-        <span className={styles.spinner} />
-      ) : (
-        children
-      )}
+      {loading ? <span className={styles.spinner} /> : children}
     </button>
-  );
+  )
 }

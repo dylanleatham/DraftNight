@@ -1,59 +1,59 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Modal, Input } from '../components/ui';
-import { PlayerList } from '../components/event';
-import { useEvent } from '../context/EventContext';
-import { useAuth } from '../context/AuthContext';
-import { useHostActions } from '../hooks/useHostActions';
-import { EventStatus } from '../api/types';
-import styles from './LobbyPage.module.css';
+import { useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { Button, Modal, Input } from '../components/ui'
+import { PlayerList } from '../components/event'
+import { useEvent } from '../context/EventContext'
+import { useAuth } from '../context/AuthContext'
+import { useHostActions } from '../hooks/useHostActions'
+import { EventStatus } from '../api/types'
+import styles from './LobbyPage.module.css'
 
 export function LobbyPage() {
-  const { eventId } = useParams<{ eventId: string }>();
-  const navigate = useNavigate();
-  const { state } = useEvent();
-  const { isHost, getPlayerId, hostSession } = useAuth();
-  const { startEvent, dropPlayer } = useHostActions(eventId!);
+  const { eventId } = useParams<{ eventId: string }>()
+  const navigate = useNavigate()
+  const { state } = useEvent()
+  const { isHost, getPlayerId, hostSession } = useAuth()
+  const { startEvent, dropPlayer } = useHostActions(eventId!)
 
-  const [isStarting, setIsStarting] = useState(false);
-  const [dropModalOpen, setDropModalOpen] = useState(false);
-  const [playerToDrop, setPlayerToDrop] = useState<string | null>(null);
-  const [dropReason, setDropReason] = useState('');
+  const [isStarting, setIsStarting] = useState(false)
+  const [dropModalOpen, setDropModalOpen] = useState(false)
+  const [playerToDrop, setPlayerToDrop] = useState<string | null>(null)
+  const [dropReason, setDropReason] = useState('')
 
-  const snapshot = state.snapshot;
-  const isHostUser = isHost(eventId!);
-  const playerId = getPlayerId(eventId!);
+  const snapshot = state.snapshot
+  const isHostUser = isHost(eventId!)
+  const playerId = getPlayerId(eventId!)
 
-  if (!snapshot) return null;
+  if (!snapshot) return null
 
-  const isSetup = snapshot.status === EventStatus.Setup;
-  const canStart = isSetup && snapshot.players.length >= 2;
-  const activePlayers = snapshot.players.filter((p) => !p.isDropped);
+  const isSetup = snapshot.status === EventStatus.Setup
+  const canStart = isSetup && snapshot.players.length >= 2
+  const activePlayers = snapshot.players.filter((p) => !p.isDropped)
 
   const handleStart = async () => {
-    setIsStarting(true);
-    const success = await startEvent();
-    setIsStarting(false);
+    setIsStarting(true)
+    const success = await startEvent()
+    setIsStarting(false)
     if (success) {
-      navigate(`/event/${eventId}/pairings`);
+      navigate(`/event/${eventId}/pairings`)
     }
-  };
+  }
 
   const handleDropClick = (playerId: string) => {
-    setPlayerToDrop(playerId);
-    setDropReason('');
-    setDropModalOpen(true);
-  };
+    setPlayerToDrop(playerId)
+    setDropReason('')
+    setDropModalOpen(true)
+  }
 
   const handleDropConfirm = async () => {
-    if (!playerToDrop) return;
-    await dropPlayer(playerToDrop, dropReason || undefined);
-    setDropModalOpen(false);
-    setPlayerToDrop(null);
-    setDropReason('');
-  };
+    if (!playerToDrop) return
+    await dropPlayer(playerToDrop, dropReason || undefined)
+    setDropModalOpen(false)
+    setPlayerToDrop(null)
+    setDropReason('')
+  }
 
-  const playerToDropInfo = snapshot.players.find((p) => p.id === playerToDrop);
+  const playerToDropInfo = snapshot.players.find((p) => p.id === playerToDrop)
 
   return (
     <div className={styles.container}>
@@ -67,7 +67,7 @@ export function LobbyPage() {
               onClick={() => {
                 navigator.clipboard.writeText(
                   `${window.location.origin}/join?code=${hostSession.joinCode}`
-                );
+                )
               }}
             >
               Copy Link
@@ -81,11 +81,7 @@ export function LobbyPage() {
           <h2 className={styles.sectionTitle}>
             Players ({activePlayers.length})
           </h2>
-          {isSetup && (
-            <span className={styles.playerRange}>
-              Min 2, Max 8
-            </span>
-          )}
+          {isSetup && <span className={styles.playerRange}>Min 2, Max 8</span>}
         </div>
 
         <PlayerList
@@ -151,10 +147,7 @@ export function LobbyPage() {
             placeholder="Enter reason..."
           />
           <div className={styles.modalActions}>
-            <Button
-              variant="secondary"
-              onClick={() => setDropModalOpen(false)}
-            >
+            <Button variant="secondary" onClick={() => setDropModalOpen(false)}>
               Cancel
             </Button>
             <Button variant="danger" onClick={handleDropConfirm}>
@@ -164,5 +157,5 @@ export function LobbyPage() {
         </div>
       </Modal>
     </div>
-  );
+  )
 }

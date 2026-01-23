@@ -1,72 +1,72 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Button, Input } from '../components/ui';
-import { api, ApiError } from '../api/client';
-import { useAuth } from '../context/AuthContext';
-import styles from './JoinEventPage.module.css';
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
+import { Button, Input } from '../components/ui'
+import { api, ApiError } from '../api/client'
+import { useAuth } from '../context/AuthContext'
+import styles from './JoinEventPage.module.css'
 
 export function JoinEventPage() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { setPlayerSession } = useAuth();
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const { setPlayerSession } = useAuth()
 
-  const [joinCode, setJoinCode] = useState(searchParams.get('code') ?? '');
-  const [playerName, setPlayerName] = useState('');
-  const [playerPin, setPlayerPin] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [joinCode, setJoinCode] = useState(searchParams.get('code') ?? '')
+  const [playerName, setPlayerName] = useState('')
+  const [playerPin, setPlayerPin] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Pre-fill join code from URL
   useEffect(() => {
-    const code = searchParams.get('code');
+    const code = searchParams.get('code')
     if (code) {
-      setJoinCode(code.toUpperCase());
+      setJoinCode(code.toUpperCase())
     }
-  }, [searchParams]);
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+    e.preventDefault()
+    setError(null)
 
     // Validation
     if (!joinCode.trim() || joinCode.length < 4) {
-      setError('Join code is required');
-      return;
+      setError('Join code is required')
+      return
     }
     if (!playerName.trim()) {
-      setError('Player name is required');
-      return;
+      setError('Player name is required')
+      return
     }
     if (!playerPin || playerPin.length < 4) {
-      setError('Player PIN must be at least 4 characters');
-      return;
+      setError('Player PIN must be at least 4 characters')
+      return
     }
 
-    setIsLoading(true);
+    setIsLoading(true)
     try {
       const response = await api.joinEvent({
         joinCode: joinCode.trim().toUpperCase(),
         playerName: playerName.trim(),
         playerPin,
-      });
+      })
 
       setPlayerSession({
         eventId: response.eventId,
         playerId: response.playerId,
         playerToken: response.playerToken,
-      });
+      })
 
-      navigate(`/event/${response.eventId}/lobby`);
+      navigate(`/event/${response.eventId}/lobby`)
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(err.message);
+        setError(err.message)
       } else {
-        setError('Failed to join event. Please check the code and try again.');
+        setError('Failed to join event. Please check the code and try again.')
       }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className={styles.container}>
@@ -115,5 +115,5 @@ export function JoinEventPage() {
         </form>
       </div>
     </div>
-  );
+  )
 }

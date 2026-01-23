@@ -1,128 +1,135 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { api, ApiError } from '../api/client';
-import { useAuth } from '../context/AuthContext';
-import { useEvent } from '../context/EventContext';
-import { Card, Spinner } from '../components/ui';
-import type { AuditLogEntry } from '../api/types';
-import { AuditActionType } from '../api/types';
-import styles from './AuditLogPage.module.css';
+import { useState, useEffect, useCallback } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { api, ApiError } from '../api/client'
+import { useAuth } from '../context/AuthContext'
+import { useEvent } from '../context/EventContext'
+import { Card, Spinner } from '../components/ui'
+import type { AuditLogEntry } from '../api/types'
+import { AuditActionType } from '../api/types'
+import styles from './AuditLogPage.module.css'
 
 function getActionTypeLabel(actionType: AuditActionType): string {
   switch (actionType) {
     case AuditActionType.EventCreated:
-      return 'Event Created';
+      return 'Event Created'
     case AuditActionType.EventStarted:
-      return 'Event Started';
+      return 'Event Started'
     case AuditActionType.PlayerJoined:
-      return 'Player Joined';
+      return 'Player Joined'
     case AuditActionType.PlayerDropped:
-      return 'Player Dropped';
+      return 'Player Dropped'
     case AuditActionType.PairingsGenerated:
-      return 'Pairings Generated';
+      return 'Pairings Generated'
     case AuditActionType.MatchFinalized:
-      return 'Match Finalized';
+      return 'Match Finalized'
     case AuditActionType.PrizesAllocated:
-      return 'Prizes Allocated';
+      return 'Prizes Allocated'
     case AuditActionType.HostRepair:
-      return 'Host Repair';
+      return 'Host Repair'
     case AuditActionType.MatchReopened:
-      return 'Match Reopened';
+      return 'Match Reopened'
     default:
-      return 'Unknown Action';
+      return 'Unknown Action'
   }
 }
 
-function getActionTypeVariant(actionType: AuditActionType): 'info' | 'success' | 'warning' | 'error' {
+function getActionTypeVariant(
+  actionType: AuditActionType
+): 'info' | 'success' | 'warning' | 'error' {
   switch (actionType) {
     case AuditActionType.EventCreated:
     case AuditActionType.EventStarted:
     case AuditActionType.PlayerJoined:
-      return 'info';
+      return 'info'
     case AuditActionType.PairingsGenerated:
     case AuditActionType.MatchFinalized:
     case AuditActionType.PrizesAllocated:
-      return 'success';
+      return 'success'
     case AuditActionType.PlayerDropped:
     case AuditActionType.HostRepair:
     case AuditActionType.MatchReopened:
-      return 'warning';
+      return 'warning'
     default:
-      return 'info';
+      return 'info'
   }
 }
 
 function formatTimestamp(isoString: string): string {
-  const date = new Date(isoString);
+  const date = new Date(isoString)
   return date.toLocaleString(undefined, {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  });
+  })
 }
 
-function getEntityDescription(entry: AuditLogEntry, getPlayerName: (id: string) => string | undefined): string {
+function getEntityDescription(
+  entry: AuditLogEntry,
+  getPlayerName: (id: string) => string | undefined
+): string {
   if (entry.entityType === 'Player' && entry.entityId) {
-    const name = getPlayerName(entry.entityId);
-    return name ? `Player: ${name}` : `Player ID: ${entry.entityId.slice(0, 8)}...`;
+    const name = getPlayerName(entry.entityId)
+    return name
+      ? `Player: ${name}`
+      : `Player ID: ${entry.entityId.slice(0, 8)}...`
   }
   if (entry.entityType === 'Match' && entry.entityId) {
-    return `Match: ${entry.entityId.slice(0, 8)}...`;
+    return `Match: ${entry.entityId.slice(0, 8)}...`
   }
   if (entry.entityType === 'Round' && entry.entityId) {
-    return `Round ${entry.entityId}`;
+    return `Round ${entry.entityId}`
   }
   if (entry.entityType === 'Event') {
-    return '';
+    return ''
   }
-  return entry.entityType;
+  return entry.entityType
 }
 
 export function AuditLogPage() {
-  const { eventId } = useParams<{ eventId: string }>();
-  const { getHostToken } = useAuth();
-  const { getPlayer } = useEvent();
+  const { eventId } = useParams<{ eventId: string }>()
+  const { getHostToken } = useAuth()
+  const { getPlayer } = useEvent()
 
-  const [entries, setEntries] = useState<AuditLogEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [entries, setEntries] = useState<AuditLogEntry[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const hostToken = getHostToken(eventId!);
+  const hostToken = getHostToken(eventId!)
 
   const loadAuditLog = useCallback(async () => {
     if (!hostToken) {
-      setError('Only the host can view the audit log');
-      setLoading(false);
-      return;
+      setError('Only the host can view the audit log')
+      setLoading(false)
+      return
     }
 
     try {
-      const response = await api.getAuditLog(eventId!, hostToken);
-      setEntries(response.entries);
-      setError(null);
+      const response = await api.getAuditLog(eventId!, hostToken)
+      setEntries(response.entries)
+      setError(null)
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(err.message);
+        setError(err.message)
       } else {
-        setError('Failed to load audit log');
+        setError('Failed to load audit log')
       }
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [eventId, hostToken]);
+  }, [eventId, hostToken])
 
   useEffect(() => {
-    loadAuditLog();
-  }, [loadAuditLog]);
+    loadAuditLog()
+  }, [loadAuditLog])
 
   const getPlayerName = useCallback(
     (playerId: string): string | undefined => {
-      const player = getPlayer(playerId);
-      return player?.name;
+      const player = getPlayer(playerId)
+      return player?.name
     },
     [getPlayer]
-  );
+  )
 
   if (!hostToken) {
     return (
@@ -134,7 +141,7 @@ export function AuditLogPage() {
           </Link>
         </div>
       </div>
-    );
+    )
   }
 
   if (loading) {
@@ -145,7 +152,7 @@ export function AuditLogPage() {
           <p>Loading audit log...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -158,14 +165,16 @@ export function AuditLogPage() {
           </Link>
         </div>
       </div>
-    );
+    )
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>Audit Log</h2>
-        <p className={styles.subtitle}>Chronological history of all event actions</p>
+        <p className={styles.subtitle}>
+          Chronological history of all event actions
+        </p>
       </div>
 
       {entries.length === 0 ? (
@@ -175,11 +184,14 @@ export function AuditLogPage() {
       ) : (
         <div className={styles.timeline}>
           {entries.map((entry) => {
-            const variant = getActionTypeVariant(entry.actionType);
-            const entityDesc = getEntityDescription(entry, getPlayerName);
+            const variant = getActionTypeVariant(entry.actionType)
+            const entityDesc = getEntityDescription(entry, getPlayerName)
 
             return (
-              <Card key={entry.id} className={`${styles.entry} ${styles[variant]}`}>
+              <Card
+                key={entry.id}
+                className={`${styles.entry} ${styles[variant]}`}
+              >
                 <div className={styles.entryHeader}>
                   <span className={`${styles.actionType} ${styles[variant]}`}>
                     {getActionTypeLabel(entry.actionType)}
@@ -193,14 +205,15 @@ export function AuditLogPage() {
                 )}
                 {entry.reason && (
                   <div className={styles.reason}>
-                    <span className={styles.reasonLabel}>Reason:</span> {entry.reason}
+                    <span className={styles.reasonLabel}>Reason:</span>{' '}
+                    {entry.reason}
                   </div>
                 )}
               </Card>
-            );
+            )
           })}
         </div>
       )}
     </div>
-  );
+  )
 }

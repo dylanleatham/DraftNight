@@ -1,12 +1,12 @@
-import { useState, useCallback } from 'react';
-import styles from './LifeCounter.module.css';
+import { useState, useCallback } from 'react'
+import styles from './LifeCounter.module.css'
 
 interface LifeCounterProps {
-  life: number;
-  onLifeChange: (newLife: number) => void;
-  onAdjust: (delta: number) => void;
-  color?: 'blue' | 'red' | 'green' | 'purple' | 'orange' | 'teal';
-  inverted?: boolean;
+  life: number
+  onLifeChange: (newLife: number) => void
+  onAdjust: (delta: number) => void
+  color?: 'blue' | 'red' | 'green' | 'purple' | 'orange' | 'teal'
+  inverted?: boolean
 }
 
 export function LifeCounter({
@@ -16,32 +16,32 @@ export function LifeCounter({
   color = 'blue',
   inverted = false,
 }: LifeCounterProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState('');
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState('')
 
   const handleLifeClick = useCallback(() => {
-    setEditValue(life.toString());
-    setIsEditing(true);
-  }, [life]);
+    setEditValue(life.toString())
+    setIsEditing(true)
+  }, [life])
 
   const handleEditSubmit = useCallback(() => {
-    const newLife = parseInt(editValue, 10);
+    const newLife = parseInt(editValue, 10)
     if (!isNaN(newLife)) {
-      onLifeChange(newLife);
+      onLifeChange(newLife)
     }
-    setIsEditing(false);
-  }, [editValue, onLifeChange]);
+    setIsEditing(false)
+  }, [editValue, onLifeChange])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') {
-        handleEditSubmit();
+        handleEditSubmit()
       } else if (e.key === 'Escape') {
-        setIsEditing(false);
+        setIsEditing(false)
       }
     },
     [handleEditSubmit]
-  );
+  )
 
   return (
     <div
@@ -97,5 +97,5 @@ export function LifeCounter({
         </button>
       </div>
     </div>
-  );
+  )
 }

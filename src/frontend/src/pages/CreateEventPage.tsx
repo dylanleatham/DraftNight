@@ -1,64 +1,64 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Button, Input } from '../components/ui';
-import { api, ApiError } from '../api/client';
-import { useAuth } from '../context/AuthContext';
-import styles from './CreateEventPage.module.css';
+import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { Button, Input } from '../components/ui'
+import { api, ApiError } from '../api/client'
+import { useAuth } from '../context/AuthContext'
+import styles from './CreateEventPage.module.css'
 
 export function CreateEventPage() {
-  const navigate = useNavigate();
-  const { setHostSession } = useAuth();
+  const navigate = useNavigate()
+  const { setHostSession } = useAuth()
 
-  const [name, setName] = useState('');
-  const [packsInBox, setPacksInBox] = useState('36');
-  const [hostPin, setHostPin] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [name, setName] = useState('')
+  const [packsInBox, setPacksInBox] = useState('36')
+  const [hostPin, setHostPin] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+    e.preventDefault()
+    setError(null)
 
     // Validation
     if (!name.trim()) {
-      setError('Event name is required');
-      return;
+      setError('Event name is required')
+      return
     }
-    const packs = parseInt(packsInBox, 10);
+    const packs = parseInt(packsInBox, 10)
     if (isNaN(packs) || packs < 6 || packs > 48) {
-      setError('Packs must be between 6 and 48');
-      return;
+      setError('Packs must be between 6 and 48')
+      return
     }
     if (!hostPin || hostPin.length < 4) {
-      setError('Host PIN must be at least 4 characters');
-      return;
+      setError('Host PIN must be at least 4 characters')
+      return
     }
 
-    setIsLoading(true);
+    setIsLoading(true)
     try {
       const response = await api.createEvent({
         name: name.trim(),
         packsInBox: packs,
         hostPin,
-      });
+      })
 
       setHostSession({
         eventId: response.eventId,
         hostToken: response.hostToken,
         joinCode: response.joinCode,
-      });
+      })
 
-      navigate(`/event/${response.eventId}/lobby`);
+      navigate(`/event/${response.eventId}/lobby`)
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(err.message);
+        setError(err.message)
       } else {
-        setError('Failed to create event. Please try again.');
+        setError('Failed to create event. Please try again.')
       }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className={styles.container}>
@@ -106,5 +106,5 @@ export function CreateEventPage() {
         </form>
       </div>
     </div>
-  );
+  )
 }
