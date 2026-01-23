@@ -51,6 +51,16 @@ public sealed record Match
     public Match ClearWinner() => this with { WinnerId = null };
 
     /// <summary>
+    /// Returns a new match with a different player A.
+    /// </summary>
+    public Match WithPlayerA(string playerId) => this with { PlayerAId = playerId };
+
+    /// <summary>
+    /// Returns a new match with a different player B.
+    /// </summary>
+    public Match WithPlayerB(string playerId) => this with { PlayerBId = playerId };
+
+    /// <summary>
     /// Creates a regular match between two players.
     /// </summary>
     public static Match Create(string id, int round, string playerAId, string playerBId) => new()

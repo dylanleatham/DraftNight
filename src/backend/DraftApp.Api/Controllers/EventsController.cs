@@ -194,6 +194,75 @@ public class EventsController(IEventService eventService) : ControllerBase
         return HandleMutationResponse(response);
     }
 
+    /// <summary>
+    /// Swaps two players between their respective matches in a round.
+    /// </summary>
+    [HttpPost("{eventId:guid}/rounds/{roundNumber:int}/swap-opponents")]
+    [ProducesResponseType(typeof(MutationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> SwapOpponents(Guid eventId, int roundNumber, [FromBody] SwapOpponentsRequest request, CancellationToken ct)
+    {
+        var authResult = await AuthorizeHostAsync(eventId, ct);
+        if (authResult is not null)
+        {
+            return authResult;
+        }
+
+        var response = await eventService.SwapOpponentsAsync(
+            eventId,
+            roundNumber,
+            request.MatchId1,
+            request.PlayerId1,
+            request.MatchId2,
+            request.PlayerId2,
+            request.ExpectedVersion,
+            request.Reason,
+            ct);
+        return HandleMutationResponse(response);
+    }
+
+    /// <summary>
+    /// Reopens all finalized matches in a round.
+    /// </summary>
+    [HttpPost("{eventId:guid}/rounds/{roundNumber:int}/reopen")]
+    [ProducesResponseType(typeof(MutationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ReopenRound(Guid eventId, int roundNumber, [FromBody] ReopenRoundRequest request, CancellationToken ct)
+    {
+        var authResult = await AuthorizeHostAsync(eventId, ct);
+        if (authResult is not null)
+        {
+            return authResult;
+        }
+
+        var response = await eventService.ReopenRoundAsync(eventId, roundNumber, request.ExpectedVersion, request.Reason, ct);
+        return HandleMutationResponse(response);
+    }
+
+    /// <summary>
+    /// Regenerates pairings for a round, deleting existing pairings and creating new ones.
+    /// </summary>
+    [HttpPost("{eventId:guid}/rounds/{roundNumber:int}/regenerate")]
+    [ProducesResponseType(typeof(MutationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> RegeneratePairings(Guid eventId, int roundNumber, [FromBody] RegeneratePairingsRequest request, CancellationToken ct)
+    {
+        var authResult = await AuthorizeHostAsync(eventId, ct);
+        if (authResult is not null)
+        {
+            return authResult;
+        }
+
+        var response = await eventService.RegeneratePairingsAsync(eventId, roundNumber, request.ExpectedVersion, request.Reason, ct);
+        return HandleMutationResponse(response);
+    }
+
     // ========================================
     // Read-Only APIs
     // ========================================

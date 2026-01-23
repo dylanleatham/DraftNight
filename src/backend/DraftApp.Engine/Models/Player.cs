@@ -69,6 +69,11 @@ public sealed record Player
     public Player WithByeReceived() => this with { ByeReceived = true };
 
     /// <summary>
+    /// Returns a new player with BYE flag cleared (for regenerating pairings).
+    /// </summary>
+    public Player WithByeCleared() => this with { ByeReceived = false };
+
+    /// <summary>
     /// Returns a new player with an opponent added.
     /// </summary>
     public Player WithOpponent(string opponentId, int round) => this with

@@ -48,5 +48,20 @@ public enum AuditActionType
     /// <summary>
     /// Match was reopened for correction.
     /// </summary>
-    MatchReopened = 8
+    MatchReopened = 8,
+
+    /// <summary>
+    /// Opponents were swapped between matches.
+    /// </summary>
+    OpponentsSwapped = 9,
+
+    /// <summary>
+    /// All matches in a round were reopened.
+    /// </summary>
+    RoundReopened = 10,
+
+    /// <summary>
+    /// Pairings were regenerated for a round.
+    /// </summary>
+    PairingsRegenerated = 11
 }

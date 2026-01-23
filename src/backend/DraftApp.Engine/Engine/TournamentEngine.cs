@@ -79,4 +79,48 @@ public static class TournamentEngine
         int roundNumber,
         string matchId) =>
         MatchReopener.Reopen(state, roundNumber, matchId);
+
+    /// <summary>
+    /// Swaps two players between their respective matches.
+    /// This is a repair operation that allows correcting pairing mistakes.
+    /// </summary>
+    /// <param name="state">Current event state.</param>
+    /// <param name="roundNumber">Round number containing both matches.</param>
+    /// <param name="matchId1">First match ID.</param>
+    /// <param name="playerId1">Player to move from match 1 to match 2.</param>
+    /// <param name="matchId2">Second match ID.</param>
+    /// <param name="playerId2">Player to move from match 2 to match 1.</param>
+    /// <returns>Updated event state or an error.</returns>
+    public static EngineResult<EventState> SwapOpponents(
+        EventState state,
+        int roundNumber,
+        string matchId1,
+        string playerId1,
+        string matchId2,
+        string playerId2) =>
+        OpponentSwapper.Swap(state, roundNumber, matchId1, playerId1, matchId2, playerId2);
+
+    /// <summary>
+    /// Reopens all finalized matches in a round.
+    /// This is a repair operation that allows correcting multiple results at once.
+    /// </summary>
+    /// <param name="state">Current event state.</param>
+    /// <param name="roundNumber">Round number to reopen.</param>
+    /// <returns>Updated event state or an error.</returns>
+    public static EngineResult<EventState> ReopenRound(
+        EventState state,
+        int roundNumber) =>
+        RoundReopener.Reopen(state, roundNumber);
+
+    /// <summary>
+    /// Regenerates pairings for the current round.
+    /// This is a repair operation that allows fixing pairing issues.
+    /// </summary>
+    /// <param name="state">Current event state.</param>
+    /// <param name="roundNumber">Round number to regenerate (must be current round).</param>
+    /// <returns>Updated event state with new pairings or an error.</returns>
+    public static EngineResult<EventState> RegeneratePairings(
+        EventState state,
+        int roundNumber) =>
+        PairingRegenerator.Regenerate(state, roundNumber);
 }

@@ -117,6 +117,48 @@ Made a mistake recording a winner?
 3. Enter a reason (for the audit trail)
 4. Select the correct winner
 
+### Reopening an Entire Round
+
+If multiple matches have errors, you can reopen the entire round at once:
+
+1. Go to the **Admin** panel
+2. Select **Reopen Round**
+3. Choose the round to reopen
+4. Enter a reason (for the audit trail)
+5. All finalized non-BYE matches in that round will be reopened
+
+**Note**: You can only reopen the current round (no subsequent rounds can exist).
+
+### Swapping Opponents
+
+Paired the wrong players together? You can swap players between matches without regenerating the entire round:
+
+1. Go to the **Admin** panel
+2. Select **Swap Opponents**
+3. Choose the two matches and which player from each to swap
+4. Enter a reason (for the audit trail)
+
+**Requirements**:
+- Both matches must be in the same round
+- Neither match can be finalized
+- Neither match can be a BYE
+- Neither player can be dropped
+
+### Regenerating Pairings
+
+Need to completely redo the round's pairings?
+
+1. Go to the **Admin** panel
+2. Select **Regenerate Pairings**
+3. Enter a reason (for the audit trail)
+4. Confirm the action
+
+**Requirements**:
+- Must be the current round
+- No non-BYE matches can be finalized
+
+**Warning**: This creates entirely new pairings. Any match results in the round will need to be re-entered.
+
 ### Dropping a Player
 
 If a player needs to leave mid-event:
@@ -270,6 +312,9 @@ Use the **Reopen** function to correct it (see "Fixing Mistakes" above).
 | Start event | Lobby | Host only |
 | Finalize match | Pairings | Host only |
 | Reopen match | Pairings | Host only |
+| Reopen round | Admin | Host only |
+| Swap opponents | Admin | Host only |
+| Regenerate pairings | Admin | Host only |
 | Drop player | Lobby | Host only |
 | Allocate prizes | Prizes | Host only |
 | View standings | Standings | Everyone |

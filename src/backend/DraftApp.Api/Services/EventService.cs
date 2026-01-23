@@ -541,6 +541,186 @@ public class EventService(
             error => Task.FromResult(new MutationResponse { Success = false, NewVersion = entity.Version, Error = error.Message }));
     }
 
+    public async Task<MutationResponse> SwapOpponentsAsync(
+        Guid eventId,
+        int roundNumber,
+        Guid matchId1,
+        Guid playerId1,
+        Guid matchId2,
+        Guid playerId2,
+        int expectedVersion,
+        string reason,
+        CancellationToken ct = default)
+    {
+        var state = await repository.LoadEngineStateAsync(eventId, ct);
+        if (state is null)
+        {
+            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+        }
+
+        var entity = await repository.GetByIdAsync(eventId, ct);
+        if (entity!.Version != expectedVersion)
+        {
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+        }
+
+        // Find the match codes from match IDs
+        var match1 = entity.Rounds
+            .Where(r => r.RoundNumber == roundNumber)
+            .SelectMany(r => r.Matches)
+            .FirstOrDefault(m => m.Id == matchId1);
+
+        var match2 = entity.Rounds
+            .Where(r => r.RoundNumber == roundNumber)
+            .SelectMany(r => r.Matches)
+            .FirstOrDefault(m => m.Id == matchId2);
+
+        if (match1 is null)
+        {
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Match 1 not found" };
+        }
+
+        if (match2 is null)
+        {
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Match 2 not found" };
+        }
+
+        var swapResult = TournamentEngine.SwapOpponents(
+            state,
+            roundNumber,
+            match1.MatchCode,
+            playerId1.ToString(),
+            match2.MatchCode,
+            playerId2.ToString());
+
+        return await swapResult.Match(
+            async swappedState =>
+            {
+                var auditLog = new AuditLogEntity
+                {
+                    Id = Guid.NewGuid(),
+                    ActionType = AuditActionType.OpponentsSwapped,
+                    EntityType = "Round",
+                    AfterJson = $"{{\"roundNumber\": {roundNumber}, \"match1Id\": \"{matchId1}\", \"player1Id\": \"{playerId1}\", \"match2Id\": \"{matchId2}\", \"player2Id\": \"{playerId2}\"}}",
+                    Reason = reason
+                };
+
+                var (success, newVersion) = await repository.PersistEngineStateAsync(entity, expectedVersion, swappedState, auditLog, ct);
+
+                if (!success)
+                {
+                    return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                }
+
+                // Broadcast update to connected clients
+                var updatedEntity = await repository.GetByIdAsync(eventId, ct);
+                if (updatedEntity is not null)
+                {
+                    var snapshot = MapToSnapshot(updatedEntity);
+                    await notificationService.BroadcastEventUpdateAsync(eventId, snapshot, ct);
+                }
+
+                return new MutationResponse { Success = true, NewVersion = newVersion };
+            },
+            error => Task.FromResult(new MutationResponse { Success = false, NewVersion = entity.Version, Error = error.Message }));
+    }
+
+    public async Task<MutationResponse> ReopenRoundAsync(Guid eventId, int roundNumber, int expectedVersion, string reason, CancellationToken ct = default)
+    {
+        var state = await repository.LoadEngineStateAsync(eventId, ct);
+        if (state is null)
+        {
+            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+        }
+
+        var entity = await repository.GetByIdAsync(eventId, ct);
+        if (entity!.Version != expectedVersion)
+        {
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+        }
+
+        var reopenResult = TournamentEngine.ReopenRound(state, roundNumber);
+
+        return await reopenResult.Match(
+            async reopenedState =>
+            {
+                var auditLog = new AuditLogEntity
+                {
+                    Id = Guid.NewGuid(),
+                    ActionType = AuditActionType.RoundReopened,
+                    EntityType = "Round",
+                    AfterJson = $"{{\"roundNumber\": {roundNumber}}}",
+                    Reason = reason
+                };
+
+                var (success, newVersion) = await repository.PersistEngineStateAsync(entity, expectedVersion, reopenedState, auditLog, ct);
+
+                if (!success)
+                {
+                    return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                }
+
+                // Broadcast update to connected clients
+                var updatedEntity = await repository.GetByIdAsync(eventId, ct);
+                if (updatedEntity is not null)
+                {
+                    var snapshot = MapToSnapshot(updatedEntity);
+                    await notificationService.BroadcastEventUpdateAsync(eventId, snapshot, ct);
+                }
+
+                return new MutationResponse { Success = true, NewVersion = newVersion };
+            },
+            error => Task.FromResult(new MutationResponse { Success = false, NewVersion = entity.Version, Error = error.Message }));
+    }
+
+    public async Task<MutationResponse> RegeneratePairingsAsync(Guid eventId, int roundNumber, int expectedVersion, string reason, CancellationToken ct = default)
+    {
+        var state = await repository.LoadEngineStateAsync(eventId, ct);
+        if (state is null)
+        {
+            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+        }
+
+        var entity = await repository.GetByIdAsync(eventId, ct);
+        if (entity!.Version != expectedVersion)
+        {
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+        }
+
+        var regenerateResult = TournamentEngine.RegeneratePairings(state, roundNumber);
+
+        return await regenerateResult.Match(
+            async regeneratedState =>
+            {
+                var auditLog = new AuditLogEntity
+                {
+                    Id = Guid.NewGuid(),
+                    ActionType = AuditActionType.PairingsRegenerated,
+                    EntityType = "Round",
+                    AfterJson = $"{{\"roundNumber\": {roundNumber}}}",
+                    Reason = reason
+                };
+
+                var (success, newVersion) = await repository.PersistEngineStateAsync(entity, expectedVersion, regeneratedState, auditLog, ct);
+
+                if (!success)
+                {
+                    return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                }
+
+                // Broadcast update to connected clients
+                var updatedEntity = await repository.GetByIdAsync(eventId, ct);
+                if (updatedEntity is not null)
+                {
+                    var snapshot = MapToSnapshot(updatedEntity);
+                    await notificationService.BroadcastEventUpdateAsync(eventId, snapshot, ct);
+                }
+
+                return new MutationResponse { Success = true, NewVersion = newVersion };
+            },
+            error => Task.FromResult(new MutationResponse { Success = false, NewVersion = entity.Version, Error = error.Message }));
+    }
+
     private static EventSnapshotResponse MapToSnapshot(EventEntity entity)
     {
         var players = entity.Players

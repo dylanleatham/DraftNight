@@ -67,4 +67,28 @@ public interface IEventService
     /// Reopens a finalized match, reversing the result.
     /// </summary>
     Task<MutationResponse> ReopenMatchAsync(Guid eventId, Guid matchId, int expectedVersion, string reason, CancellationToken ct = default);
+
+    /// <summary>
+    /// Swaps two players between their respective matches.
+    /// </summary>
+    Task<MutationResponse> SwapOpponentsAsync(
+        Guid eventId,
+        int roundNumber,
+        Guid matchId1,
+        Guid playerId1,
+        Guid matchId2,
+        Guid playerId2,
+        int expectedVersion,
+        string reason,
+        CancellationToken ct = default);
+
+    /// <summary>
+    /// Reopens all finalized matches in a round.
+    /// </summary>
+    Task<MutationResponse> ReopenRoundAsync(Guid eventId, int roundNumber, int expectedVersion, string reason, CancellationToken ct = default);
+
+    /// <summary>
+    /// Regenerates pairings for a round.
+    /// </summary>
+    Task<MutationResponse> RegeneratePairingsAsync(Guid eventId, int roundNumber, int expectedVersion, string reason, CancellationToken ct = default);
 }
