@@ -378,7 +378,7 @@ Include event-scoped structured logs:
 
 ### 13.3 Azure SignalR Service
 - Required because Azure App Service has a ~4 minute idle timeout on WebSocket connections
-- Use Serverless mode for cost efficiency (pay per message)
+- **Use Default mode** (not Serverless) — ASP.NET Core SignalR hubs require persistent server connections which Serverless mode does not support
 - Client reconnect logic (§7.3) remains necessary for network interruptions
 - Hub per event not required; use groups for `event:{eventId}` channels
 
