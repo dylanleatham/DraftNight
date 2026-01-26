@@ -68,7 +68,7 @@ function EventLayoutContent() {
       } else {
         dispatch({ type: 'SET_ERROR', payload: response.error || 'Failed to cancel event' })
       }
-    } catch (err) {
+    } catch {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to cancel event' })
     } finally {
       setIsCancelling(false)
