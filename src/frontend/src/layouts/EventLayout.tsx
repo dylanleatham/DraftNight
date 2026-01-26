@@ -66,7 +66,10 @@ function EventLayoutContent() {
         clearAll()
         navigate('/', { replace: true })
       } else {
-        dispatch({ type: 'SET_ERROR', payload: response.error || 'Failed to cancel event' })
+        dispatch({
+          type: 'SET_ERROR',
+          payload: response.error || 'Failed to cancel event',
+        })
       }
     } catch {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to cancel event' })
