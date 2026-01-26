@@ -17,6 +17,7 @@ interface UseEventConnectionOptions {
   eventId: string
   onSnapshot: (snapshot: EventSnapshotResponse) => void
   onError?: (code: string, message: string) => void
+  onCancelled?: () => void
 }
 
 interface UseEventConnectionResult {
@@ -28,6 +29,7 @@ export function useEventConnection({
   eventId,
   onSnapshot,
   onError,
+  onCancelled,
 }: UseEventConnectionOptions): UseEventConnectionResult {
   const [status, setStatus] = useState<ConnectionStatus>('disconnected')
   const connectionRef = useRef<HubConnection | null>(null)
@@ -69,6 +71,11 @@ export function useEventConnection({
     // Handle errors
     connection.on('Error', (code: string, message: string) => {
       onError?.(code, message)
+    })
+
+    // Handle event cancellation
+    connection.on('EventCancelled', () => {
+      onCancelled?.()
     })
 
     // Connection state changes
@@ -125,12 +132,13 @@ export function useEventConnection({
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       connection.off('EventUpdated')
       connection.off('Error')
+      connection.off('EventCancelled')
       if (connection.state === HubConnectionState.Connected) {
         connection.invoke('LeaveEventGroup', eventIdRef.current).catch(() => {})
       }
       connection.stop()
     }
-  }, [eventId, onSnapshot, onError])
+  }, [eventId, onSnapshot, onError, onCancelled])
 
   return { status, requestSnapshot }
 }

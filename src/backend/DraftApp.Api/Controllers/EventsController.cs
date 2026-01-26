@@ -170,6 +170,26 @@ public class EventsController(IEventService eventService) : ControllerBase
         return HandleMutationResponse(response);
     }
 
+    /// <summary>
+    /// Cancels an event. Sets status to Archived and notifies all connected clients.
+    /// </summary>
+    [HttpPost("{eventId:guid}/cancel")]
+    [ProducesResponseType(typeof(MutationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> CancelEvent(Guid eventId, [FromBody] HostActionRequest request, CancellationToken ct)
+    {
+        var authResult = await AuthorizeHostAsync(eventId, ct);
+        if (authResult is not null)
+        {
+            return authResult;
+        }
+
+        var response = await eventService.CancelEventAsync(eventId, request.ExpectedVersion, ct);
+        return HandleMutationResponse(response);
+    }
+
     // ========================================
     // Host Repair APIs (3.3)
     // ========================================

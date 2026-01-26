@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Outlet, useParams, useNavigate, NavLink } from 'react-router-dom'
 import { EventProvider, useEvent } from '../context/EventContext'
 import { useEventConnection } from '../hooks/useEventConnection'
@@ -13,7 +13,9 @@ function EventLayoutContent() {
   const { eventId } = useParams<{ eventId: string }>()
   const navigate = useNavigate()
   const { state, dispatch, getPlayer } = useEvent()
-  const { isHost, getPlayerId } = useAuth()
+  const { isHost, getPlayerId, getHostToken, clearAll } = useAuth()
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [isCancelling, setIsCancelling] = useState(false)
 
   const handleSnapshot = useCallback(
     (snapshot: EventSnapshotResponse) => {
@@ -32,11 +34,47 @@ function EventLayoutContent() {
     [dispatch, navigate]
   )
 
+  const handleCancelled = useCallback(() => {
+    // Event was cancelled (either by us or by notification from server)
+    clearAll()
+    navigate('/', { replace: true })
+  }, [clearAll, navigate])
+
   const { status } = useEventConnection({
     eventId: eventId!,
     onSnapshot: handleSnapshot,
     onError: handleError,
+    onCancelled: handleCancelled,
   })
+
+  const handleCancelEvent = async () => {
+    if (!eventId || !state.snapshot) return
+
+    const hostToken = getHostToken(eventId)
+    if (!hostToken) return
+
+    setIsCancelling(true)
+    try {
+      const response = await api.cancelEvent(
+        eventId,
+        hostToken,
+        state.snapshot.version
+      )
+      if (response.success) {
+        // The SignalR EventCancelled message will trigger navigation
+        // but we also clear and navigate here for immediate feedback
+        clearAll()
+        navigate('/', { replace: true })
+      } else {
+        dispatch({ type: 'SET_ERROR', payload: response.error || 'Failed to cancel event' })
+      }
+    } catch (err) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to cancel event' })
+    } finally {
+      setIsCancelling(false)
+      setShowCancelConfirm(false)
+    }
+  }
 
   // Update connection status in state
   useEffect(() => {
@@ -142,7 +180,44 @@ function EventLayoutContent() {
           {snapshot.joinCode && (
             <span className={styles.joinCode}>Code: {snapshot.joinCode}</span>
           )}
+          {isHostUser && (
+            <button
+              className={styles.cancelButton}
+              onClick={() => setShowCancelConfirm(true)}
+              disabled={isCancelling}
+            >
+              Cancel Event
+            </button>
+          )}
         </div>
+
+        {showCancelConfirm && (
+          <div className={styles.confirmOverlay}>
+            <div className={styles.confirmDialog}>
+              <h3>Cancel Event?</h3>
+              <p>
+                This will end the event and remove all players. This action
+                cannot be undone.
+              </p>
+              <div className={styles.confirmButtons}>
+                <button
+                  className={styles.confirmCancel}
+                  onClick={() => setShowCancelConfirm(false)}
+                  disabled={isCancelling}
+                >
+                  Keep Event
+                </button>
+                <button
+                  className={styles.confirmDelete}
+                  onClick={handleCancelEvent}
+                  disabled={isCancelling}
+                >
+                  {isCancelling ? 'Cancelling...' : 'Cancel Event'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       <nav className={styles.nav}>

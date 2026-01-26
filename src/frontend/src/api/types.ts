@@ -159,6 +159,10 @@ export const AuditActionType = {
   PrizesAllocated: 6,
   HostRepair: 7,
   MatchReopened: 8,
+  OpponentsSwapped: 9,
+  RoundReopened: 10,
+  PairingsRegenerated: 11,
+  EventCancelled: 12,
 } as const
 export type AuditActionType =
   (typeof AuditActionType)[keyof typeof AuditActionType]

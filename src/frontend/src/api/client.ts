@@ -155,6 +155,19 @@ export const api = {
     return handleResponse<MutationResponse>(response)
   },
 
+  async cancelEvent(
+    eventId: string,
+    hostToken: string,
+    expectedVersion: number
+  ): Promise<MutationResponse> {
+    const response = await fetch(`${BASE_URL}/events/${eventId}/cancel`, {
+      method: 'POST',
+      headers: buildHeaders(hostToken),
+      body: JSON.stringify({ expectedVersion }),
+    })
+    return handleResponse<MutationResponse>(response)
+  },
+
   // Host Repair
   async reopenMatch(
     eventId: string,

@@ -63,5 +63,10 @@ public enum AuditActionType
     /// <summary>
     /// Pairings were regenerated for a round.
     /// </summary>
-    PairingsRegenerated = 11
+    PairingsRegenerated = 11,
+
+    /// <summary>
+    /// Event was cancelled by the host.
+    /// </summary>
+    EventCancelled = 12
 }

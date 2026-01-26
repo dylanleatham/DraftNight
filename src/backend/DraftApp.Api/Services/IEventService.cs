@@ -91,4 +91,9 @@ public interface IEventService
     /// Regenerates pairings for a round.
     /// </summary>
     Task<MutationResponse> RegeneratePairingsAsync(Guid eventId, int roundNumber, int expectedVersion, string reason, CancellationToken ct = default);
+
+    /// <summary>
+    /// Cancels an event. Sets status to Archived and notifies all connected clients.
+    /// </summary>
+    Task<MutationResponse> CancelEventAsync(Guid eventId, int expectedVersion, CancellationToken ct = default);
 }

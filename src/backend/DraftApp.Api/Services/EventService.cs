@@ -721,6 +721,50 @@ public class EventService(
             error => Task.FromResult(new MutationResponse { Success = false, NewVersion = entity.Version, Error = error.Message }));
     }
 
+    public async Task<MutationResponse> CancelEventAsync(Guid eventId, int expectedVersion, CancellationToken ct = default)
+    {
+        var entity = await repository.GetByIdAsync(eventId, ct);
+        if (entity is null)
+        {
+            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+        }
+
+        if (entity.Version != expectedVersion)
+        {
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+        }
+
+        if (entity.Status == EventStatus.Archived)
+        {
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Event already cancelled" };
+        }
+
+        // Update event status to Archived
+        var newVersion = entity.Version + 1;
+        entity.Status = EventStatus.Archived;
+        entity.JoinCode = null; // Clear join code so it can't be joined
+        entity.Version = newVersion;
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        var auditLog = new AuditLogEntity
+        {
+            Id = Guid.NewGuid(),
+            EventId = eventId,
+            ActionType = AuditActionType.EventCancelled,
+            EntityType = "Event",
+            EntityId = eventId,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        context.AuditLogs.Add(auditLog);
+        await context.SaveChangesAsync(ct);
+
+        // Broadcast cancellation to all connected clients
+        await notificationService.BroadcastEventCancelledAsync(eventId, ct);
+
+        return new MutationResponse { Success = true, NewVersion = newVersion };
+    }
+
     private static EventSnapshotResponse MapToSnapshot(EventEntity entity)
     {
         var players = entity.Players

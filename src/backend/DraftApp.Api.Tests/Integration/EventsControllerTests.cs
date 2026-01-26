@@ -468,4 +468,201 @@ public class EventsControllerTests : IDisposable
             response.StatusCode == HttpStatusCode.OK,
             $"Expected OK, got {response.StatusCode}. Response: {content}");
     }
+
+    [Fact]
+    public async Task CancelEvent_WithoutHostToken_ReturnsUnauthorized()
+    {
+        // Arrange - Create an event first
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Test Event",
+            PacksInBox = 36,
+            HostPin = "1234"
+        };
+        var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        var cancelRequest = new HostActionRequest { ExpectedVersion = 1 };
+
+        // Act (no X-Host-Token header)
+        var response = await client.PostAsJsonAsync($"/api/events/{createResult.EventId}/cancel", cancelRequest);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CancelEvent_WithInvalidHostToken_ReturnsUnauthorized()
+    {
+        // Arrange - Create an event first
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Test Event",
+            PacksInBox = 36,
+            HostPin = "1234"
+        };
+        var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        var cancelRequest = new HostActionRequest { ExpectedVersion = 1 };
+
+        // Act (with invalid token)
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/events/{createResult.EventId}/cancel");
+        request.Headers.Add("X-Host-Token", "invalid-token");
+        request.Content = JsonContent.Create(cancelRequest);
+
+        var response = await client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CancelEvent_WithValidHostToken_ReturnsOk()
+    {
+        // Arrange - Create an event first
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Test Event",
+            PacksInBox = 36,
+            HostPin = "1234"
+        };
+        var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        var cancelRequest = new HostActionRequest { ExpectedVersion = 1 };
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/events/{createResult.EventId}/cancel");
+        request.Headers.Add("X-Host-Token", createResult.HostToken);
+        request.Content = JsonContent.Create(cancelRequest);
+
+        var response = await client.SendAsync(request);
+        var content = await response.Content.ReadAsStringAsync();
+
+        // Assert
+        Assert.True(
+            response.StatusCode == HttpStatusCode.OK,
+            $"Expected OK, got {response.StatusCode}. Response: {content}");
+
+        var result = JsonSerializer.Deserialize<MutationResponse>(content, JsonOptions);
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        Assert.Equal(2, result.NewVersion);
+    }
+
+    [Fact]
+    public async Task CancelEvent_WhenAlreadyCancelled_ReturnsBadRequest()
+    {
+        // Arrange - Create and cancel an event
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Test Event",
+            PacksInBox = 36,
+            HostPin = "1234"
+        };
+        var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        // Cancel once
+        var cancelRequest1 = new HttpRequestMessage(HttpMethod.Post, $"/api/events/{createResult.EventId}/cancel");
+        cancelRequest1.Headers.Add("X-Host-Token", createResult.HostToken);
+        cancelRequest1.Content = JsonContent.Create(new HostActionRequest { ExpectedVersion = 1 });
+        await client.SendAsync(cancelRequest1);
+
+        // Try to cancel again
+        var cancelRequest2 = new HttpRequestMessage(HttpMethod.Post, $"/api/events/{createResult.EventId}/cancel");
+        cancelRequest2.Headers.Add("X-Host-Token", createResult.HostToken);
+        cancelRequest2.Content = JsonContent.Create(new HostActionRequest { ExpectedVersion = 2 });
+
+        // Act
+        var response = await client.SendAsync(cancelRequest2);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CancelEvent_WithVersionConflict_ReturnsConflict()
+    {
+        // Arrange - Create an event first
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Test Event",
+            PacksInBox = 36,
+            HostPin = "1234"
+        };
+        var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        var cancelRequest = new HostActionRequest { ExpectedVersion = 999 }; // Wrong version
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/events/{createResult.EventId}/cancel");
+        request.Headers.Add("X-Host-Token", createResult.HostToken);
+        request.Content = JsonContent.Create(cancelRequest);
+
+        var response = await client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CancelEvent_ClearsJoinCode()
+    {
+        // Arrange - Create an event first
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Test Event",
+            PacksInBox = 36,
+            HostPin = "1234"
+        };
+        var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        // Cancel the event
+        var cancelRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/events/{createResult.EventId}/cancel");
+        cancelRequest.Headers.Add("X-Host-Token", createResult.HostToken);
+        cancelRequest.Content = JsonContent.Create(new HostActionRequest { ExpectedVersion = 1 });
+        await client.SendAsync(cancelRequest);
+
+        // Try to join with the old join code
+        var joinRequest = new JoinEventRequest
+        {
+            JoinCode = createResult.JoinCode,
+            PlayerName = "Alice",
+            PlayerPin = "0000"
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/api/events/join", joinRequest);
+
+        // Assert - Should fail because join code is cleared
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 }

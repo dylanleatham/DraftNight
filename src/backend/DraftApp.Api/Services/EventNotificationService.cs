@@ -15,4 +15,11 @@ public sealed class EventNotificationService(IHubContext<EventHub> hubContext) :
         var groupName = EventHub.GetGroupName(eventId);
         await hubContext.Clients.Group(groupName).SendAsync("EventUpdated", snapshot, ct);
     }
+
+    /// <inheritdoc />
+    public async Task BroadcastEventCancelledAsync(Guid eventId, CancellationToken ct = default)
+    {
+        var groupName = EventHub.GetGroupName(eventId);
+        await hubContext.Clients.Group(groupName).SendAsync("EventCancelled", eventId, ct);
+    }
 }

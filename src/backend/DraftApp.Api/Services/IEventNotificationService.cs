@@ -14,4 +14,11 @@ public interface IEventNotificationService
     /// <param name="snapshot">The current event snapshot.</param>
     /// <param name="ct">Cancellation token.</param>
     Task BroadcastEventUpdateAsync(Guid eventId, EventSnapshotResponse snapshot, CancellationToken ct = default);
+
+    /// <summary>
+    /// Broadcasts an event cancellation to all clients in the event's group.
+    /// </summary>
+    /// <param name="eventId">The event ID that was cancelled.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task BroadcastEventCancelledAsync(Guid eventId, CancellationToken ct = default);
 }
