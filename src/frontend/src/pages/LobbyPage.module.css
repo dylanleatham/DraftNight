@@ -1,53 +1,73 @@
+/* ========================================
+   LOBBY PAGE - DUNGEON AESTHETIC
+   Event lobby with share code and player list
+   ======================================== */
+
 .container {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
+
+/* ========================================
+   JOIN INFO PANEL - Share Code
+   ======================================== */
 
 .joinInfo {
   text-align: center;
-  padding: 1.5rem;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
+  padding: var(--space-6);
+  background: var(--bg-surface);
+  border: var(--border-width-default) solid var(--border-dim);
+  border-radius: var(--radius-none);
+  box-shadow: var(--shadow-pixel-md);
 }
 
 .joinLabel {
-  margin: 0 0 0.5rem;
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
 }
 
 .joinCode {
-  font-size: 2rem;
-  font-weight: 700;
-  font-family: monospace;
-  letter-spacing: 0.1em;
-  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  color: var(--mana-gold);
+  text-shadow: 0 0 10px rgba(212, 168, 67, 0.3);
 }
 
 .copyButton {
-  margin-top: 0.75rem;
-  padding: 0.5rem 1rem;
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-4);
   background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  font: inherit;
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  border: var(--border-width-default) solid var(--border-dim);
+  border-radius: var(--radius-none);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--duration-fast) var(--ease-pixel);
 }
 
 .copyButton:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  border-color: var(--mana-blue);
+  color: var(--mana-blue);
 }
+
+/* ========================================
+   SECTIONS
+   ======================================== */
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .sectionHeader {
@@ -58,65 +78,92 @@
 
 .sectionTitle {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
 }
 
 .playerRange {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
 }
+
+/* ========================================
+   ACTIONS
+   ======================================== */
 
 .actions {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .hint {
   margin: 0;
   text-align: center;
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
+
+/* ========================================
+   EVENT INFO GRID
+   ======================================== */
 
 .eventInfo {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .infoItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0.75rem;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  padding: var(--space-3);
+  background: var(--bg-elevated);
+  border: var(--border-width-thin) solid var(--border-dim);
+  border-radius: var(--radius-none);
 }
 
 .infoLabel {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
 }
 
 .infoValue {
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 400;
+  color: var(--text-primary);
 }
+
+/* ========================================
+   MODAL CONTENT
+   ======================================== */
 
 .modalContent {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .modalContent p {
   margin: 0;
+  color: var(--text-secondary);
 }
 
 .modalActions {
   display: flex;
-  gap: 0.75rem;
+  gap: var(--space-3);
   justify-content: flex-end;
 }

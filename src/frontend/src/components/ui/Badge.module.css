@@ -1,35 +1,75 @@
+/* ========================================
+   BADGE - DUNGEON AESTHETIC
+   Status indicators with mana color coding
+   ======================================== */
+
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.625rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border-radius: 9999px;
+  padding: var(--space-1) var(--space-3);
+
+  /* VT323 display font */
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.1em;
+
+  /* Pixel border */
+  border: var(--border-width-default) solid;
+  border-radius: var(--radius-none);
 }
 
+/* ========================================
+   VARIANTS - Mana Colors
+   ======================================== */
+
+/* Default - Neutral */
 .default {
-  background: var(--color-surface-hover);
-  color: var(--color-text-secondary);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border-color: var(--border-dim);
 }
 
+/* Success - Mana Green (Live, Active) */
 .success {
   background: rgba(34, 197, 94, 0.15);
-  color: var(--color-success);
+  color: var(--mana-green);
+  border-color: var(--mana-green);
 }
 
+/* Warning - Mana Gold (In Progress, Pending) */
 .warning {
-  background: rgba(234, 179, 8, 0.15);
-  color: var(--color-warning);
+  background: rgba(212, 168, 67, 0.15);
+  color: var(--mana-gold);
+  border-color: var(--mana-gold);
 }
 
+/* Error - Mana Red (Closed, Dropped) */
 .error {
   background: rgba(239, 68, 68, 0.15);
-  color: var(--color-error);
+  color: var(--mana-red);
+  border-color: var(--mana-red);
 }
 
+/* Info - Mana Blue (Informational) */
 .info {
-  background: rgba(59, 130, 246, 0.15);
-  color: var(--color-primary);
+  background: rgba(14, 165, 233, 0.15);
+  color: var(--mana-blue);
+  border-color: var(--mana-blue);
+}
+
+/* Purple - Mana Purple (Special) */
+.purple {
+  background: rgba(168, 85, 247, 0.15);
+  color: var(--mana-purple);
+  border-color: var(--mana-purple);
+}
+
+/* Host Badge - Special styling */
+.host {
+  background: var(--mana-blue);
+  color: var(--bg-void);
+  border-color: #0284c7;
+  font-weight: 400;
 }

@@ -1,9 +1,14 @@
+/* ========================================
+   LIFE DISPLAY - DUNGEON AESTHETIC
+   Large life total with pixel font
+   ======================================== */
+
 .container {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem;
+  gap: var(--space-2);
+  padding: var(--space-4);
   width: 100%;
 }
 
@@ -11,9 +16,13 @@
   transform: rotate(180deg);
 }
 
-/* Size variants */
+/* ========================================
+   SIZE VARIANTS
+   ======================================== */
+
+/* Normal - Full panel (Draft 2-player) */
 .normal .lifeValue {
-  font-size: 8rem;
+  font-size: 6rem;
 }
 
 .normal .lifeDisplay {
@@ -25,11 +34,12 @@
 .normal .adjustButton {
   min-width: 64px;
   min-height: 64px;
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
 }
 
+/* Medium - Reduced panel (Commander 4-player) */
 .medium .lifeValue {
-  font-size: 5rem;
+  font-size: 4rem;
 }
 
 .medium .lifeDisplay {
@@ -41,16 +51,17 @@
 .medium .adjustButton {
   min-width: 52px;
   min-height: 52px;
-  font-size: 1.25rem;
+  font-size: var(--text-xl);
 }
 
 .medium .lifeInput {
   width: 120px;
-  font-size: 3.5rem;
+  font-size: var(--text-4xl);
 }
 
+/* Compact - Small panel (Commander 6-player) */
 .compact .lifeValue {
-  font-size: 3rem;
+  font-size: var(--text-5xl);
 }
 
 .compact .lifeDisplay {
@@ -61,34 +72,47 @@
 .compact .adjustButton {
   min-width: 44px;
   min-height: 44px;
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
+
+/* ========================================
+   ADJUST BUTTONS
+   ======================================== */
 
 .adjustButtons {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .adjustButton {
-  border: none;
-  border-radius: 12px;
+  border: var(--border-width-default) solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-none);
   background: rgba(255, 255, 255, 0.15);
   color: white;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-weight: 400;
   cursor: pointer;
-  transition: all 0.15s ease;
   touch-action: manipulation;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  transition: transform var(--duration-instant) var(--ease-pixel),
+              box-shadow var(--duration-instant) var(--ease-pixel);
 }
 
 .adjustButton:hover {
   background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .adjustButton:active {
-  transform: scale(0.95);
+  transform: translateY(2px);
+  box-shadow: none;
   background: rgba(255, 255, 255, 0.3);
 }
+
+/* ========================================
+   LIFE DISPLAY
+   ======================================== */
 
 .lifeDisplay {
   position: relative;
@@ -99,19 +123,25 @@
   user-select: none;
 }
 
+/* ========================================
+   DELTA TOAST
+   ======================================== */
+
 .deltaToast {
   position: absolute;
   bottom: -32px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   color: white;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 1.25rem;
-  font-weight: 700;
+  padding: var(--space-1) var(--space-3);
+  border: var(--border-width-default) solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-none);
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 400;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-normal) var(--ease-out);
   pointer-events: none;
 }
 
@@ -119,32 +149,45 @@
   opacity: 1;
 }
 
+/* ========================================
+   LIFE VALUE - Pixel Font
+   ======================================== */
+
 .lifeValue {
-  font-weight: 800;
+  font-family: var(--font-pixel);
+  font-weight: 400;
   color: white;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  line-height: 1;
+  text-shadow:
+    4px 4px 0 rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(255, 255, 255, 0.3);
+  line-height: var(--leading-none);
 }
+
+/* ========================================
+   LIFE INPUT
+   ======================================== */
 
 .lifeInput {
   width: 160px;
-  font-size: 5rem;
-  font-weight: 800;
+  font-family: var(--font-pixel);
+  font-size: var(--text-5xl);
+  font-weight: 400;
   text-align: center;
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: var(--border-width-thick) solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-none);
   color: white;
   outline: none;
 }
 
 .compact .lifeInput {
   width: 80px;
-  font-size: 2.5rem;
+  font-size: var(--text-4xl);
 }
 
 .lifeInput:focus {
   border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
 /* Hide number input spinners */

@@ -1,0 +1,595 @@
+/**
+ * MTG Draft Night — Design Tokens
+ * A grimy, pixelated celebration of TCG culture
+ * 
+ * Usage: Import this file at the root of your application
+ * All values follow an 8px grid for pixel-perfect alignment
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ═══════════════════════════════════════════════════════════
+     COLORS — THE DUNGEON PALETTE
+     ═══════════════════════════════════════════════════════════ */
+  
+  /* Backgrounds — From void to surface */
+  --bg-void: #0a0a0c;
+  --bg-dungeon: #151519;
+  --bg-surface: #1f1f26;
+  --bg-elevated: #2a2a35;
+  --bg-hover: #353542;
+  
+  /* Borders — Subtle to glowing */
+  --border-dim: #2d2d3a;
+  --border-default: #3a3a4a;
+  --border-glow: #4a4a5e;
+  --border-active: #5a5a70;
+  
+  /* Text — Hierarchy */
+  --text-primary: #e8e8f0;
+  --text-secondary: #9090a8;
+  --text-dim: #5a5a70;
+  --text-disabled: #404050;
+  --text-inverse: #0a0a0c;
+  
+  /* ═══════════════════════════════════════════════════════════
+     MANA COLORS — Accent palette
+     ═══════════════════════════════════════════════════════════ */
+  
+  /* Blue — Primary actions, links, information */
+  --mana-blue: #4d9fff;
+  --mana-blue-dim: #2d5f9f;
+  --mana-blue-glow: #7dbfff;
+  --mana-blue-bg: rgba(77, 159, 255, 0.15);
+  
+  /* Green — Success, wins, life gain */
+  --mana-green: #3dd97a;
+  --mana-green-dim: #2a8f52;
+  --mana-green-glow: #6ef7a0;
+  --mana-green-bg: rgba(61, 217, 122, 0.15);
+  
+  /* Red — Danger, drops, life loss, errors */
+  --mana-red: #ff5c5c;
+  --mana-red-dim: #a83a3a;
+  --mana-red-glow: #ff8a8a;
+  --mana-red-bg: rgba(255, 92, 92, 0.15);
+  
+  /* Gold — Warnings, prizes, featured */
+  --mana-gold: #ffc53d;
+  --mana-gold-dim: #a88020;
+  --mana-gold-glow: #ffe066;
+  --mana-gold-bg: rgba(255, 197, 61, 0.15);
+  
+  /* Purple — Special, mythic, rare */
+  --mana-purple: #a855f7;
+  --mana-purple-dim: #6d35a0;
+  --mana-purple-glow: #c084fc;
+  --mana-purple-bg: rgba(168, 85, 247, 0.15);
+  
+  /* White — Clean accents */
+  --mana-white: #f0f0f8;
+  --mana-white-dim: #a0a0b0;
+  
+  /* Black — Death, elimination */
+  --mana-black: #2a2a35;
+  --mana-black-deep: #151519;
+  
+  /* ═══════════════════════════════════════════════════════════
+     GRIME COLORS — The gross stuff we love
+     ═══════════════════════════════════════════════════════════ */
+  
+  --grime-sweat: #7a8b4a;
+  --grime-sweat-glow: #a4b86a;
+  --grime-cheeto: #ff8c42;
+  --grime-cheeto-dust: #ffb380;
+  --grime-slime: #4ade80;
+  --grime-slime-drip: #86efac;
+  --grime-stain: #8b6914;
+  --grime-stain-old: #5c4510;
+  --grime-grease: #4a4535;
+  
+  /* ═══════════════════════════════════════════════════════════
+     PLAYER COLORS — Life tracker panels
+     ═══════════════════════════════════════════════════════════ */
+  
+  --player-blue: #2563eb;
+  --player-blue-dark: #1d4ed8;
+  --player-red: #dc2626;
+  --player-red-dark: #b91c1c;
+  --player-green: #16a34a;
+  --player-green-dark: #15803d;
+  --player-purple: #9333ea;
+  --player-purple-dark: #7e22ce;
+  --player-orange: #ea580c;
+  --player-orange-dark: #c2410c;
+  --player-teal: #0d9488;
+  --player-teal-dark: #0f766e;
+  
+  /* ═══════════════════════════════════════════════════════════
+     CHARACTER ARCHETYPE COLORS
+     ═══════════════════════════════════════════════════════════ */
+  
+  --char-shark: #6b21a8;
+  --char-shark-accent: #fbbf24;
+  --char-ruleslawyer: #78350f;
+  --char-ruleslawyer-accent: #fb923c;
+  --char-streamer: #059669;
+  --char-streamer-accent: #22d3ee;
+  --char-animefan: #db2777;
+  --char-animefan-accent: #f9a8d4;
+  --char-strategist: #4d7c0f;
+  --char-strategist-accent: #fef3c7;
+  --char-finalboss: #581c87;
+  --char-finalboss-accent: #fde047;
+  --char-cosplay: #7f1d1d;
+  --char-cosplay-accent: #94a3b8;
+  --char-wildcard: #c2410c;
+  --char-wildcard-accent: #fcd34d;
+  
+  /* ═══════════════════════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════════════════════ */
+  
+  /* Font Families */
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-display: 'VT323', monospace;
+  --font-body: 'IBM Plex Mono', 'Fira Code', 'Consolas', monospace;
+  
+  /* Font Sizes — 8px base grid */
+  --text-2xs: 8px;
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 40px;
+  --text-4xl: 48px;
+  --text-5xl: 64px;
+  --text-life: 72px;
+  --text-winner: 96px;
+  
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+  
+  /* Font Weights */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  
+  /* Letter Spacing */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+  --tracking-wider: 0.05em;
+  --tracking-pixel: 0.1em;
+  
+  /* ═══════════════════════════════════════════════════════════
+     SPACING — 8px base grid
+     ═══════════════════════════════════════════════════════════ */
+  
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+  
+  /* ═══════════════════════════════════════════════════════════
+     SIZING
+     ═══════════════════════════════════════════════════════════ */
+  
+  /* Avatar sizes */
+  --avatar-xs: 24px;
+  --avatar-sm: 32px;
+  --avatar-md: 48px;
+  --avatar-lg: 64px;
+  --avatar-xl: 96px;
+  --avatar-2xl: 128px;
+  
+  /* Icon sizes */
+  --icon-xs: 12px;
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --icon-xl: 32px;
+  
+  /* Touch targets */
+  --touch-min: 44px;
+  --touch-comfortable: 48px;
+  
+  /* ═══════════════════════════════════════════════════════════
+     BORDERS & RADII
+     ═══════════════════════════════════════════════════════════ */
+  
+  /* Border widths — Pixel perfect */
+  --border-1: 1px;
+  --border-2: 2px;
+  --border-3: 3px;
+  --border-4: 4px;
+  
+  /* Border radii — Keep it blocky */
+  --radius-none: 0;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+  
+  /* ═══════════════════════════════════════════════════════════
+     SHADOWS — Pixel style
+     ═══════════════════════════════════════════════════════════ */
+  
+  --shadow-pixel-sm: 2px 2px 0 var(--bg-void);
+  --shadow-pixel-md: 4px 4px 0 var(--bg-void);
+  --shadow-pixel-lg: 6px 6px 0 var(--bg-void);
+  
+  --shadow-inset-sm: inset 0 0 10px rgba(0, 0, 0, 0.3);
+  --shadow-inset-md: inset 0 0 20px rgba(0, 0, 0, 0.5);
+  --shadow-inset-lg: inset 0 0 40px rgba(0, 0, 0, 0.7);
+  
+  --shadow-glow-blue: 0 0 12px var(--mana-blue);
+  --shadow-glow-green: 0 0 12px var(--mana-green);
+  --shadow-glow-red: 0 0 12px var(--mana-red);
+  --shadow-glow-gold: 0 0 12px var(--mana-gold);
+  --shadow-glow-purple: 0 0 12px var(--mana-purple);
+  
+  /* ═══════════════════════════════════════════════════════════
+     TRANSITIONS & ANIMATIONS
+     ═══════════════════════════════════════════════════════════ */
+  
+  /* Durations */
+  --duration-instant: 50ms;
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+  
+  /* Easings — Pixel style uses steps */
+  --ease-pixel-2: steps(2);
+  --ease-pixel-3: steps(3);
+  --ease-pixel-4: steps(4);
+  --ease-pixel-8: steps(8);
+  --ease-linear: linear;
+  
+  /* ═══════════════════════════════════════════════════════════
+     Z-INDEX SCALE
+     ═══════════════════════════════════════════════════════════ */
+  
+  --z-base: 0;
+  --z-elevated: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-tooltip: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════════════════════ */
+
+* {
+  box-sizing: border-box;
+  /* Disable smooth scrolling for pixel aesthetic */
+  scroll-behavior: auto;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+  /* Crisp pixel rendering */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--text-primary);
+  background-color: var(--bg-dungeon);
+  min-height: 100vh;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UTILITY CLASSES
+   ═══════════════════════════════════════════════════════════ */
+
+/* Pixel-perfect images */
+.pixel-art {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* CRT scanline overlay */
+.scanlines {
+  position: relative;
+}
+
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.1) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+/* CRT flicker effect */
+@keyframes crt-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.98; }
+}
+
+.crt-flicker {
+  animation: crt-flicker 0.1s infinite;
+}
+
+/* Pixel button press effect */
+.pixel-press {
+  transition: transform var(--duration-instant) var(--ease-pixel-2);
+}
+
+.pixel-press:active {
+  transform: translateY(2px);
+}
+
+/* Glow effects */
+.glow-blue { box-shadow: var(--shadow-glow-blue); }
+.glow-green { box-shadow: var(--shadow-glow-green); }
+.glow-red { box-shadow: var(--shadow-glow-red); }
+.glow-gold { box-shadow: var(--shadow-glow-gold); }
+.glow-purple { box-shadow: var(--shadow-glow-purple); }
+
+/* Text glow */
+.text-glow-blue { text-shadow: 0 0 8px var(--mana-blue); }
+.text-glow-green { text-shadow: 0 0 8px var(--mana-green); }
+.text-glow-red { text-shadow: 0 0 8px var(--mana-red); }
+.text-glow-gold { text-shadow: 0 0 8px var(--mana-gold); }
+
+/* Life change flash animations */
+@keyframes flash-gain {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: var(--mana-green-bg); }
+}
+
+@keyframes flash-loss {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: var(--mana-red-bg); }
+}
+
+.flash-gain {
+  animation: flash-gain 0.2s var(--ease-pixel-2);
+}
+
+.flash-loss {
+  animation: flash-loss 0.2s var(--ease-pixel-2);
+}
+
+/* Screen shake for dramatic moments */
+@keyframes screen-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.screen-shake {
+  animation: screen-shake 0.1s var(--ease-pixel-4) 3;
+}
+
+/* Winner celebration */
+@keyframes winner-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% { 
+    transform: scale(1.02);
+    filter: brightness(1.1);
+  }
+}
+
+.winner-pulse {
+  animation: winner-pulse 0.5s var(--ease-pixel-4) infinite;
+}
+
+/* Sweat drop animation */
+@keyframes sweat-drop {
+  0% { 
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% { 
+    transform: translateY(20px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+.sweat-drop {
+  animation: sweat-drop 1s var(--ease-linear) infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COMPONENT TOKENS
+   ═══════════════════════════════════════════════════════════ */
+
+/* Button variants */
+.btn {
+  --btn-bg: var(--bg-surface);
+  --btn-text: var(--text-primary);
+  --btn-border: var(--border-default);
+  --btn-shadow: var(--shadow-pixel-sm);
+}
+
+.btn-primary {
+  --btn-bg: var(--mana-blue);
+  --btn-text: var(--text-inverse);
+  --btn-border: var(--mana-blue-dim);
+  --btn-shadow: var(--shadow-pixel-md);
+}
+
+.btn-success {
+  --btn-bg: var(--mana-green);
+  --btn-text: var(--text-inverse);
+  --btn-border: var(--mana-green-dim);
+}
+
+.btn-danger {
+  --btn-bg: var(--mana-red);
+  --btn-text: var(--text-inverse);
+  --btn-border: var(--mana-red-dim);
+}
+
+.btn-warning {
+  --btn-bg: var(--mana-gold);
+  --btn-text: var(--text-inverse);
+  --btn-border: var(--mana-gold-dim);
+}
+
+.btn-ghost {
+  --btn-bg: transparent;
+  --btn-text: var(--text-primary);
+  --btn-border: var(--border-glow);
+  --btn-shadow: none;
+}
+
+/* Input variants */
+.input {
+  --input-bg: var(--bg-void);
+  --input-text: var(--text-primary);
+  --input-border: var(--border-dim);
+  --input-focus-border: var(--mana-blue);
+  --input-placeholder: var(--text-dim);
+}
+
+/* Panel variants */
+.panel {
+  --panel-bg: var(--bg-surface);
+  --panel-border: var(--border-dim);
+  --panel-shadow: var(--shadow-inset-sm);
+}
+
+.panel-elevated {
+  --panel-bg: var(--bg-elevated);
+  --panel-border: var(--border-default);
+  --panel-shadow: var(--shadow-pixel-md), var(--shadow-inset-md);
+}
+
+/* Badge variants */
+.badge {
+  --badge-bg: var(--bg-elevated);
+  --badge-text: var(--text-secondary);
+  --badge-border: var(--border-dim);
+}
+
+.badge-live {
+  --badge-bg: var(--mana-green-bg);
+  --badge-text: var(--mana-green);
+  --badge-border: var(--mana-green-dim);
+}
+
+.badge-progress {
+  --badge-bg: var(--mana-gold-bg);
+  --badge-text: var(--mana-gold);
+  --badge-border: var(--mana-gold-dim);
+}
+
+.badge-closed {
+  --badge-bg: var(--mana-red-bg);
+  --badge-text: var(--mana-red);
+  --badge-border: var(--mana-red-dim);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+/* Mobile-first responsive utilities */
+@media (min-width: 640px) {
+  :root {
+    --text-life: 96px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --text-life: 120px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ACCESSIBILITY — Reduced motion
+   ═══════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .scanlines::after {
+    display: none;
+  }
+  
+  .crt-flicker {
+    animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HIGH CONTRAST MODE
+   ═══════════════════════════════════════════════════════════ */
+
+@media (prefers-contrast: high) {
+  :root {
+    --bg-void: #000000;
+    --bg-dungeon: #0a0a0a;
+    --bg-surface: #1a1a1a;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --border-dim: #444444;
+    --border-default: #666666;
+  }
+}

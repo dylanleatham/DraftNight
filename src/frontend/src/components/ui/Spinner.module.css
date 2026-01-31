@@ -1,9 +1,18 @@
+/* ========================================
+   SPINNER - DUNGEON AESTHETIC
+   Loading indicator with mana blue color
+   ======================================== */
+
 .spinner {
   border-radius: 50%;
-  border: 3px solid var(--color-border);
-  border-top-color: var(--color-primary);
+  border: 3px solid var(--border-dim);
+  border-top-color: var(--mana-blue);
   animation: spin 1s linear infinite;
 }
+
+/* ========================================
+   SIZE VARIANTS
+   ======================================== */
 
 .small {
   width: 20px;
@@ -21,6 +30,10 @@
   height: 48px;
   border-width: 4px;
 }
+
+/* ========================================
+   ANIMATION
+   ======================================== */
 
 @keyframes spin {
   to {

@@ -1,13 +1,34 @@
+/* ========================================
+   BUTTON - DUNGEON AESTHETIC
+   Pixel-style buttons with mana color variants
+   ======================================== */
+
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
+  gap: var(--space-2);
+
+  /* Typography - VT323 display font */
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+
+  /* No border-radius for pixel aesthetic */
+  border-radius: var(--radius-none);
+
+  /* Pixel shadow */
+  box-shadow: var(--shadow-pixel-md);
+
   cursor: pointer;
-  transition: all 0.2s ease;
+
+  /* Pixel-style transition */
+  transition: transform var(--duration-instant) var(--ease-pixel),
+              box-shadow var(--duration-instant) var(--ease-pixel),
+              background-color var(--duration-fast) var(--ease-pixel);
+
   min-height: 48px;
   min-width: 48px;
 }
@@ -15,67 +36,132 @@
 .button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
-/* Variants */
+/* Active state - pixel press effect */
+.button:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: none;
+}
+
+/* ========================================
+   VARIANTS
+   ======================================== */
+
+/* Primary - Mana Blue */
 .primary {
-  background: var(--color-primary);
-  color: white;
+  background: var(--mana-blue);
+  color: var(--bg-void);
+  border: var(--border-width-thick) solid #0284c7;
 }
 
 .primary:hover:not(:disabled) {
-  background: var(--color-primary-hover);
+  background: #0284c7;
 }
 
+/* Secondary - Surface with border */
 .secondary {
-  background: var(--color-surface);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: var(--border-width-thick) solid var(--border-default);
 }
 
 .secondary:hover:not(:disabled) {
-  background: var(--color-surface-hover);
+  background: var(--bg-elevated);
+  border-color: var(--border-glow);
 }
 
+/* Danger - Mana Red */
 .danger {
-  background: var(--color-error);
-  color: white;
+  background: var(--mana-red);
+  color: var(--text-primary);
+  border: var(--border-width-thick) solid #dc2626;
 }
 
 .danger:hover:not(:disabled) {
-  filter: brightness(1.1);
+  background: #dc2626;
 }
 
+/* Ghost - Transparent with hover */
 .ghost {
   background: transparent;
-  color: var(--color-text);
+  color: var(--text-secondary);
+  border: var(--border-width-thick) solid transparent;
+  box-shadow: none;
 }
 
 .ghost:hover:not(:disabled) {
-  background: var(--color-surface-hover);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border-color: var(--border-dim);
+  box-shadow: var(--shadow-pixel-sm);
 }
 
-/* Sizes */
+.ghost:active:not(:disabled) {
+  box-shadow: none;
+}
+
+/* Success - Mana Green */
+.success {
+  background: var(--mana-green);
+  color: var(--bg-void);
+  border: var(--border-width-thick) solid #16a34a;
+}
+
+.success:hover:not(:disabled) {
+  background: #16a34a;
+}
+
+/* Gold - Winner/Special */
+.gold {
+  background: var(--mana-gold);
+  color: var(--bg-void);
+  border: var(--border-width-thick) solid #b8912f;
+  box-shadow: var(--shadow-pixel-gold);
+}
+
+.gold:hover:not(:disabled) {
+  background: #e5b84a;
+}
+
+/* ========================================
+   SIZES
+   ======================================== */
+
 .small {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-base);
   min-height: 36px;
+  box-shadow: var(--shadow-pixel-sm);
+}
+
+.small:active:not(:disabled) {
+  transform: translateY(2px);
 }
 
 .medium {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-lg);
 }
 
 .large {
-  padding: 1rem 2rem;
-  font-size: 1.125rem;
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--text-xl);
   min-height: 56px;
 }
+
+/* ========================================
+   MODIFIERS
+   ======================================== */
 
 .fullWidth {
   width: 100%;
 }
+
+/* ========================================
+   LOADING SPINNER
+   ======================================== */
 
 .spinner {
   width: 1em;

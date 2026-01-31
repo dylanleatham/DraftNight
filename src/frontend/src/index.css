@@ -1,44 +1,197 @@
+/* ========================================
+   DRAFT NIGHT - DUNGEON AESTHETIC
+   Global Design Tokens & Base Styles
+   ======================================== */
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
 :root {
-  /* Colors - Dark theme (default) */
-  --color-background: #0f0f0f;
-  --color-surface: #1a1a1a;
-  --color-surface-hover: #252525;
-  --color-border: #333333;
+  /* ========================================
+     COLOR PALETTE - DUNGEON AESTHETIC
+     ======================================== */
 
-  --color-text: #ffffff;
-  --color-text-secondary: #a0a0a0;
-  --color-text-muted: #666666;
+  /* Background Hierarchy */
+  --bg-void: #0a0a0c;
+  --bg-dungeon: #0f0f12;
+  --bg-surface: #16161a;
+  --bg-elevated: #1e1e24;
+  --bg-hover: #26262e;
 
-  --color-primary: #3b82f6;
-  --color-primary-hover: #2563eb;
-  --color-primary-light: rgba(59, 130, 246, 0.2);
+  /* Text Colors */
+  --text-primary: #e8e6e3;
+  --text-secondary: #9a9a9a;
+  --text-dim: #5c5c5c;
 
-  --color-success: #22c55e;
-  --color-warning: #eab308;
-  --color-error: #ef4444;
+  /* Mana Colors - MTG Inspired */
+  --mana-blue: #0ea5e9;
+  --mana-green: #22c55e;
+  --mana-red: #ef4444;
+  --mana-gold: #d4a843;
+  --mana-purple: #a855f7;
+  --mana-white: #f5f5f5;
+  --mana-black: #1a1a1a;
 
-  /* Typography */
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.5;
+  /* Grime/Accent Colors */
+  --grime-rust: #8b4513;
+  --grime-moss: #2d5a2d;
+  --grime-blood: #8b0000;
+  --grime-bone: #d4c5a9;
+
+  /* Border Colors */
+  --border-dim: #2a2a30;
+  --border-default: #3a3a42;
+  --border-glow: #4a4a54;
+
+  /* Status Colors */
+  --status-success: var(--mana-green);
+  --status-warning: var(--mana-gold);
+  --status-error: var(--mana-red);
+  --status-info: var(--mana-blue);
+
+  /* Player Panel Colors (for life tracker) */
+  --player-blue: #1e40af;
+  --player-red: #b91c1c;
+  --player-green: #15803d;
+  --player-purple: #7e22ce;
+  --player-orange: #c2410c;
+  --player-teal: #0f766e;
+  --player-pink: #be185d;
+  --player-slate: #334155;
+
+  /* Legacy color mappings for compatibility */
+  --color-background: var(--bg-dungeon);
+  --color-surface: var(--bg-surface);
+  --color-surface-hover: var(--bg-hover);
+  --color-border: var(--border-default);
+  --color-text: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-dim);
+  --color-primary: var(--mana-blue);
+  --color-primary-hover: #0284c7;
+  --color-primary-light: rgba(14, 165, 233, 0.2);
+  --color-success: var(--status-success);
+  --color-warning: var(--status-warning);
+  --color-error: var(--status-error);
+
+  /* ========================================
+     TYPOGRAPHY
+     ======================================== */
+
+  /* Font Families */
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-display: 'VT323', monospace;
+  --font-body: 'IBM Plex Mono', monospace;
+
+  /* Font Sizes */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.5rem;
+  --text-5xl: 3rem;
+  --text-6xl: 4rem;
+  --text-7xl: 5rem;
+  --text-8xl: 6rem;
+
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  /* ========================================
+     SPACING (8px Grid)
+     ======================================== */
+
+  --space-0: 0;
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+
+  /* ========================================
+     SHADOWS - PIXEL STYLE
+     ======================================== */
+
+  --shadow-pixel-sm: 2px 2px 0 var(--bg-void);
+  --shadow-pixel-md: 4px 4px 0 var(--bg-void);
+  --shadow-pixel-lg: 6px 6px 0 var(--bg-void);
+  --shadow-pixel-gold: 4px 4px 0 var(--grime-rust);
+
+  /* Inset shadows for depth */
+  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-inset-deep: inset 0 4px 8px rgba(0, 0, 0, 0.4);
+
+  /* Glow shadows */
+  --shadow-glow-blue: 0 0 20px rgba(14, 165, 233, 0.3);
+  --shadow-glow-gold: 0 0 20px rgba(212, 168, 67, 0.3);
+  --shadow-glow-green: 0 0 20px rgba(34, 197, 94, 0.3);
+  --shadow-glow-red: 0 0 20px rgba(239, 68, 68, 0.3);
+  --shadow-glow-purple: 0 0 20px rgba(168, 85, 247, 0.3);
+
+  /* ========================================
+     ANIMATION
+     ======================================== */
+
+  /* Durations */
+  --duration-instant: 0ms;
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 400ms;
+
+  /* Pixel-style easing (stepped) */
+  --ease-pixel: steps(2);
+  --ease-pixel-smooth: steps(4);
+  --ease-pixel-fine: steps(8);
+
+  /* Standard easing */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ========================================
+     BORDERS
+     ======================================== */
+
+  --border-width-thin: 1px;
+  --border-width-default: 2px;
+  --border-width-thick: 3px;
+  --border-width-chunky: 4px;
+
+  /* No border-radius for pixel aesthetic */
+  --radius-none: 0;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  /* ========================================
+     BASE TYPOGRAPHY SETTINGS
+     ======================================== */
+
+  font-family: var(--font-body);
+  line-height: var(--leading-normal);
   font-weight: 400;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Pixel-perfect rendering for pixel fonts */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --color-background: #ffffff;
-    --color-surface: #f5f5f5;
-    --color-surface-hover: #ebebeb;
-    --color-border: #e0e0e0;
-
-    --color-text: #1a1a1a;
-    --color-text-secondary: #666666;
-    --color-text-muted: #999999;
-  }
-}
+/* ========================================
+   GLOBAL RESET & BASE STYLES
+   ======================================== */
 
 * {
   box-sizing: border-box;
@@ -51,30 +204,285 @@ html, body {
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-text);
+  background-color: var(--bg-dungeon);
+  color: var(--text-primary);
+  font-family: var(--font-body);
 }
 
 #root {
   min-height: 100vh;
 }
 
+/* ========================================
+   LINK STYLES
+   ======================================== */
+
 a {
-  color: var(--color-primary);
+  color: var(--mana-blue);
   text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
 }
 
 a:hover {
+  color: var(--mana-gold);
   text-decoration: underline;
 }
 
-/* Focus styles */
+/* ========================================
+   FOCUS STYLES
+   ======================================== */
+
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: var(--border-width-default) solid var(--mana-blue);
   outline-offset: 2px;
 }
 
-/* Selection */
+/* ========================================
+   SELECTION STYLES
+   ======================================== */
+
 ::selection {
   background: var(--color-primary-light);
+  color: var(--text-primary);
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-void);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border: 1px solid var(--bg-void);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-glow);
+}
+
+/* ========================================
+   GLOBAL KEYFRAME ANIMATIONS
+   ======================================== */
+
+/* Life gain flash */
+@keyframes flash-gain {
+  0%, 100% {
+    background-color: inherit;
+  }
+  50% {
+    background-color: rgba(34, 197, 94, 0.3);
+  }
+}
+
+/* Life loss flash */
+@keyframes flash-loss {
+  0%, 100% {
+    background-color: inherit;
+  }
+  50% {
+    background-color: rgba(239, 68, 68, 0.3);
+  }
+}
+
+/* Screen shake for death */
+@keyframes screen-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 50%, 90% { transform: translateX(-4px); }
+  30%, 70% { transform: translateX(4px); }
+}
+
+/* Winner celebration pulse */
+@keyframes winner-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--mana-gold), var(--shadow-pixel-md);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 40px var(--mana-gold), var(--shadow-pixel-md);
+    transform: scale(1.02);
+  }
+}
+
+/* CRT flicker effect */
+@keyframes crt-flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; }
+  94% { opacity: 1; }
+  97% { opacity: 0.9; }
+  98% { opacity: 1; }
+}
+
+/* Pixel press animation */
+@keyframes pixel-press {
+  0% {
+    transform: translateY(0);
+    box-shadow: var(--shadow-pixel-md);
+  }
+  50% {
+    transform: translateY(4px);
+    box-shadow: none;
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow: var(--shadow-pixel-md);
+  }
+}
+
+/* Generic spin animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Trophy pop animation */
+@keyframes trophy-pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Fade in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide up animation */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide in from top */
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide out to top */
+@keyframes slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+/* Scanlines overlay effect */
+.scanlines {
+  position: relative;
+}
+
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+  pointer-events: none;
+}
+
+/* Pixel press effect for buttons */
+.pixel-press {
+  transition: transform var(--duration-instant) var(--ease-pixel),
+              box-shadow var(--duration-instant) var(--ease-pixel);
+}
+
+.pixel-press:active {
+  transform: translateY(4px);
+  box-shadow: none !important;
+}
+
+/* Text glow utilities */
+.text-glow-gold {
+  text-shadow: 0 0 10px var(--mana-gold), 0 0 20px rgba(212, 168, 67, 0.5);
+}
+
+.text-glow-blue {
+  text-shadow: 0 0 10px var(--mana-blue), 0 0 20px rgba(14, 165, 233, 0.5);
+}
+
+.text-glow-green {
+  text-shadow: 0 0 10px var(--mana-green), 0 0 20px rgba(34, 197, 94, 0.5);
+}
+
+.text-glow-red {
+  text-shadow: 0 0 10px var(--mana-red), 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+/* Font family utilities */
+.font-pixel {
+  font-family: var(--font-pixel);
+  letter-spacing: 0.05em;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Uppercase with letter spacing */
+.uppercase-spaced {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }

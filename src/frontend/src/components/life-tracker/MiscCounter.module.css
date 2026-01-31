@@ -1,66 +1,90 @@
+/* ========================================
+   MISC COUNTER - DUNGEON AESTHETIC
+   Generic counter for energy, experience, etc.
+   ======================================== */
+
 .container {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
+  gap: var(--space-1);
+  padding: var(--space-2);
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
+  border: var(--border-width-thin) solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-none);
   min-width: 80px;
 }
+
+/* ========================================
+   HEADER
+   ======================================== */
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
 .name {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: rgba(255, 255, 255, 0.8);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* ========================================
+   REMOVE BUTTON
+   ======================================== */
+
 .removeButton {
   width: 20px;
   height: 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-none);
   background: transparent;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 1rem;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
   line-height: 1;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--duration-fast) var(--ease-pixel);
 }
 
 .removeButton:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
 }
+
+/* ========================================
+   CONTROLS
+   ======================================== */
 
 .controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .adjustButton {
   width: 28px;
   height: 28px;
-  border: none;
-  border-radius: 6px;
+  border: var(--border-width-thin) solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-none);
   background: rgba(255, 255, 255, 0.15);
   color: white;
-  font-size: 1rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 400;
   cursor: pointer;
-  transition: all 0.15s ease;
   touch-action: manipulation;
+  transition: transform var(--duration-instant) var(--ease-pixel),
+              background var(--duration-fast) var(--ease-pixel);
 }
 
 .adjustButton:hover {
@@ -68,36 +92,53 @@
 }
 
 .adjustButton:active {
-  transform: scale(0.95);
+  transform: translateY(1px);
 }
 
+/* ========================================
+   VALUE
+   ======================================== */
+
 .value {
-  min-width: 1.5rem;
+  min-width: var(--space-6);
   text-align: center;
-  font-size: 1rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 400;
   color: white;
 }
+
+/* ========================================
+   LIST CONTAINER
+   ======================================== */
 
 .listContainer {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0.5rem;
+  gap: var(--space-2);
+  padding: var(--space-2);
 }
 
+/* ========================================
+   ADD BUTTON
+   ======================================== */
+
 .addButton {
-  padding: 0.5rem 0.75rem;
-  border: 1px dashed rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width-default) dashed rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-none);
   background: transparent;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: rgba(255, 255, 255, 0.6);
-  font-size: 0.75rem;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--duration-fast) var(--ease-pixel);
 }
 
 .addButton:hover {
   border-color: rgba(255, 255, 255, 0.5);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
 }

@@ -1,8 +1,13 @@
+/* ========================================
+   POISON COUNTER - DUNGEON AESTHETIC
+   Skull-themed poison tracking
+   ======================================== */
+
 .container {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
+  gap: var(--space-2);
+  padding: var(--space-2);
 }
 
 .inverted {
@@ -10,30 +15,39 @@
 }
 
 .compact {
-  padding: 0.25rem;
-  gap: 0.25rem;
+  padding: var(--space-1);
+  gap: var(--space-1);
 }
+
+/* ========================================
+   ADJUST BUTTONS
+   ======================================== */
 
 .adjustButton {
   min-width: 40px;
   min-height: 40px;
-  border: none;
-  border-radius: 8px;
+  border: var(--border-width-default) solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-none);
   background: rgba(255, 255, 255, 0.15);
   color: white;
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 400;
   cursor: pointer;
-  transition: all 0.15s ease;
   touch-action: manipulation;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  transition: transform var(--duration-instant) var(--ease-pixel),
+              box-shadow var(--duration-instant) var(--ease-pixel);
 }
 
 .adjustButton:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .adjustButton:active:not(:disabled) {
-  transform: scale(0.95);
+  transform: translateY(2px);
+  box-shadow: none;
 }
 
 .adjustButton:disabled {
@@ -44,47 +58,72 @@
 .compact .adjustButton {
   min-width: 32px;
   min-height: 32px;
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
+
+/* ========================================
+   POISON DISPLAY
+   ======================================== */
 
 .poisonDisplay {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.5rem 0.75rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(0, 0, 0, 0.3);
+  border: var(--border-width-default) solid rgba(139, 0, 0, 0.5);
+  border-radius: var(--radius-none);
   min-width: 70px;
   justify-content: center;
 }
 
 .compact .poisonDisplay {
-  padding: 0.25rem 0.5rem;
+  padding: var(--space-1) var(--space-2);
   min-width: 50px;
 }
 
+/* ========================================
+   LETHAL STATE
+   ======================================== */
+
 .lethal {
-  background: rgba(139, 0, 0, 0.5);
+  background: rgba(139, 0, 0, 0.6);
+  border-color: var(--grime-blood);
+  box-shadow: 0 0 10px rgba(139, 0, 0, 0.5);
   animation: pulse 1s ease-in-out infinite;
 }
 
+/* ========================================
+   POISON ICON (Skull)
+   ======================================== */
+
 .poisonIcon {
-  font-size: 1.25rem;
+  font-size: var(--text-xl);
 }
 
 .compact .poisonIcon {
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
 
+/* ========================================
+   POISON VALUE
+   ======================================== */
+
 .poisonValue {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 400;
   color: white;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
 }
 
 .compact .poisonValue {
-  font-size: 1.125rem;
+  font-size: var(--text-lg);
 }
+
+/* ========================================
+   ANIMATION
+   ======================================== */
 
 @keyframes pulse {
   0%, 100% {

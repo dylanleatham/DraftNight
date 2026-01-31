@@ -1,9 +1,14 @@
+/* ========================================
+   LIFE COUNTER - DUNGEON AESTHETIC
+   Standalone life counter with color variants
+   ======================================== */
+
 .container {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem;
+  gap: var(--space-2);
+  padding: var(--space-4);
   width: 100%;
 }
 
@@ -11,34 +16,47 @@
   transform: rotate(180deg);
 }
 
+/* ========================================
+   ADJUST BUTTONS
+   ======================================== */
+
 .adjustButtons {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .adjustButton {
   min-width: 56px;
   min-height: 56px;
-  border: none;
-  border-radius: 12px;
+  border: var(--border-width-default) solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-none);
   background: rgba(255, 255, 255, 0.15);
   color: white;
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 400;
   cursor: pointer;
-  transition: all 0.15s ease;
   touch-action: manipulation;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  transition: transform var(--duration-instant) var(--ease-pixel),
+              box-shadow var(--duration-instant) var(--ease-pixel);
 }
 
 .adjustButton:hover {
   background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .adjustButton:active {
-  transform: scale(0.95);
+  transform: translateY(2px);
+  box-shadow: none;
   background: rgba(255, 255, 255, 0.3);
 }
+
+/* ========================================
+   LIFE DISPLAY
+   ======================================== */
 
 .lifeDisplay {
   display: flex;
@@ -50,28 +68,41 @@
   user-select: none;
 }
 
+/* ========================================
+   LIFE VALUE - Pixel Font
+   ======================================== */
+
 .lifeValue {
-  font-size: 5rem;
-  font-weight: 800;
+  font-family: var(--font-pixel);
+  font-size: var(--text-5xl);
+  font-weight: 400;
   color: white;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  line-height: 1;
+  text-shadow:
+    4px 4px 0 rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(255, 255, 255, 0.3);
+  line-height: var(--leading-none);
 }
+
+/* ========================================
+   LIFE INPUT
+   ======================================== */
 
 .lifeInput {
   width: 120px;
-  font-size: 4rem;
-  font-weight: 800;
+  font-family: var(--font-pixel);
+  font-size: var(--text-4xl);
+  font-weight: 400;
   text-align: center;
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: var(--border-width-thick) solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-none);
   color: white;
   outline: none;
 }
 
 .lifeInput:focus {
   border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
 /* Hide number input spinners */
@@ -85,27 +116,30 @@
   -moz-appearance: textfield;
 }
 
-/* Color variants */
+/* ========================================
+   COLOR VARIANTS
+   ======================================== */
+
 .blue {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, var(--player-blue) 0%, #1e3a8a 100%);
 }
 
 .red {
-  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  background: linear-gradient(135deg, var(--player-red) 0%, #7f1d1d 100%);
 }
 
 .green {
-  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+  background: linear-gradient(135deg, var(--player-green) 0%, #14532d 100%);
 }
 
 .purple {
-  background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+  background: linear-gradient(135deg, var(--player-purple) 0%, #581c87 100%);
 }
 
 .orange {
-  background: linear-gradient(135deg, #f97316 0%, #c2410c 100%);
+  background: linear-gradient(135deg, var(--player-orange) 0%, #7c2d12 100%);
 }
 
 .teal {
-  background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+  background: linear-gradient(135deg, var(--player-teal) 0%, #134e4a 100%);
 }

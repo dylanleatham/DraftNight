@@ -1,14 +1,30 @@
+/* ========================================
+   CARD/PANEL - DUNGEON AESTHETIC
+   Surface containers with pixel shadows
+   ======================================== */
+
 .card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 1rem;
+  background: var(--bg-surface);
+  border: var(--border-width-default) solid var(--border-dim);
+  border-radius: var(--radius-none);
+  padding: var(--space-4);
+
+  /* Pixel shadow + inset combo for depth */
+  box-shadow: var(--shadow-pixel-md), var(--shadow-inset);
 }
 
+/* ========================================
+   HIGHLIGHT VARIANT
+   ======================================== */
+
 .highlight {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 1px var(--color-primary);
+  border-color: var(--mana-blue);
+  box-shadow: var(--shadow-pixel-md), var(--shadow-glow-blue);
 }
+
+/* ========================================
+   CLICKABLE VARIANT
+   ======================================== */
 
 .clickable {
   cursor: pointer;
@@ -16,9 +32,39 @@
   text-align: left;
   font: inherit;
   color: inherit;
-  transition: all 0.2s ease;
+
+  transition: transform var(--duration-fast) var(--ease-pixel),
+              box-shadow var(--duration-fast) var(--ease-pixel),
+              border-color var(--duration-fast) var(--ease-pixel);
 }
 
 .clickable:hover {
-  background: var(--color-surface-hover);
+  background: var(--bg-elevated);
+  border-color: var(--border-default);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-pixel-lg), var(--shadow-inset);
+}
+
+.clickable:active {
+  transform: translateY(2px);
+  box-shadow: var(--shadow-pixel-sm), var(--shadow-inset);
+}
+
+/* ========================================
+   ELEVATED VARIANT
+   ======================================== */
+
+.elevated {
+  background: var(--bg-elevated);
+  border-color: var(--border-default);
+}
+
+/* ========================================
+   GOLD/WINNER VARIANT
+   ======================================== */
+
+.gold {
+  border-color: var(--mana-gold);
+  border-width: var(--border-width-chunky);
+  box-shadow: var(--shadow-pixel-gold), var(--shadow-glow-gold);
 }

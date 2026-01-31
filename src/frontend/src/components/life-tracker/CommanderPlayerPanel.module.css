@@ -1,24 +1,39 @@
+/* ========================================
+   COMMANDER PLAYER PANEL - DUNGEON AESTHETIC
+   Compact panel for multi-player commander mode
+   ======================================== */
+
 .container {
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
+  border-radius: var(--radius-none);
   overflow: hidden;
   height: 100%;
+  border: var(--border-width-default) solid rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-inset);
 }
 
 .inverted {
   transform: rotate(180deg);
 }
 
+/* ========================================
+   COMPACT VIEW
+   ======================================== */
+
 .compactView {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
+  gap: var(--space-1);
+  padding: var(--space-2);
   cursor: pointer;
   user-select: none;
   flex: 1;
 }
+
+/* ========================================
+   HEADER
+   ======================================== */
 
 .header {
   display: flex;
@@ -27,54 +42,68 @@
 }
 
 .playerName {
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: var(--space-1);
 }
 
 .playerName.clickable {
   cursor: pointer;
-  border-radius: 6px;
-  padding: 0.25rem 0.5rem;
-  margin: -0.25rem -0.5rem;
-  transition: background 0.15s ease;
+  border-radius: var(--radius-none);
+  padding: var(--space-1) var(--space-2);
+  margin: calc(var(--space-1) * -1) calc(var(--space-2) * -1);
+  transition: background var(--duration-fast) var(--ease-pixel);
 }
 
 .playerName.clickable:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .editHint {
+  font-family: var(--font-body);
   font-size: 0.5rem;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  text-shadow: none;
 }
+
+/* ========================================
+   EXPAND BUTTON
+   ======================================== */
 
 .expandButton {
   width: 24px;
   height: 24px;
-  border: none;
-  border-radius: 6px;
+  border: var(--border-width-thin) solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-none);
   background: rgba(255, 255, 255, 0.2);
   color: white;
-  font-size: 1rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 400;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-pixel);
 }
 
 .expandButton:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+/* ========================================
+   LIFE SECTION
+   ======================================== */
 
 .lifeSection {
   display: flex;
@@ -86,21 +115,24 @@
 .lifeControls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .lifeButton {
   width: 40px;
   height: 40px;
-  border: none;
-  border-radius: 8px;
+  border: var(--border-width-default) solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-none);
   background: rgba(255, 255, 255, 0.15);
   color: white;
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 400;
   cursor: pointer;
-  transition: all 0.15s ease;
   touch-action: manipulation;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  transition: transform var(--duration-instant) var(--ease-pixel),
+              box-shadow var(--duration-instant) var(--ease-pixel);
 }
 
 .lifeButton:hover {
@@ -108,8 +140,13 @@
 }
 
 .lifeButton:active {
-  transform: scale(0.95);
+  transform: translateY(2px);
+  box-shadow: none;
 }
+
+/* ========================================
+   LIFE DISPLAY
+   ======================================== */
 
 .lifeDisplay {
   display: flex;
@@ -119,27 +156,36 @@
 }
 
 .lifeValue {
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-family: var(--font-pixel);
+  font-size: var(--text-4xl);
+  font-weight: 400;
   color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  line-height: 1;
+  text-shadow:
+    3px 3px 0 rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(255, 255, 255, 0.3);
+  line-height: var(--leading-none);
 }
+
+/* ========================================
+   LIFE INPUT
+   ======================================== */
 
 .lifeInput {
   width: 60px;
-  font-size: 2rem;
-  font-weight: 800;
+  font-family: var(--font-pixel);
+  font-size: var(--text-3xl);
+  font-weight: 400;
   text-align: center;
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  border: var(--border-width-default) solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-none);
   color: white;
   outline: none;
 }
 
 .lifeInput:focus {
   border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
 /* Hide number input spinners */
@@ -153,43 +199,54 @@
   -moz-appearance: textfield;
 }
 
+/* ========================================
+   INDICATORS
+   ======================================== */
+
 .indicators {
   display: flex;
   justify-content: center;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .indicator {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-  font-size: 0.875rem;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: rgba(0, 0, 0, 0.3);
+  border: var(--border-width-thin) solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-none);
+  font-size: var(--text-sm);
 }
 
 .lethal {
   background: rgba(139, 0, 0, 0.5);
+  border-color: var(--grime-blood);
   animation: pulse 1s ease-in-out infinite;
 }
 
 .indicatorIcon {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .indicatorValue {
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 400;
   color: white;
 }
+
+/* ========================================
+   EXPANDED VIEW
+   ======================================== */
 
 .expandedView {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: rgba(0, 0, 0, 0.15);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: rgba(0, 0, 0, 0.2);
+  border-top: var(--border-width-thin) solid rgba(255, 255, 255, 0.1);
 }
 
 .expandedSection {
@@ -198,6 +255,10 @@
 }
 
 /* Color variants are now applied via inline styles for custom color support */
+
+/* ========================================
+   ANIMATION
+   ======================================== */
 
 @keyframes pulse {
   0%, 100% {
