@@ -7,11 +7,12 @@ import styles from './CreateEventPage.module.css'
 
 export function CreateEventPage() {
   const navigate = useNavigate()
-  const { setHostSession } = useAuth()
+  const { setHostSession, setPlayerSession } = useAuth()
 
   const [name, setName] = useState('')
   const [packsInBox, setPacksInBox] = useState('36')
   const [hostPin, setHostPin] = useState('')
+  const [hostName, setHostName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -33,6 +34,10 @@ export function CreateEventPage() {
       setError('Host PIN must be at least 4 characters')
       return
     }
+    if (!hostName.trim()) {
+      setError('Your name is required')
+      return
+    }
 
     setIsLoading(true)
     try {
@@ -40,12 +45,19 @@ export function CreateEventPage() {
         name: name.trim(),
         packsInBox: packs,
         hostPin,
+        hostName: hostName.trim(),
       })
 
       setHostSession({
         eventId: response.eventId,
         hostToken: response.hostToken,
         joinCode: response.joinCode,
+      })
+
+      setPlayerSession({
+        eventId: response.eventId,
+        playerId: response.playerId,
+        playerToken: response.playerToken,
       })
 
       navigate(`/event/${response.eventId}/lobby`)
@@ -86,6 +98,14 @@ export function CreateEventPage() {
             onChange={(e) => setPacksInBox(e.target.value)}
             min={6}
             max={48}
+          />
+
+          <Input
+            label="Your Name"
+            value={hostName}
+            onChange={(e) => setHostName(e.target.value)}
+            placeholder="Your player name"
+            maxLength={50}
           />
 
           <Input

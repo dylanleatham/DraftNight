@@ -26,6 +26,10 @@ public class EventService(
         var hostToken = authService.GenerateToken();
         var hostPinHash = authService.HashPin(request.HostPin);
 
+        // Generate player credentials for the host
+        var playerId = Guid.NewGuid();
+        var playerToken = authService.GenerateToken();
+
         var entity = new EventEntity
         {
             Id = eventId,
@@ -44,7 +48,24 @@ public class EventService(
             HostToken = hostToken
         };
 
-        var auditLog = new AuditLogEntity
+        // Create the host as the first player (seed 1)
+        var hostPlayer = new PlayerEntity
+        {
+            Id = playerId,
+            EventId = eventId,
+            Name = request.HostName,
+            Seed = 1,
+            MatchWins = 0,
+            MatchLosses = 0,
+            ByeReceived = false,
+            IsDropped = false,
+            OpponentsJson = "[]",
+            LastPlayedRoundJson = "{}",
+            PinHash = hostPinHash,
+            PlayerToken = playerToken
+        };
+
+        var eventAuditLog = new AuditLogEntity
         {
             Id = Guid.NewGuid(),
             EventId = eventId,
@@ -54,15 +75,30 @@ public class EventService(
             CreatedAt = DateTime.UtcNow
         };
 
+        var playerAuditLog = new AuditLogEntity
+        {
+            Id = Guid.NewGuid(),
+            EventId = eventId,
+            ActionType = AuditActionType.PlayerJoined,
+            EntityType = "Player",
+            EntityId = playerId,
+            AfterJson = $"{{\"name\": \"{request.HostName}\", \"seed\": 1}}",
+            CreatedAt = DateTime.UtcNow
+        };
+
         context.Events.Add(entity);
-        context.AuditLogs.Add(auditLog);
+        context.Players.Add(hostPlayer);
+        context.AuditLogs.Add(eventAuditLog);
+        context.AuditLogs.Add(playerAuditLog);
         await context.SaveChangesAsync(ct);
 
         return new CreateEventResponse
         {
             EventId = eventId,
             JoinCode = joinCode,
-            HostToken = hostToken
+            HostToken = hostToken,
+            PlayerId = playerId,
+            PlayerToken = playerToken
         };
     }
 

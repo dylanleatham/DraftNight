@@ -81,6 +81,8 @@ export interface CreateEventResponse {
   eventId: string
   joinCode: string
   hostToken: string
+  playerId: string
+  playerToken: string
 }
 
 export interface JoinEventResponse {
@@ -120,6 +122,7 @@ export interface CreateEventRequest {
   name: string
   packsInBox: number
   hostPin: string
+  hostName: string
 }
 
 export interface JoinEventRequest {

@@ -19,4 +19,14 @@ public sealed record CreateEventResponse
     /// Gets the host token for authorization.
     /// </summary>
     public required string HostToken { get; init; }
+
+    /// <summary>
+    /// Gets the host's player ID.
+    /// </summary>
+    public required Guid PlayerId { get; init; }
+
+    /// <summary>
+    /// Gets the host's player token for authorization.
+    /// </summary>
+    public required string PlayerToken { get; init; }
 }

@@ -27,4 +27,11 @@ public sealed record CreateEventRequest
     [Required]
     [StringLength(20, MinimumLength = 4)]
     public required string HostPin { get; init; }
+
+    /// <summary>
+    /// Gets the host's player name.
+    /// </summary>
+    [Required]
+    [StringLength(50, MinimumLength = 1)]
+    public required string HostName { get; init; }
 }

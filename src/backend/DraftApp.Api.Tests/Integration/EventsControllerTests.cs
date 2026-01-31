@@ -85,7 +85,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
 
         // Act
@@ -102,6 +103,8 @@ public class EventsControllerTests : IDisposable
         Assert.NotEqual(Guid.Empty, result.EventId);
         Assert.NotEmpty(result.JoinCode);
         Assert.NotEmpty(result.HostToken);
+        Assert.NotEqual(Guid.Empty, result.PlayerId);
+        Assert.NotEmpty(result.PlayerToken);
     }
 
     [Fact(Skip = "EF Core InMemory provider has issues updating entities loaded across different DbContext scopes. This test passes with SQL Server.")]
@@ -112,7 +115,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -170,7 +174,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -207,7 +212,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -233,7 +239,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -263,7 +270,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -293,7 +301,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -345,7 +354,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -389,7 +399,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -423,7 +434,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -447,7 +459,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -477,7 +490,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -503,7 +517,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -533,7 +548,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -571,7 +587,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -606,7 +623,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -636,7 +654,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -675,7 +694,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -707,7 +727,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -743,7 +764,8 @@ public class EventsControllerTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();

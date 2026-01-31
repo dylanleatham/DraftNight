@@ -96,7 +96,8 @@ public class SignalRIntegrationTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await httpClient.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -181,7 +182,8 @@ public class SignalRIntegrationTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await httpClient.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -228,7 +230,8 @@ public class SignalRIntegrationTests : IDisposable
         {
             Name = "Test Event",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await httpClient.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -324,7 +327,8 @@ public class SignalRIntegrationTests : IDisposable
         {
             Name = "Snapshot Update Test",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await httpClient.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
@@ -401,7 +405,8 @@ public class SignalRIntegrationTests : IDisposable
         {
             Name = "Reconnect Test",
             PacksInBox = 36,
-            HostPin = "1234"
+            HostPin = "1234",
+            HostName = "Host"
         };
         var createResponse = await httpClient.PostAsJsonAsync("/api/events", createRequest);
         var createContent = await createResponse.Content.ReadAsStringAsync();
