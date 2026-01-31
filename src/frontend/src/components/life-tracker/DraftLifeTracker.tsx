@@ -165,7 +165,7 @@ export function DraftLifeTracker({
               Reset Game
             </Button>
             <p className={styles.resetHint}>
-              Resets life and poison, keeps game wins
+              Resets life and poison to replay the game
             </p>
             <Button
               variant="danger"

@@ -121,6 +121,31 @@ function draftReducer(state: DraftSession, action: DraftAction): DraftSession {
     case 'TOGGLE_GAME_WIN': {
       const current = state.gameWins[action.player]
       const newWins = current >= 2 ? 0 : current + 1
+      const isRecordingWin = newWins > current
+
+      // When recording a win (not wrapping back to 0), reset life and poison
+      // for the next game
+      if (isRecordingWin) {
+        return {
+          ...state,
+          playerA: {
+            ...state.playerA,
+            life: state.startingLife,
+            poison: 0,
+          },
+          playerB: {
+            ...state.playerB,
+            life: state.startingLife,
+            poison: 0,
+          },
+          gameWins: {
+            ...state.gameWins,
+            [action.player]: newWins,
+          },
+        }
+      }
+
+      // Wrapping back to 0 (correction) - only update game wins
       return {
         ...state,
         gameWins: {
@@ -132,6 +157,21 @@ function draftReducer(state: DraftSession, action: DraftAction): DraftSession {
 
     case 'RESET_GAME': {
       // Reset life and poison but keep game wins and misc counters (sticky)
+      // If a match was won (someone has 2+ wins), decrement their wins by 1
+      // to clear the match-winning state
+      const matchWinner =
+        state.gameWins.playerA >= 2
+          ? 'playerA'
+          : state.gameWins.playerB >= 2
+            ? 'playerB'
+            : null
+      const newGameWins = matchWinner
+        ? {
+            ...state.gameWins,
+            [matchWinner]: state.gameWins[matchWinner] - 1,
+          }
+        : state.gameWins
+
       return {
         ...state,
         playerA: {
@@ -146,6 +186,7 @@ function draftReducer(state: DraftSession, action: DraftAction): DraftSession {
           poison: 0,
           // miscCounters, panelColor, backgroundImage preserved
         },
+        gameWins: newGameWins,
       }
     }
 

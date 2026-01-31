@@ -40,11 +40,15 @@ export function PairingsPage() {
   const isPairingsPublished =
     currentRound.status === RoundStatus.PairingsPublished
   const isRoundClosed = currentRound.status === RoundStatus.Closed
+  const isRoundActive = isPairingsPublished || isRoundClosed
   const allMatchesFinalized = currentRound.matches.every(
     (m) => m.status === MatchStatus.Final
   )
   const canPublishNextRound =
-    isHostUser && isRoundClosed && snapshot.currentRound < snapshot.totalRounds
+    isHostUser &&
+    isRoundClosed &&
+    allMatchesFinalized &&
+    snapshot.currentRound < snapshot.totalRounds
 
   const handleSelectWinner = async (
     matchId: string,
@@ -101,13 +105,13 @@ export function PairingsPage() {
           <h2 className={styles.roundTitle}>
             Round {snapshot.currentRound} of {snapshot.totalRounds}
           </h2>
-          {isPairingsPublished && !allMatchesFinalized && (
+          {!allMatchesFinalized && (
             <span className={styles.status}>In Progress</span>
           )}
           {allMatchesFinalized && !isRoundClosed && (
             <span className={styles.statusComplete}>All Matches Complete</span>
           )}
-          {isRoundClosed && (
+          {isRoundClosed && allMatchesFinalized && (
             <span className={styles.statusClosed}>Round Closed</span>
           )}
         </div>
@@ -159,7 +163,7 @@ export function PairingsPage() {
               currentPlayerId={playerId}
               isHost={isHostUser}
               onSelectWinner={
-                isPairingsPublished
+                isRoundActive
                   ? (winnerId) => handleSelectWinner(match.id, winnerId, match)
                   : undefined
               }
@@ -169,7 +173,9 @@ export function PairingsPage() {
                   : undefined
               }
               onLifeTracker={
-                isPairingsPublished && !match.isBye
+                isRoundActive &&
+                !match.isBye &&
+                match.status !== MatchStatus.Final
                   ? () =>
                       handleLaunchLifeTracker(
                         match.id,
@@ -203,6 +209,7 @@ export function PairingsPage() {
 
       {isHostUser &&
         isRoundClosed &&
+        allMatchesFinalized &&
         snapshot.currentRound === snapshot.totalRounds && (
           <div className={styles.tournamentComplete}>
             <p>Tournament complete! Go to Prizes to allocate prize packs.</p>
