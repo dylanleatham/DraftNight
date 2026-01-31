@@ -46,9 +46,11 @@ function getBackgroundStyle(
 ): CSSProperties {
   if (backgroundImage) {
     return {
-      backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${backgroundImage})`,
-      backgroundSize: 'cover',
+      backgroundImage: `url(${backgroundImage})`,
+      backgroundSize: 'contain',
       backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundColor: 'rgba(0, 0, 0, 0.85)',
     }
   }
   if (isPlayerColor(color)) {

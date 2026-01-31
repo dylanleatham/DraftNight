@@ -1,5 +1,7 @@
 // Life Tracker Type Definitions
 
+import type { Archetype } from '../lib/archetypeImages'
+
 export type TrackerMode = 'draft' | 'commander'
 
 // Draft Mode Types (1v1)
@@ -11,6 +13,7 @@ export interface DraftPlayer {
   miscCounters: MiscCounter[]
   panelColor?: string // PlayerColor name or hex string
   backgroundImage?: string // URL or data URI
+  archetype?: Archetype // Assigned archetype for background images
 }
 
 export interface DraftSession {
@@ -51,6 +54,7 @@ export interface CommanderPlayer {
   miscCounters: MiscCounter[]
   panelColor?: string // PlayerColor name or hex string
   backgroundImage?: string // URL or data URI
+  archetype?: Archetype // Assigned archetype for background images
 }
 
 export interface CommanderSession {

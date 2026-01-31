@@ -6,6 +6,9 @@ import { useAuth } from '../context/AuthContext'
 import { api } from '../api/client'
 import { DraftLifeTracker } from '../components/life-tracker'
 import { CommanderLifeTracker } from '../components/life-tracker/CommanderLifeTracker'
+import type { Archetype } from '../lib/archetypeImages'
+import { ALL_ARCHETYPES } from '../lib/archetypeImages'
+import { archetypeStorage } from '../lib/archetypeStorage'
 
 export function LifeTrackerPage() {
   const { sessionId } = useParams<{ sessionId: string }>()
@@ -29,6 +32,31 @@ export function LifeTrackerPage() {
   const matchId = searchParams.get('matchId') || undefined
   const playerAId = searchParams.get('playerAId') || undefined
   const playerBId = searchParams.get('playerBId') || undefined
+
+  // Archetype params (for standalone mode)
+  const archetypeAParam = searchParams.get('archetypeA')
+  const archetypeBParam = searchParams.get('archetypeB')
+  const archetypesParam = searchParams.get('archetypes')
+
+  // Parse archetypes from params
+  const archetypeA =
+    archetypeAParam && ALL_ARCHETYPES.includes(archetypeAParam as Archetype)
+      ? (archetypeAParam as Archetype)
+      : undefined
+  const archetypeB =
+    archetypeBParam && ALL_ARCHETYPES.includes(archetypeBParam as Archetype)
+      ? (archetypeBParam as Archetype)
+      : undefined
+  const archetypes = archetypesParam
+    ?.split(',')
+    .filter((a): a is Archetype => ALL_ARCHETYPES.includes(a as Archetype))
+
+  // Initialize event archetypes if needed (for draft events)
+  if (eventId && playerAId && playerBId && !archetypeStorage.getEventData(eventId)) {
+    // Get all unique player IDs we know about for this event
+    // For now, just initialize with the two players in this match
+    archetypeStorage.initializeEvent(eventId, [playerAId, playerBId])
+  }
 
   const handleExit = useCallback(
     async (matchWinner?: 'playerA' | 'playerB') => {
@@ -91,6 +119,10 @@ export function LifeTrackerPage() {
         startingLife={startingLife}
         eventId={eventId}
         matchId={matchId}
+        playerAId={playerAId}
+        playerBId={playerBId}
+        archetypeA={archetypeA}
+        archetypeB={archetypeB}
         onExit={handleExit}
       />
     )
@@ -101,6 +133,7 @@ export function LifeTrackerPage() {
       sessionId={sessionId}
       playerNames={playerNames}
       startingLife={startingLife}
+      archetypes={archetypes}
       onExit={handleExit}
     />
   )
@@ -113,6 +146,10 @@ interface DraftLifeTrackerViewProps {
   startingLife: number
   eventId?: string
   matchId?: string
+  playerAId?: string
+  playerBId?: string
+  archetypeA?: Archetype
+  archetypeB?: Archetype
   onExit: (matchWinner?: 'playerA' | 'playerB') => void
 }
 
@@ -123,6 +160,10 @@ function DraftLifeTrackerView({
   startingLife,
   eventId,
   matchId,
+  playerAId,
+  playerBId,
+  archetypeA,
+  archetypeB,
   onExit,
 }: DraftLifeTrackerViewProps) {
   const {
@@ -145,6 +186,10 @@ function DraftLifeTrackerView({
     startingLife,
     eventId,
     matchId,
+    playerAId,
+    playerBId,
+    archetypeA,
+    archetypeB,
   })
 
   return (
@@ -170,6 +215,7 @@ interface CommanderLifeTrackerViewProps {
   sessionId: string
   playerNames: string[]
   startingLife: number
+  archetypes?: Archetype[]
   onExit: (matchWinner?: 'playerA' | 'playerB') => void
 }
 
@@ -177,6 +223,7 @@ function CommanderLifeTrackerView({
   sessionId,
   playerNames,
   startingLife,
+  archetypes,
   onExit,
 }: CommanderLifeTrackerViewProps) {
   const {
@@ -195,6 +242,7 @@ function CommanderLifeTrackerView({
     sessionId,
     playerNames,
     startingLife,
+    archetypes,
   })
 
   return (

@@ -6,15 +6,24 @@ import type {
 } from '../types/lifeTracker'
 import { DRAFT_STARTING_LIFE, MAX_POISON } from '../types/lifeTracker'
 import { lifeTrackerStorage } from '../lib/lifeTrackerStorage'
+import type { Archetype } from '../lib/archetypeImages'
+import { getRandomArchetypes, getRandomImage } from '../lib/archetypeImages'
+import { archetypeStorage } from '../lib/archetypeStorage'
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9)
 }
 
+interface CreatePlayerOptions {
+  archetype?: Archetype
+  backgroundImage?: string
+}
+
 function createPlayer(
   id: string,
   name: string,
-  startingLife: number
+  startingLife: number,
+  options: CreatePlayerOptions = {}
 ): DraftPlayer {
   return {
     id,
@@ -22,7 +31,16 @@ function createPlayer(
     life: startingLife,
     poison: 0,
     miscCounters: [],
+    archetype: options.archetype,
+    backgroundImage: options.backgroundImage,
   }
+}
+
+interface CreateSessionOptions {
+  archetypeA?: Archetype
+  archetypeB?: Archetype
+  imageA?: string
+  imageB?: string
 }
 
 function createSession(
@@ -31,7 +49,8 @@ function createSession(
   playerBName: string,
   startingLife: number,
   eventId?: string,
-  matchId?: string
+  matchId?: string,
+  options: CreateSessionOptions = {}
 ): DraftSession {
   const now = Date.now()
   return {
@@ -40,8 +59,14 @@ function createSession(
     createdAt: now,
     updatedAt: now,
     startingLife,
-    playerA: createPlayer('playerA', playerAName, startingLife),
-    playerB: createPlayer('playerB', playerBName, startingLife),
+    playerA: createPlayer('playerA', playerAName, startingLife, {
+      archetype: options.archetypeA,
+      backgroundImage: options.imageA,
+    }),
+    playerB: createPlayer('playerB', playerBName, startingLife, {
+      archetype: options.archetypeB,
+      backgroundImage: options.imageB,
+    }),
     gameWins: {
       playerA: 0,
       playerB: 0,
@@ -241,9 +266,15 @@ interface UseLifeTrackerOptions {
   startingLife?: number
   eventId?: string
   matchId?: string
+  // Archetype assignments (for standalone mode, passed via URL params)
+  archetypeA?: Archetype
+  archetypeB?: Archetype
+  // Event player IDs (for draft event mode, to look up archetypes)
+  playerAId?: string
+  playerBId?: string
 }
 
-export function useLifeTracker(options: UseLifeTrackerOptions) {
+function getInitialSession(options: UseLifeTrackerOptions): DraftSession {
   const {
     sessionId,
     playerAName = 'Player 1',
@@ -251,12 +282,81 @@ export function useLifeTracker(options: UseLifeTrackerOptions) {
     startingLife = DRAFT_STARTING_LIFE,
     eventId,
     matchId,
+    archetypeA,
+    archetypeB,
+    playerAId,
+    playerBId,
   } = options
 
+  // Try to load existing session
+  const existingSession = lifeTrackerStorage.getDraftSession(sessionId)
+  if (existingSession) {
+    // For event sessions, we may need to assign a new image for a new game
+    // The session already has archetypes, but we want a fresh image each game
+    if (eventId && existingSession.playerA.archetype && existingSession.playerB.archetype) {
+      // Get next images for this game (different from previous games in the event)
+      const imageA = archetypeStorage.getNextImage(eventId, playerAId || 'playerA')
+      const imageB = archetypeStorage.getNextImage(eventId, playerBId || 'playerB')
+
+      if (imageA && !existingSession.playerA.backgroundImage) {
+        existingSession.playerA.backgroundImage = imageA
+      }
+      if (imageB && !existingSession.playerB.backgroundImage) {
+        existingSession.playerB.backgroundImage = imageB
+      }
+    }
+    return existingSession
+  }
+
+  // Create new session with archetype images
+  let finalArchetypeA = archetypeA
+  let finalArchetypeB = archetypeB
+  let imageA: string | undefined
+  let imageB: string | undefined
+
+  if (eventId && playerAId && playerBId) {
+    // Draft event mode: initialize or get archetypes from storage
+    const eventData = archetypeStorage.getEventData(eventId)
+    if (eventData) {
+      // Event already has archetypes assigned
+      finalArchetypeA = eventData.playerArchetypes[playerAId]
+      finalArchetypeB = eventData.playerArchetypes[playerBId]
+    }
+    // Get images for this game
+    imageA = archetypeStorage.getNextImage(eventId, playerAId)
+    imageB = archetypeStorage.getNextImage(eventId, playerBId)
+  } else if (archetypeA && archetypeB) {
+    // Standalone mode with archetypes passed via URL params
+    imageA = getRandomImage(archetypeA)
+    imageB = getRandomImage(archetypeB)
+  } else if (!eventId) {
+    // Standalone mode without archetypes - assign random ones
+    const [randomA, randomB] = getRandomArchetypes(2)
+    finalArchetypeA = randomA
+    finalArchetypeB = randomB
+    imageA = getRandomImage(randomA)
+    imageB = getRandomImage(randomB)
+  }
+
+  return createSession(
+    sessionId,
+    playerAName,
+    playerBName,
+    startingLife,
+    eventId,
+    matchId,
+    {
+      archetypeA: finalArchetypeA,
+      archetypeB: finalArchetypeB,
+      imageA,
+      imageB,
+    }
+  )
+}
+
+export function useLifeTracker(options: UseLifeTrackerOptions) {
   // Try to load existing session or create new one
-  const initialSession =
-    lifeTrackerStorage.getDraftSession(sessionId) ??
-    createSession(sessionId, playerAName, playerBName, startingLife, eventId, matchId)
+  const initialSession = getInitialSession(options)
 
   const [session, dispatch] = useReducer(draftReducer, initialSession)
 

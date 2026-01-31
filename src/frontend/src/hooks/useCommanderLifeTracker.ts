@@ -6,16 +6,24 @@ import type {
 } from '../types/lifeTracker'
 import { COMMANDER_STARTING_LIFE, MAX_POISON } from '../types/lifeTracker'
 import { lifeTrackerStorage } from '../lib/lifeTrackerStorage'
+import type { Archetype } from '../lib/archetypeImages'
+import { getRandomArchetypes, getRandomImage } from '../lib/archetypeImages'
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9)
+}
+
+interface CreatePlayerOptions {
+  archetype?: Archetype
+  backgroundImage?: string
 }
 
 function createPlayer(
   index: number,
   name: string,
   allPlayerIds: string[],
-  startingLife: number
+  startingLife: number,
+  options: CreatePlayerOptions = {}
 ): CommanderPlayer {
   const id = `player_${index}`
   return {
@@ -27,13 +35,21 @@ function createPlayer(
       .filter((pid) => pid !== id)
       .map((pid) => ({ fromPlayerId: pid, amount: 0 })),
     miscCounters: [],
+    archetype: options.archetype,
+    backgroundImage: options.backgroundImage,
   }
+}
+
+interface PlayerArchetypeConfig {
+  archetype: Archetype
+  image: string | undefined
 }
 
 function createSession(
   sessionId: string,
   playerNames: string[],
-  startingLife: number
+  startingLife: number,
+  archetypeConfigs?: PlayerArchetypeConfig[]
 ): CommanderSession {
   const now = Date.now()
   const playerIds = playerNames.map((_, i) => `player_${i}`)
@@ -44,7 +60,12 @@ function createSession(
     createdAt: now,
     updatedAt: now,
     startingLife,
-    players: playerNames.map((name, i) => createPlayer(i, name, playerIds, startingLife)),
+    players: playerNames.map((name, i) =>
+      createPlayer(i, name, playerIds, startingLife, {
+        archetype: archetypeConfigs?.[i]?.archetype,
+        backgroundImage: archetypeConfigs?.[i]?.image,
+      })
+    ),
   }
 }
 
@@ -258,21 +279,52 @@ interface UseCommanderLifeTrackerOptions {
   sessionId: string
   playerNames?: string[]
   startingLife?: number
+  // Archetype assignments (passed via URL params from setup page)
+  archetypes?: Archetype[]
+}
+
+function getInitialCommanderSession(
+  options: UseCommanderLifeTrackerOptions
+): CommanderSession {
+  const {
+    sessionId,
+    playerNames = ['Player 1', 'Player 2', 'Player 3', 'Player 4'],
+    startingLife = COMMANDER_STARTING_LIFE,
+    archetypes,
+  } = options
+
+  // Try to load existing session
+  const existingSession = lifeTrackerStorage.getCommanderSession(sessionId)
+  if (existingSession) {
+    return existingSession
+  }
+
+  // Create new session with archetype images
+  let archetypeConfigs: PlayerArchetypeConfig[] | undefined
+
+  if (archetypes && archetypes.length === playerNames.length) {
+    // Archetypes passed via URL params
+    archetypeConfigs = archetypes.map((archetype) => ({
+      archetype,
+      image: getRandomImage(archetype),
+    }))
+  } else {
+    // Standalone mode - assign random archetypes
+    const randomArchetypes = getRandomArchetypes(playerNames.length)
+    archetypeConfigs = randomArchetypes.map((archetype) => ({
+      archetype,
+      image: getRandomImage(archetype),
+    }))
+  }
+
+  return createSession(sessionId, playerNames, startingLife, archetypeConfigs)
 }
 
 export function useCommanderLifeTracker(
   options: UseCommanderLifeTrackerOptions
 ) {
-  const {
-    sessionId,
-    playerNames = ['Player 1', 'Player 2', 'Player 3', 'Player 4'],
-    startingLife = COMMANDER_STARTING_LIFE,
-  } = options
-
   // Try to load existing session or create new one
-  const initialSession =
-    lifeTrackerStorage.getCommanderSession(sessionId) ??
-    createSession(sessionId, playerNames, startingLife)
+  const initialSession = getInitialCommanderSession(options)
 
   const [session, dispatch] = useReducer(commanderReducer, initialSession)
 

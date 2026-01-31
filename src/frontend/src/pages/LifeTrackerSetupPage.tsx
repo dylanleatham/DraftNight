@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { Button, Input, Card } from '../components/ui'
 import { lifeTrackerStorage } from '../lib/lifeTrackerStorage'
 import type { LifeTrackerSession } from '../types/lifeTracker'
+import { getRandomArchetypes } from '../lib/archetypeImages'
 import styles from './LifeTrackerSetupPage.module.css'
 
 function generateSessionId(): string {
@@ -51,12 +52,17 @@ export function LifeTrackerSetupPage() {
       .slice(0, playerCount)
       .map((name, i) => name || `Player ${i + 1}`)
 
+    // Pre-assign unique archetypes for all players
+    const archetypes = getRandomArchetypes(playerCount)
+
     if (playerCount === 2) {
       // 2-player games use draft layout
       const params = new URLSearchParams({
         playerA: names[0],
         playerB: names[1],
         startingLife: startingLife.toString(),
+        archetypeA: archetypes[0],
+        archetypeB: archetypes[1],
       })
       navigate(`/life-tracker/game/${sessionId}?${params.toString()}`)
     } else {
@@ -64,6 +70,7 @@ export function LifeTrackerSetupPage() {
       const params = new URLSearchParams({
         players: names.join(','),
         startingLife: startingLife.toString(),
+        archetypes: archetypes.join(','),
       })
       navigate(`/life-tracker/game/${sessionId}?${params.toString()}`)
     }

@@ -26,12 +26,14 @@ function getBackgroundStyle(
   color: string,
   backgroundImage?: string
 ): CSSProperties {
-  // If there's a background image, use it with a dark overlay
+  // If there's a background image, use contain to show the full character
   if (backgroundImage) {
     return {
-      backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${backgroundImage})`,
-      backgroundSize: 'cover',
+      backgroundImage: `url(${backgroundImage})`,
+      backgroundSize: 'contain',
       backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundColor: 'rgba(0, 0, 0, 0.85)',
     }
   }
 
