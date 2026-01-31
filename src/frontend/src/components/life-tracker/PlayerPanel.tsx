@@ -101,6 +101,7 @@ export function PlayerPanel({
         <ColorPicker
           currentColor={effectiveColor}
           currentImage={player.backgroundImage}
+          archetype={player.archetype}
           onSelectColor={onSetPanelColor}
           onSelectImage={onSetBackgroundImage}
           onClose={() => setShowColorPicker(false)}

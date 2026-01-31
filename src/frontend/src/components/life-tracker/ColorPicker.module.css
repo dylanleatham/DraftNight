@@ -306,3 +306,53 @@
 .clearButton:hover {
   background: rgba(239, 68, 68, 0.15);
 }
+
+/* ========================================
+   IMAGE GRID
+   ======================================== */
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.imageOption {
+  aspect-ratio: 1;
+  padding: 0;
+  border: var(--border-width-thick) solid transparent;
+  border-radius: var(--radius-none);
+  background: var(--bg-void);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all var(--duration-fast) var(--ease-pixel);
+  box-shadow: var(--shadow-pixel-sm);
+}
+
+.imageOption img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.imageOption:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-pixel-md);
+  border-color: var(--border-glow);
+}
+
+.imageOption.selectedImage {
+  border-color: white;
+  box-shadow: var(--shadow-pixel-md), 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.noImages {
+  text-align: center;
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  padding: var(--space-4);
+}

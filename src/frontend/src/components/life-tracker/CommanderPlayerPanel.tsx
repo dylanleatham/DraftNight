@@ -215,6 +215,7 @@ export function CommanderPlayerPanel({
         <ColorPicker
           currentColor={effectiveColor}
           currentImage={player.backgroundImage}
+          archetype={player.archetype}
           onSelectColor={onSetPanelColor}
           onSelectImage={onSetBackgroundImage}
           onClose={() => setShowColorPicker(false)}

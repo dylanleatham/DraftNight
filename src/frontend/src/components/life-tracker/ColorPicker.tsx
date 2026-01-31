@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import type { PlayerColor } from './BasePlayerPanel'
+import type { Archetype } from '../../lib/archetypeImages'
+import { archetypeImages } from '../../lib/archetypeImages'
 import styles from './ColorPicker.module.css'
 
 const PRESET_COLORS: { name: PlayerColor; hex: string; label: string }[] = [
@@ -16,6 +18,7 @@ interface ColorPickerProps {
   onSelectColor: (color: string) => void
   onSelectImage?: (imageUrl: string | undefined) => void
   currentImage?: string
+  archetype?: Archetype
   onClose: () => void
 }
 
@@ -24,62 +27,28 @@ export function ColorPicker({
   onSelectColor,
   onSelectImage,
   currentImage,
+  archetype,
   onClose,
 }: ColorPickerProps) {
-  const [customHex, setCustomHex] = useState('')
-  const [imageUrl, setImageUrl] = useState(currentImage ?? '')
-  const [activeTab, setActiveTab] = useState<'color' | 'image'>('color')
+  const [activeTab, setActiveTab] = useState<'color' | 'image'>('image')
+
+  // Get available images for the player's archetype
+  const availableImages = archetype ? archetypeImages.get(archetype) || [] : []
 
   const handlePresetSelect = (color: PlayerColor) => {
     onSelectColor(color)
+    // Clear background image so color shows
+    if (onSelectImage) {
+      onSelectImage(undefined)
+    }
     onClose()
   }
 
-  const handleCustomHex = () => {
-    const hex = customHex.trim()
-    if (/^#?[0-9A-Fa-f]{6}$/.test(hex)) {
-      const normalizedHex = hex.startsWith('#') ? hex : `#${hex}`
-      onSelectColor(normalizedHex)
-      onClose()
-    }
-  }
-
-  const handleImageUrl = () => {
+  const handleImageSelect = (imageUrl: string) => {
     if (onSelectImage) {
-      onSelectImage(imageUrl.trim() || undefined)
+      onSelectImage(imageUrl)
       onClose()
     }
-  }
-
-  const handleClearImage = () => {
-    if (onSelectImage) {
-      onSelectImage(undefined)
-      setImageUrl('')
-    }
-  }
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file || !onSelectImage) return
-
-    // Check file size (warn if > 500KB)
-    if (file.size > 500 * 1024) {
-      if (
-        !confirm(
-          'Image is larger than 500KB. Large images may slow down the app. Continue?'
-        )
-      ) {
-        return
-      }
-    }
-
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string
-      onSelectImage(dataUrl)
-      onClose()
-    }
-    reader.readAsDataURL(file)
   }
 
   return (
@@ -95,16 +64,16 @@ export function ColorPicker({
         {onSelectImage && (
           <div className={styles.tabs}>
             <button
-              className={`${styles.tab} ${activeTab === 'color' ? styles.activeTab : ''}`}
-              onClick={() => setActiveTab('color')}
-            >
-              Color
-            </button>
-            <button
               className={`${styles.tab} ${activeTab === 'image' ? styles.activeTab : ''}`}
               onClick={() => setActiveTab('image')}
             >
               Image
+            </button>
+            <button
+              className={`${styles.tab} ${activeTab === 'color' ? styles.activeTab : ''}`}
+              onClick={() => setActiveTab('color')}
+            >
+              Color
             </button>
           </div>
         )}
@@ -122,69 +91,26 @@ export function ColorPicker({
                 />
               ))}
             </div>
-
-            <div className={styles.customSection}>
-              <label className={styles.label}>Custom hex color</label>
-              <div className={styles.customInput}>
-                <span className={styles.hashPrefix}>#</span>
-                <input
-                  type="text"
-                  className={styles.hexInput}
-                  value={customHex.replace('#', '')}
-                  onChange={(e) => setCustomHex(e.target.value)}
-                  placeholder="ff5500"
-                  maxLength={6}
-                />
-                <button
-                  className={styles.applyButton}
-                  onClick={handleCustomHex}
-                >
-                  Apply
-                </button>
-              </div>
-            </div>
           </div>
         )}
 
         {activeTab === 'image' && onSelectImage && (
           <div className={styles.content}>
-            <div className={styles.imageSection}>
-              <label className={styles.label}>Image URL</label>
-              <div className={styles.customInput}>
-                <input
-                  type="text"
-                  className={styles.urlInput}
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="https://..."
-                />
-                <button className={styles.applyButton} onClick={handleImageUrl}>
-                  Apply
-                </button>
+            {availableImages.length > 0 ? (
+              <div className={styles.imageGrid}>
+                {availableImages.map((imageUrl, index) => (
+                  <button
+                    key={index}
+                    className={`${styles.imageOption} ${currentImage === imageUrl ? styles.selectedImage : ''}`}
+                    onClick={() => handleImageSelect(imageUrl)}
+                  >
+                    <img src={imageUrl} alt={`${archetype} portrait ${index + 1}`} />
+                  </button>
+                ))}
               </div>
-
-              <div className={styles.uploadSection}>
-                <label className={styles.label}>Or upload image</label>
-                <label className={styles.uploadButton}>
-                  Choose File
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className={styles.fileInput}
-                  />
-                </label>
-              </div>
-
-              {currentImage && (
-                <button
-                  className={styles.clearButton}
-                  onClick={handleClearImage}
-                >
-                  Clear Image
-                </button>
-              )}
-            </div>
+            ) : (
+              <p className={styles.noImages}>No portraits available</p>
+            )}
           </div>
         )}
       </div>
