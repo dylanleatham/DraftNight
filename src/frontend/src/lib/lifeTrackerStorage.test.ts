@@ -208,6 +208,60 @@ describe('lifeTrackerStorage', () => {
       const recent = lifeTrackerStorage.getRecentSessions()
       expect(recent.length).toBeLessThanOrEqual(5)
     })
+
+    it('excludes completed draft sessions where playerA has 2+ wins', () => {
+      const incompleteSession = createDraftSession('incomplete', {
+        gameWins: { playerA: 1, playerB: 1 },
+        updatedAt: 1000,
+      })
+      const completedSession = createDraftSession('completed', {
+        gameWins: { playerA: 2, playerB: 1 },
+        updatedAt: 2000,
+      })
+
+      lifeTrackerStorage.saveDraftSession(incompleteSession)
+      lifeTrackerStorage.saveDraftSession(completedSession)
+
+      const recent = lifeTrackerStorage.getRecentSessions()
+      expect(recent).toHaveLength(1)
+      expect(recent[0].id).toBe('incomplete')
+    })
+
+    it('excludes completed draft sessions where playerB has 2+ wins', () => {
+      const incompleteSession = createDraftSession('incomplete', {
+        gameWins: { playerA: 0, playerB: 1 },
+        updatedAt: 1000,
+      })
+      const completedSession = createDraftSession('completed', {
+        gameWins: { playerA: 0, playerB: 2 },
+        updatedAt: 2000,
+      })
+
+      lifeTrackerStorage.saveDraftSession(incompleteSession)
+      lifeTrackerStorage.saveDraftSession(completedSession)
+
+      const recent = lifeTrackerStorage.getRecentSessions()
+      expect(recent).toHaveLength(1)
+      expect(recent[0].id).toBe('incomplete')
+    })
+
+    it('includes commander sessions regardless of game state', () => {
+      const completedDraft = createDraftSession('completed-draft', {
+        gameWins: { playerA: 2, playerB: 0 },
+        updatedAt: 1000,
+      })
+      const commanderSession = {
+        ...createCommanderSession('commander-1', 4),
+        updatedAt: 2000,
+      }
+
+      lifeTrackerStorage.saveDraftSession(completedDraft)
+      lifeTrackerStorage.saveCommanderSession(commanderSession)
+
+      const recent = lifeTrackerStorage.getRecentSessions()
+      expect(recent).toHaveLength(1)
+      expect(recent[0].id).toBe('commander-1')
+    })
   })
 
   describe('clearAll', () => {

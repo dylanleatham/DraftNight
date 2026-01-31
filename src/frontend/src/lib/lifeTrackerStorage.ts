@@ -100,11 +100,18 @@ export const lifeTrackerStorage = {
   },
 
   // Recent sessions (for resume functionality)
+  // Only returns incomplete sessions - games with a winner are excluded
   getRecentSessions(): LifeTrackerSession[] {
     const draftSessions = this.getDraftSessions()
     const commanderSessions = this.getCommanderSessions()
 
-    return [...draftSessions, ...commanderSessions]
+    // Filter out completed draft sessions (where a player has 2+ wins)
+    const incompleteDraftSessions = draftSessions.filter(
+      (s) => s.gameWins.playerA < 2 && s.gameWins.playerB < 2
+    )
+
+    // Commander sessions don't track match winners, so all are resumable
+    return [...incompleteDraftSessions, ...commanderSessions]
       .sort((a, b) => b.updatedAt - a.updatedAt)
       .slice(0, 5)
   },
