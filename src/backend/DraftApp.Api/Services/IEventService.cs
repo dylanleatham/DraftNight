@@ -96,4 +96,10 @@ public interface IEventService
     /// Cancels an event. Sets status to Archived and notifies all connected clients.
     /// </summary>
     Task<MutationResponse> CancelEventAsync(Guid eventId, int expectedVersion, CancellationToken ct = default);
+
+    /// <summary>
+    /// Validates a player token and checks if the player is a participant in the specified match.
+    /// </summary>
+    /// <returns>The player ID if valid and player is in the match, null otherwise.</returns>
+    Task<Guid?> ValidatePlayerTokenForMatchAsync(string playerToken, Guid eventId, Guid matchId, CancellationToken ct = default);
 }

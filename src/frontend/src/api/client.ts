@@ -35,12 +35,25 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json()
 }
 
-function buildHeaders(hostToken?: string): HeadersInit {
+interface AuthTokens {
+  hostToken?: string
+  playerToken?: string
+}
+
+function buildHeaders(auth?: string | AuthTokens): HeadersInit {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   }
-  if (hostToken) {
-    headers['X-Host-Token'] = hostToken
+  if (typeof auth === 'string') {
+    // Legacy support: string is treated as host token
+    headers['X-Host-Token'] = auth
+  } else if (auth) {
+    if (auth.hostToken) {
+      headers['X-Host-Token'] = auth.hostToken
+    }
+    if (auth.playerToken) {
+      headers['X-Player-Token'] = auth.playerToken
+    }
   }
   return headers
 }
@@ -106,7 +119,7 @@ export const api = {
   async finalizeMatch(
     eventId: string,
     matchId: string,
-    hostToken: string,
+    auth: AuthTokens,
     winnerId: string,
     expectedVersion: number
   ): Promise<MutationResponse> {
@@ -114,7 +127,7 @@ export const api = {
       `${BASE_URL}/events/${eventId}/matches/${matchId}/finalize`,
       {
         method: 'POST',
-        headers: buildHeaders(hostToken),
+        headers: buildHeaders(auth),
         body: JSON.stringify({ winnerId, expectedVersion }),
       }
     )

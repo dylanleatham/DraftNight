@@ -765,6 +765,35 @@ public class EventService(
         return new MutationResponse { Success = true, NewVersion = newVersion };
     }
 
+    public async Task<Guid?> ValidatePlayerTokenForMatchAsync(string playerToken, Guid eventId, Guid matchId, CancellationToken ct = default)
+    {
+        // Find the player by token in this event
+        var player = await context.Players
+            .FirstOrDefaultAsync(p => p.PlayerToken == playerToken && p.EventId == eventId, ct);
+
+        if (player is null)
+        {
+            return null;
+        }
+
+        // Find the match and verify player is a participant
+        var match = await context.Matches
+            .FirstOrDefaultAsync(m => m.Id == matchId, ct);
+
+        if (match is null)
+        {
+            return null;
+        }
+
+        // Check if player is PlayerA or PlayerB in this match
+        if (match.PlayerAId == player.Id || match.PlayerBId == player.Id)
+        {
+            return player.Id;
+        }
+
+        return null;
+    }
+
     private static EventSnapshotResponse MapToSnapshot(EventEntity entity)
     {
         var players = entity.Players

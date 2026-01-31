@@ -27,7 +27,7 @@ export function MatchCard({
   const isUserMatch =
     currentPlayerId === match.playerAId || currentPlayerId === match.playerBId
   const canSelectWinner =
-    isHost &&
+    (isHost || isUserMatch) &&
     match.status !== MatchStatus.Final &&
     !match.isBye &&
     onSelectWinner

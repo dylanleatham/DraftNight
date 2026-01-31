@@ -23,6 +23,7 @@ interface AuthContextValue extends AuthState {
   isHost: (eventId: string) => boolean
   getHostToken: (eventId: string) => string | null
   getPlayerId: (eventId: string) => string | null
+  getPlayerToken: (eventId: string) => string | null
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -85,6 +86,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [state.playerSession]
   )
 
+  const getPlayerToken = useCallback(
+    (eventId: string) => {
+      if (state.playerSession?.eventId === eventId) {
+        return state.playerSession.playerToken
+      }
+      return null
+    },
+    [state.playerSession]
+  )
+
   // Sync with localStorage changes from other tabs
   useEffect(() => {
     const handleStorageChange = () => {
@@ -110,6 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isHost,
         getHostToken,
         getPlayerId,
+        getPlayerToken,
       }}
     >
       {children}

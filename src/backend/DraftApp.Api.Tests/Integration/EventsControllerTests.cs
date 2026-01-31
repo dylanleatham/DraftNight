@@ -665,4 +665,109 @@ public class EventsControllerTests : IDisposable
         // Assert - Should fail because join code is cleared
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
+
+    // Player Match Finalization Tests
+    [Fact]
+    public async Task FinalizeMatch_WithoutAnyToken_ReturnsUnauthorized()
+    {
+        // Arrange - Create an event first
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Test Event",
+            PacksInBox = 36,
+            HostPin = "1234"
+        };
+        var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        var finalizeRequest = new FinalizeMatchRequest
+        {
+            WinnerId = Guid.NewGuid(),
+            ExpectedVersion = 1
+        };
+
+        // Act (no token header)
+        var response = await client.PostAsJsonAsync(
+            $"/api/events/{createResult.EventId}/matches/{Guid.NewGuid()}/finalize",
+            finalizeRequest);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task FinalizeMatch_WithInvalidHostToken_ReturnsUnauthorized()
+    {
+        // Arrange - Create an event first
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Test Event",
+            PacksInBox = 36,
+            HostPin = "1234"
+        };
+        var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        var finalizeRequest = new FinalizeMatchRequest
+        {
+            WinnerId = Guid.NewGuid(),
+            ExpectedVersion = 1
+        };
+
+        // Act (with invalid host token)
+        var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            $"/api/events/{createResult.EventId}/matches/{Guid.NewGuid()}/finalize");
+        request.Headers.Add("X-Host-Token", "invalid-token");
+        request.Content = JsonContent.Create(finalizeRequest);
+
+        var response = await client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task FinalizeMatch_WithInvalidPlayerToken_ReturnsUnauthorized()
+    {
+        // Arrange - Create an event first
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Test Event",
+            PacksInBox = 36,
+            HostPin = "1234"
+        };
+        var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        var finalizeRequest = new FinalizeMatchRequest
+        {
+            WinnerId = Guid.NewGuid(),
+            ExpectedVersion = 1
+        };
+
+        // Act (with invalid player token)
+        var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            $"/api/events/{createResult.EventId}/matches/{Guid.NewGuid()}/finalize");
+        request.Headers.Add("X-Player-Token", "invalid-token");
+        request.Content = JsonContent.Create(finalizeRequest);
+
+        var response = await client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
 }

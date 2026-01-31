@@ -42,7 +42,7 @@ export function LifeTrackerPage() {
               await api.finalizeMatch(
                 eventId,
                 matchId,
-                hostToken,
+                { hostToken },
                 winnerId,
                 snapshot.version
               )

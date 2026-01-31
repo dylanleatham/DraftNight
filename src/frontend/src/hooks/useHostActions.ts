@@ -80,7 +80,7 @@ export function useHostActions(eventId: string): UseHostActionsResult {
         const result = await api.finalizeMatch(
           eventId,
           matchId,
-          hostToken,
+          { hostToken },
           winnerId,
           latestSnapshot.version
         )

@@ -5,7 +5,9 @@ import { MatchCard, BracketView } from '../components/event'
 import { useEvent } from '../context/EventContext'
 import { useAuth } from '../context/AuthContext'
 import { useHostActions } from '../hooks/useHostActions'
+import { useMatchActions } from '../hooks/useMatchActions'
 import { RoundStatus, MatchStatus } from '../api/types'
+import type { MatchResponse } from '../api/types'
 import styles from './PairingsPage.module.css'
 
 type ViewMode = 'cards' | 'bracket'
@@ -15,9 +17,8 @@ export function PairingsPage() {
   const navigate = useNavigate()
   const { state, getPlayer } = useEvent()
   const { isHost, getPlayerId } = useAuth()
-  const { finalizeMatch, reopenMatch, publishPairings } = useHostActions(
-    eventId!
-  )
+  const { reopenMatch, publishPairings } = useHostActions(eventId!)
+  const { finalizeMatch } = useMatchActions(eventId!)
 
   const [reopenModalOpen, setReopenModalOpen] = useState(false)
   const [matchToReopen, setMatchToReopen] = useState<string | null>(null)
@@ -45,8 +46,12 @@ export function PairingsPage() {
   const canPublishNextRound =
     isHostUser && isRoundClosed && snapshot.currentRound < snapshot.totalRounds
 
-  const handleSelectWinner = async (matchId: string, winnerId: string) => {
-    await finalizeMatch(matchId, winnerId)
+  const handleSelectWinner = async (
+    matchId: string,
+    winnerId: string,
+    match: MatchResponse
+  ) => {
+    await finalizeMatch(matchId, winnerId, match)
   }
 
   const handleReopenClick = (matchId: string) => {
@@ -155,7 +160,7 @@ export function PairingsPage() {
               isHost={isHostUser}
               onSelectWinner={
                 isPairingsPublished
-                  ? (winnerId) => handleSelectWinner(match.id, winnerId)
+                  ? (winnerId) => handleSelectWinner(match.id, winnerId, match)
                   : undefined
               }
               onReopen={

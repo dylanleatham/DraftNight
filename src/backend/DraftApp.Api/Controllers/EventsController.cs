@@ -14,6 +14,7 @@ namespace DraftApp.Api.Controllers;
 public class EventsController(IEventService eventService) : ControllerBase
 {
     private const string HostTokenHeader = "X-Host-Token";
+    private const string PlayerTokenHeader = "X-Player-Token";
 
     // ========================================
     // Event Lifecycle APIs (3.1)
@@ -111,7 +112,7 @@ public class EventsController(IEventService eventService) : ControllerBase
     }
 
     /// <summary>
-    /// Finalizes a match result.
+    /// Finalizes a match result. Can be called by the host or by either player in the match.
     /// </summary>
     [HttpPost("{eventId:guid}/matches/{matchId:guid}/finalize")]
     [ProducesResponseType(typeof(MutationResponse), StatusCodes.Status200OK)]
@@ -120,7 +121,7 @@ public class EventsController(IEventService eventService) : ControllerBase
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> FinalizeMatch(Guid eventId, Guid matchId, [FromBody] FinalizeMatchRequest request, CancellationToken ct)
     {
-        var authResult = await AuthorizeHostAsync(eventId, ct);
+        var authResult = await AuthorizeHostOrMatchPlayerAsync(eventId, matchId, ct);
         if (authResult is not null)
         {
             return authResult;
@@ -352,6 +353,36 @@ public class EventsController(IEventService eventService) : ControllerBase
         }
 
         return null;
+    }
+
+    private async Task<IActionResult?> AuthorizeHostOrMatchPlayerAsync(Guid eventId, Guid matchId, CancellationToken ct)
+    {
+        // First, try host token authorization
+        if (Request.Headers.TryGetValue(HostTokenHeader, out var hostTokenValues) && !string.IsNullOrEmpty(hostTokenValues.FirstOrDefault()))
+        {
+            var hostToken = hostTokenValues.First()!;
+            var authorizedEventId = await eventService.ValidateHostTokenAsync(hostToken, ct);
+
+            if (authorizedEventId == eventId)
+            {
+                return null; // Host is authorized
+            }
+        }
+
+        // If no valid host token, try player token authorization
+        if (Request.Headers.TryGetValue(PlayerTokenHeader, out var playerTokenValues) && !string.IsNullOrEmpty(playerTokenValues.FirstOrDefault()))
+        {
+            var playerToken = playerTokenValues.First()!;
+            var playerId = await eventService.ValidatePlayerTokenForMatchAsync(playerToken, eventId, matchId, ct);
+
+            if (playerId is not null)
+            {
+                return null; // Player is authorized for this match
+            }
+        }
+
+        // Neither authorization succeeded
+        return Unauthorized(new ErrorResponse { Code = "UNAUTHORIZED", Message = "Valid host token or player token required" });
     }
 
     private IActionResult HandleMutationResponse(MutationResponse response)
