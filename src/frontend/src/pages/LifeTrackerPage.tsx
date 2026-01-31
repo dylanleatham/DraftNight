@@ -25,7 +25,8 @@ export function LifeTrackerPage() {
 
   // Determine if this is a 2-player game (uses draft layout) or 3-4 player (commander layout)
   // 2-player games have playerA/playerB params, 3-4 player games have players param
-  const is2PlayerGame = searchParams.has('playerA') || !searchParams.has('players')
+  const is2PlayerGame =
+    searchParams.has('playerA') || !searchParams.has('players')
 
   // Event integration params
   const eventId = searchParams.get('eventId') || undefined
@@ -52,7 +53,12 @@ export function LifeTrackerPage() {
     .filter((a): a is Archetype => ALL_ARCHETYPES.includes(a as Archetype))
 
   // Initialize event archetypes if needed (for draft events)
-  if (eventId && playerAId && playerBId && !archetypeStorage.getEventData(eventId)) {
+  if (
+    eventId &&
+    playerAId &&
+    playerBId &&
+    !archetypeStorage.getEventData(eventId)
+  ) {
     // Get all unique player IDs we know about for this event
     // For now, just initialize with the two players in this match
     archetypeStorage.initializeEvent(eventId, [playerAId, playerBId])

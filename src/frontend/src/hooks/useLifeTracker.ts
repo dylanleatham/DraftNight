@@ -293,10 +293,20 @@ function getInitialSession(options: UseLifeTrackerOptions): DraftSession {
   if (existingSession) {
     // For event sessions, we may need to assign a new image for a new game
     // The session already has archetypes, but we want a fresh image each game
-    if (eventId && existingSession.playerA.archetype && existingSession.playerB.archetype) {
+    if (
+      eventId &&
+      existingSession.playerA.archetype &&
+      existingSession.playerB.archetype
+    ) {
       // Get next images for this game (different from previous games in the event)
-      const imageA = archetypeStorage.getNextImage(eventId, playerAId || 'playerA')
-      const imageB = archetypeStorage.getNextImage(eventId, playerBId || 'playerB')
+      const imageA = archetypeStorage.getNextImage(
+        eventId,
+        playerAId || 'playerA'
+      )
+      const imageB = archetypeStorage.getNextImage(
+        eventId,
+        playerBId || 'playerB'
+      )
 
       if (imageA && !existingSession.playerA.backgroundImage) {
         existingSession.playerA.backgroundImage = imageA

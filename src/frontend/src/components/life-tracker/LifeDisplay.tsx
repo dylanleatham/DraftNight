@@ -6,8 +6,11 @@ function DeltaToast({ delta, visible }: { delta: number; visible: boolean }) {
 
   const sign = delta >= 0 ? '+' : ''
   return (
-    <div className={`${styles.deltaToast} ${visible ? styles.deltaToastVisible : ''}`}>
-      {sign}{delta}
+    <div
+      className={`${styles.deltaToast} ${visible ? styles.deltaToastVisible : ''}`}
+    >
+      {sign}
+      {delta}
     </div>
   )
 }
@@ -65,27 +68,30 @@ export function LifeDisplay({
     [handleEditSubmit]
   )
 
-  const handleAdjust = useCallback((delta: number) => {
-    // Clear existing timeouts
-    if (hideTimeoutRef.current) window.clearTimeout(hideTimeoutRef.current)
-    if (resetTimeoutRef.current) window.clearTimeout(resetTimeoutRef.current)
+  const handleAdjust = useCallback(
+    (delta: number) => {
+      // Clear existing timeouts
+      if (hideTimeoutRef.current) window.clearTimeout(hideTimeoutRef.current)
+      if (resetTimeoutRef.current) window.clearTimeout(resetTimeoutRef.current)
 
-    // Accumulate delta and show toast
-    setCumulativeDelta(prev => prev + delta)
-    setToastVisible(true)
+      // Accumulate delta and show toast
+      setCumulativeDelta((prev) => prev + delta)
+      setToastVisible(true)
 
-    // Hide after 1 second
-    hideTimeoutRef.current = window.setTimeout(() => {
-      setToastVisible(false)
-      // Reset delta after fade animation completes
-      resetTimeoutRef.current = window.setTimeout(() => {
-        setCumulativeDelta(0)
-      }, 200)
-    }, 1000)
+      // Hide after 1 second
+      hideTimeoutRef.current = window.setTimeout(() => {
+        setToastVisible(false)
+        // Reset delta after fade animation completes
+        resetTimeoutRef.current = window.setTimeout(() => {
+          setCumulativeDelta(0)
+        }, 200)
+      }, 1000)
 
-    // Call parent handler
-    onAdjust(delta)
-  }, [onAdjust])
+      // Call parent handler
+      onAdjust(delta)
+    },
+    [onAdjust]
+  )
 
   // Cleanup timeouts on unmount
   useEffect(() => {

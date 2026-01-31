@@ -79,10 +79,14 @@ export function LifeTrackerSetupPage() {
   const handleResumeSession = (session: LifeTrackerSession) => {
     // Resume sessions based on their mode
     if (session.mode === 'draft') {
-      navigate(`/life-tracker/game/${session.id}?playerA=${encodeURIComponent(session.playerA.name)}&playerB=${encodeURIComponent(session.playerB.name)}`)
+      navigate(
+        `/life-tracker/game/${session.id}?playerA=${encodeURIComponent(session.playerA.name)}&playerB=${encodeURIComponent(session.playerB.name)}`
+      )
     } else {
       const playerNamesParam = session.players.map((p) => p.name).join(',')
-      navigate(`/life-tracker/game/${session.id}?players=${encodeURIComponent(playerNamesParam)}`)
+      navigate(
+        `/life-tracker/game/${session.id}?players=${encodeURIComponent(playerNamesParam)}`
+      )
     }
   }
 
@@ -169,7 +173,10 @@ export function LifeTrackerSetupPage() {
                 <Card key={session.id} className={styles.sessionCard}>
                   <div className={styles.sessionInfo}>
                     <span className={styles.sessionMeta}>
-                      {session.mode === 'draft' ? '2 players' : `${session.players.length} players`} &bull; {getSessionLifeInfo(session)}
+                      {session.mode === 'draft'
+                        ? '2 players'
+                        : `${session.players.length} players`}{' '}
+                      &bull; {getSessionLifeInfo(session)}
                     </span>
                     <span className={styles.sessionDescription}>
                       {getSessionDescription(session)}

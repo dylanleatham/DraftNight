@@ -104,7 +104,10 @@ export function ColorPicker({
                     className={`${styles.imageOption} ${currentImage === imageUrl ? styles.selectedImage : ''}`}
                     onClick={() => handleImageSelect(imageUrl)}
                   >
-                    <img src={imageUrl} alt={`${archetype} portrait ${index + 1}`} />
+                    <img
+                      src={imageUrl}
+                      alt={`${archetype} portrait ${index + 1}`}
+                    />
                   </button>
                 ))}
               </div>
