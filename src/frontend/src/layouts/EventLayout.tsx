@@ -28,10 +28,11 @@ function EventLayoutContent() {
     (code: string, message: string) => {
       dispatch({ type: 'SET_ERROR', payload: message })
       if (code === 'EVENT_NOT_FOUND') {
+        clearAll() // Clear stale session to prevent redirect loop
         navigate('/', { replace: true })
       }
     },
-    [dispatch, navigate]
+    [dispatch, navigate, clearAll]
   )
 
   const handleCancelled = useCallback(() => {
