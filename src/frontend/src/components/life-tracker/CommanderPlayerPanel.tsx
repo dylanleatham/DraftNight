@@ -154,7 +154,7 @@ export function CommanderPlayerPanel({
               onLifeChange={onSetLife}
               onAdjust={onAdjustLife}
               buttons={[1, 5]}
-              size="compact"
+              size="medium"
             />
           </div>
 

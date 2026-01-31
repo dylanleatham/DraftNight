@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext'
 import { api } from '../api/client'
 import { DraftLifeTracker } from '../components/life-tracker'
 import { CommanderLifeTracker } from '../components/life-tracker/CommanderLifeTracker'
-import type { TrackerMode } from '../types/lifeTracker'
 
 export function LifeTrackerPage() {
   const { sessionId } = useParams<{ sessionId: string }>()
@@ -15,10 +14,15 @@ export function LifeTrackerPage() {
   const { isHost, getHostToken } = useAuth()
   const [isExiting, setIsExiting] = useState(false)
 
-  const mode = (searchParams.get('mode') || 'draft') as TrackerMode
+  // Parse URL params - route based on player count, not mode
   const playerAName = searchParams.get('playerA') || 'Player 1'
   const playerBName = searchParams.get('playerB') || 'Player 2'
   const playerNames = searchParams.get('players')?.split(',') || []
+  const startingLife = parseInt(searchParams.get('startingLife') || '20', 10)
+
+  // Determine if this is a 2-player game (uses draft layout) or 3-4 player (commander layout)
+  // 2-player games have playerA/playerB params, 3-4 player games have players param
+  const is2PlayerGame = searchParams.has('playerA') || !searchParams.has('players')
 
   // Event integration params
   const eventId = searchParams.get('eventId') || undefined
@@ -77,12 +81,14 @@ export function LifeTrackerPage() {
     return null
   }
 
-  if (mode === 'draft') {
+  // Route based on player count: 2 players use draft layout, 3-4 use commander layout
+  if (is2PlayerGame) {
     return (
       <DraftLifeTrackerView
         sessionId={sessionId}
         playerAName={playerAName}
         playerBName={playerBName}
+        startingLife={startingLife}
         eventId={eventId}
         matchId={matchId}
         onExit={handleExit}
@@ -94,6 +100,7 @@ export function LifeTrackerPage() {
     <CommanderLifeTrackerView
       sessionId={sessionId}
       playerNames={playerNames}
+      startingLife={startingLife}
       onExit={handleExit}
     />
   )
@@ -103,6 +110,7 @@ interface DraftLifeTrackerViewProps {
   sessionId: string
   playerAName: string
   playerBName: string
+  startingLife: number
   eventId?: string
   matchId?: string
   onExit: (matchWinner?: 'playerA' | 'playerB') => void
@@ -112,6 +120,7 @@ function DraftLifeTrackerView({
   sessionId,
   playerAName,
   playerBName,
+  startingLife,
   eventId,
   matchId,
   onExit,
@@ -133,6 +142,7 @@ function DraftLifeTrackerView({
     sessionId,
     playerAName,
     playerBName,
+    startingLife,
     eventId,
     matchId,
   })
@@ -159,12 +169,14 @@ function DraftLifeTrackerView({
 interface CommanderLifeTrackerViewProps {
   sessionId: string
   playerNames: string[]
+  startingLife: number
   onExit: (matchWinner?: 'playerA' | 'playerB') => void
 }
 
 function CommanderLifeTrackerView({
   sessionId,
   playerNames,
+  startingLife,
   onExit,
 }: CommanderLifeTrackerViewProps) {
   const {
@@ -182,6 +194,7 @@ function CommanderLifeTrackerView({
   } = useCommanderLifeTracker({
     sessionId,
     playerNames,
+    startingLife,
   })
 
   return (

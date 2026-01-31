@@ -29,6 +29,7 @@ function createSession(
   sessionId: string,
   playerAName: string,
   playerBName: string,
+  startingLife: number,
   eventId?: string,
   matchId?: string
 ): DraftSession {
@@ -38,9 +39,9 @@ function createSession(
     mode: 'draft',
     createdAt: now,
     updatedAt: now,
-    startingLife: DRAFT_STARTING_LIFE,
-    playerA: createPlayer('playerA', playerAName, DRAFT_STARTING_LIFE),
-    playerB: createPlayer('playerB', playerBName, DRAFT_STARTING_LIFE),
+    startingLife,
+    playerA: createPlayer('playerA', playerAName, startingLife),
+    playerB: createPlayer('playerB', playerBName, startingLife),
     gameWins: {
       playerA: 0,
       playerB: 0,
@@ -237,6 +238,7 @@ interface UseLifeTrackerOptions {
   sessionId: string
   playerAName?: string
   playerBName?: string
+  startingLife?: number
   eventId?: string
   matchId?: string
 }
@@ -246,6 +248,7 @@ export function useLifeTracker(options: UseLifeTrackerOptions) {
     sessionId,
     playerAName = 'Player 1',
     playerBName = 'Player 2',
+    startingLife = DRAFT_STARTING_LIFE,
     eventId,
     matchId,
   } = options
@@ -253,7 +256,7 @@ export function useLifeTracker(options: UseLifeTrackerOptions) {
   // Try to load existing session or create new one
   const initialSession =
     lifeTrackerStorage.getDraftSession(sessionId) ??
-    createSession(sessionId, playerAName, playerBName, eventId, matchId)
+    createSession(sessionId, playerAName, playerBName, startingLife, eventId, matchId)
 
   const [session, dispatch] = useReducer(draftReducer, initialSession)
 

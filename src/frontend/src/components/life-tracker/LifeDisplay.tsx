@@ -20,8 +20,8 @@ interface LifeDisplayProps {
   onAdjust: (delta: number) => void
   /** Which adjustment buttons to show (default: [1, 5]) */
   buttons?: AdjustmentButton[]
-  /** Size variant */
-  size?: 'normal' | 'compact'
+  /** Size variant: normal (large 2-player), medium (3-4 player), compact (minimal) */
+  size?: 'normal' | 'medium' | 'compact'
   /** Whether the display is inverted (rotated 180deg) */
   inverted?: boolean
 }

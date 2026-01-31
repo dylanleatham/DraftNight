@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Button, Input, Card } from '../components/ui'
 import { lifeTrackerStorage } from '../lib/lifeTrackerStorage'
-import type { TrackerMode, LifeTrackerSession } from '../types/lifeTracker'
+import type { LifeTrackerSession } from '../types/lifeTracker'
 import styles from './LifeTrackerSetupPage.module.css'
 
 function generateSessionId(): string {
@@ -28,13 +28,15 @@ function getSessionDescription(session: LifeTrackerSession): string {
   return `${session.players.length} players`
 }
 
+function getSessionLifeInfo(session: LifeTrackerSession): string {
+  return `${session.startingLife} life`
+}
+
 export function LifeTrackerSetupPage() {
   const navigate = useNavigate()
 
-  const [mode, setMode] = useState<TrackerMode>('draft')
-  const [playerAName, setPlayerAName] = useState('')
-  const [playerBName, setPlayerBName] = useState('')
-  const [playerCount, setPlayerCount] = useState(4)
+  const [playerCount, setPlayerCount] = useState(2)
+  const [startingLife, setStartingLife] = useState(20)
   const [playerNames, setPlayerNames] = useState<string[]>(['', '', '', ''])
   const [sessionsVersion, setSessionsVersion] = useState(0)
 
@@ -43,30 +45,38 @@ export function LifeTrackerSetupPage() {
   void sessionsVersion
   const recentSessions = lifeTrackerStorage.getRecentSessions()
 
-  const handleStartDraft = () => {
-    const sessionId = generateSessionId()
-    const params = new URLSearchParams({
-      mode: 'draft',
-      playerA: playerAName || 'Player 1',
-      playerB: playerBName || 'Player 2',
-    })
-    navigate(`/life-tracker/game/${sessionId}?${params.toString()}`)
-  }
-
-  const handleStartCommander = () => {
+  const handleStartGame = () => {
     const sessionId = generateSessionId()
     const names = playerNames
       .slice(0, playerCount)
       .map((name, i) => name || `Player ${i + 1}`)
-    const params = new URLSearchParams({
-      mode: 'commander',
-      players: names.join(','),
-    })
-    navigate(`/life-tracker/game/${sessionId}?${params.toString()}`)
+
+    if (playerCount === 2) {
+      // 2-player games use draft layout
+      const params = new URLSearchParams({
+        playerA: names[0],
+        playerB: names[1],
+        startingLife: startingLife.toString(),
+      })
+      navigate(`/life-tracker/game/${sessionId}?${params.toString()}`)
+    } else {
+      // 3-4 player games use commander layout
+      const params = new URLSearchParams({
+        players: names.join(','),
+        startingLife: startingLife.toString(),
+      })
+      navigate(`/life-tracker/game/${sessionId}?${params.toString()}`)
+    }
   }
 
   const handleResumeSession = (session: LifeTrackerSession) => {
-    navigate(`/life-tracker/game/${session.id}?mode=${session.mode}`)
+    // Resume sessions based on their mode
+    if (session.mode === 'draft') {
+      navigate(`/life-tracker/game/${session.id}?playerA=${encodeURIComponent(session.playerA.name)}&playerB=${encodeURIComponent(session.playerB.name)}`)
+    } else {
+      const playerNamesParam = session.players.map((p) => p.name).join(',')
+      navigate(`/life-tracker/game/${session.id}?players=${encodeURIComponent(playerNamesParam)}`)
+    }
   }
 
   const handleDeleteSession = (session: LifeTrackerSession) => {
@@ -94,76 +104,54 @@ export function LifeTrackerSetupPage() {
 
         <h1 className={styles.title}>Life Tracker</h1>
 
-        {/* Mode Selection */}
-        <div className={styles.modeSelector}>
-          <button
-            className={`${styles.modeButton} ${mode === 'draft' ? styles.active : ''}`}
-            onClick={() => setMode('draft')}
-          >
-            Draft (1v1)
-          </button>
-          <button
-            className={`${styles.modeButton} ${mode === 'commander' ? styles.active : ''}`}
-            onClick={() => setMode('commander')}
-          >
-            Commander
-          </button>
-        </div>
-
-        {/* Draft Setup */}
-        {mode === 'draft' && (
-          <div className={styles.setupForm}>
-            <Input
-              label="Player 1 Name"
-              value={playerAName}
-              onChange={(e) => setPlayerAName(e.target.value)}
-              placeholder="Player 1"
-            />
-            <Input
-              label="Player 2 Name"
-              value={playerBName}
-              onChange={(e) => setPlayerBName(e.target.value)}
-              placeholder="Player 2"
-            />
-            <Button size="large" fullWidth onClick={handleStartDraft}>
-              Start Draft Game
-            </Button>
-          </div>
-        )}
-
-        {/* Commander Setup */}
-        {mode === 'commander' && (
-          <div className={styles.setupForm}>
-            <div className={styles.playerCountSelector}>
-              <label className={styles.label}>Number of Players</label>
-              <div className={styles.playerCountButtons}>
-                {[2, 3, 4].map((count) => (
-                  <button
-                    key={count}
-                    className={`${styles.countButton} ${playerCount === count ? styles.active : ''}`}
-                    onClick={() => setPlayerCount(count)}
-                  >
-                    {count}
-                  </button>
-                ))}
-              </div>
+        <div className={styles.setupForm}>
+          {/* Player Count Selector */}
+          <div className={styles.selectorGroup}>
+            <label className={styles.label}>Number of Players</label>
+            <div className={styles.selectorButtons}>
+              {[2, 3, 4].map((count) => (
+                <button
+                  key={count}
+                  className={`${styles.selectorButton} ${playerCount === count ? styles.active : ''}`}
+                  onClick={() => setPlayerCount(count)}
+                >
+                  {count}
+                </button>
+              ))}
             </div>
-
-            {Array.from({ length: playerCount }, (_, i) => (
-              <Input
-                key={i}
-                label={`Player ${i + 1} Name`}
-                value={playerNames[i]}
-                onChange={(e) => handlePlayerNameChange(i, e.target.value)}
-                placeholder={`Player ${i + 1}`}
-              />
-            ))}
-
-            <Button size="large" fullWidth onClick={handleStartCommander}>
-              Start Commander Game
-            </Button>
           </div>
-        )}
+
+          {/* Starting Life Selector */}
+          <div className={styles.selectorGroup}>
+            <label className={styles.label}>Starting Life</label>
+            <div className={styles.selectorButtons}>
+              {[20, 30, 40].map((life) => (
+                <button
+                  key={life}
+                  className={`${styles.selectorButton} ${startingLife === life ? styles.active : ''}`}
+                  onClick={() => setStartingLife(life)}
+                >
+                  {life}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Player Names */}
+          {Array.from({ length: playerCount }, (_, i) => (
+            <Input
+              key={i}
+              label={`Player ${i + 1} Name`}
+              value={playerNames[i]}
+              onChange={(e) => handlePlayerNameChange(i, e.target.value)}
+              placeholder={`Player ${i + 1}`}
+            />
+          ))}
+
+          <Button size="large" fullWidth onClick={handleStartGame}>
+            Start Game
+          </Button>
+        </div>
 
         {/* Recent Sessions */}
         {recentSessions.length > 0 && (
@@ -173,8 +161,8 @@ export function LifeTrackerSetupPage() {
               {recentSessions.map((session) => (
                 <Card key={session.id} className={styles.sessionCard}>
                   <div className={styles.sessionInfo}>
-                    <span className={styles.sessionMode}>
-                      {session.mode === 'draft' ? 'Draft' : 'Commander'}
+                    <span className={styles.sessionMeta}>
+                      {session.mode === 'draft' ? '2 players' : `${session.players.length} players`} &bull; {getSessionLifeInfo(session)}
                     </span>
                     <span className={styles.sessionDescription}>
                       {getSessionDescription(session)}

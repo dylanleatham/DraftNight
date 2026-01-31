@@ -28,6 +28,27 @@
   font-size: 1.5rem;
 }
 
+.medium .lifeValue {
+  font-size: 5rem;
+}
+
+.medium .lifeDisplay {
+  min-width: 120px;
+  min-height: 100px;
+  flex: 1;
+}
+
+.medium .adjustButton {
+  min-width: 52px;
+  min-height: 52px;
+  font-size: 1.25rem;
+}
+
+.medium .lifeInput {
+  width: 120px;
+  font-size: 3.5rem;
+}
+
 .compact .lifeValue {
   font-size: 3rem;
 }

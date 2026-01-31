@@ -14,13 +14,14 @@ function generateId(): string {
 function createPlayer(
   index: number,
   name: string,
-  allPlayerIds: string[]
+  allPlayerIds: string[],
+  startingLife: number
 ): CommanderPlayer {
   const id = `player_${index}`
   return {
     id,
     name,
-    life: COMMANDER_STARTING_LIFE,
+    life: startingLife,
     poison: 0,
     commanderDamage: allPlayerIds
       .filter((pid) => pid !== id)
@@ -31,7 +32,8 @@ function createPlayer(
 
 function createSession(
   sessionId: string,
-  playerNames: string[]
+  playerNames: string[],
+  startingLife: number
 ): CommanderSession {
   const now = Date.now()
   const playerIds = playerNames.map((_, i) => `player_${i}`)
@@ -41,8 +43,8 @@ function createSession(
     mode: 'commander',
     createdAt: now,
     updatedAt: now,
-    startingLife: COMMANDER_STARTING_LIFE,
-    players: playerNames.map((name, i) => createPlayer(i, name, playerIds)),
+    startingLife,
+    players: playerNames.map((name, i) => createPlayer(i, name, playerIds, startingLife)),
   }
 }
 
@@ -255,6 +257,7 @@ function commanderReducer(
 interface UseCommanderLifeTrackerOptions {
   sessionId: string
   playerNames?: string[]
+  startingLife?: number
 }
 
 export function useCommanderLifeTracker(
@@ -263,12 +266,13 @@ export function useCommanderLifeTracker(
   const {
     sessionId,
     playerNames = ['Player 1', 'Player 2', 'Player 3', 'Player 4'],
+    startingLife = COMMANDER_STARTING_LIFE,
   } = options
 
   // Try to load existing session or create new one
   const initialSession =
     lifeTrackerStorage.getCommanderSession(sessionId) ??
-    createSession(sessionId, playerNames)
+    createSession(sessionId, playerNames, startingLife)
 
   const [session, dispatch] = useReducer(commanderReducer, initialSession)
 
