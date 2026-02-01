@@ -50,7 +50,7 @@ describe('usePlayerActions', () => {
   it('leaveEvent returns false when player token is not available', async () => {
     vi.mocked(useAuth).mockReturnValue({
       getPlayerToken: vi.fn(() => null),
-    } as ReturnType<typeof useAuth>)
+    } as unknown as ReturnType<typeof useAuth>)
 
     const { result } = renderHook(() => usePlayerActions('test-event-id'))
 
@@ -68,7 +68,7 @@ describe('usePlayerActions', () => {
 
     vi.mocked(useAuth).mockReturnValue({
       getPlayerToken: mockGetPlayerToken,
-    } as ReturnType<typeof useAuth>)
+    } as unknown as ReturnType<typeof useAuth>)
 
     mockGetEvent.mockResolvedValue({
       id: 'test-event-id',
@@ -111,11 +111,11 @@ describe('usePlayerActions', () => {
 
     vi.mocked(useAuth).mockReturnValue({
       getPlayerToken: vi.fn(() => 'test-player-token'),
-    } as ReturnType<typeof useAuth>)
+    } as unknown as ReturnType<typeof useAuth>)
 
     vi.mocked(useEvent).mockReturnValue({
       dispatch: mockDispatch,
-    } as ReturnType<typeof useEvent>)
+    } as unknown as ReturnType<typeof useEvent>)
 
     mockGetEvent.mockRejectedValue(new Error('Network error'))
 
