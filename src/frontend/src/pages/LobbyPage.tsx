@@ -133,11 +133,7 @@ export function LobbyPage() {
 
       {canLeave && (
         <div className={styles.actions}>
-          <Button
-            variant="secondary"
-            fullWidth
-            onClick={handleLeaveClick}
-          >
+          <Button variant="secondary" fullWidth onClick={handleLeaveClick}>
             Leave Event
           </Button>
         </div>
@@ -204,10 +200,17 @@ export function LobbyPage() {
               : ' You will be marked as dropped from the tournament.'}
           </p>
           <div className={styles.modalActions}>
-            <Button variant="secondary" onClick={() => setLeaveModalOpen(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => setLeaveModalOpen(false)}
+            >
               Cancel
             </Button>
-            <Button variant="danger" loading={isLeaving} onClick={handleLeaveConfirm}>
+            <Button
+              variant="danger"
+              loading={isLeaving}
+              onClick={handleLeaveConfirm}
+            >
               Leave Event
             </Button>
           </div>
