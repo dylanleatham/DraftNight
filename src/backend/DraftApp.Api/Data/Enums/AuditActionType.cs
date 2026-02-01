@@ -68,5 +68,10 @@ public enum AuditActionType
     /// <summary>
     /// Event was cancelled by the host.
     /// </summary>
-    EventCancelled = 12
+    EventCancelled = 12,
+
+    /// <summary>
+    /// Player left the event voluntarily.
+    /// </summary>
+    PlayerLeft = 13
 }

@@ -102,4 +102,15 @@ public interface IEventService
     /// </summary>
     /// <returns>The player ID if valid and player is in the match, null otherwise.</returns>
     Task<Guid?> ValidatePlayerTokenForMatchAsync(string playerToken, Guid eventId, Guid matchId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Validates a player token and returns the player ID if valid for the event.
+    /// </summary>
+    /// <returns>The player ID if valid, null otherwise.</returns>
+    Task<Guid?> ValidatePlayerTokenAsync(string playerToken, Guid eventId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Allows a player to leave an event. During Setup, removes the player. During Active, drops the player.
+    /// </summary>
+    Task<MutationResponse> LeaveEventAsync(Guid eventId, Guid playerId, int expectedVersion, CancellationToken ct = default);
 }

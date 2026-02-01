@@ -792,4 +792,140 @@ public class EventsControllerTests : IDisposable
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
+
+    // Leave Event Tests
+    [Fact]
+    public async Task LeaveEvent_WithoutPlayerToken_ReturnsUnauthorized()
+    {
+        // Arrange - Create an event first
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Test Event",
+            PacksInBox = 36,
+            HostPin = "1234",
+            HostName = "Host"
+        };
+        var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        var leaveRequest = new LeaveEventRequest { ExpectedVersion = 1 };
+
+        // Act (no X-Player-Token header)
+        var response = await client.PostAsJsonAsync($"/api/events/{createResult.EventId}/leave", leaveRequest);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task LeaveEvent_WithInvalidPlayerToken_ReturnsUnauthorized()
+    {
+        // Arrange - Create an event first
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Test Event",
+            PacksInBox = 36,
+            HostPin = "1234",
+            HostName = "Host"
+        };
+        var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        var leaveRequest = new LeaveEventRequest { ExpectedVersion = 1 };
+
+        // Act (with invalid token)
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/events/{createResult.EventId}/leave");
+        request.Headers.Add("X-Player-Token", "invalid-token");
+        request.Content = JsonContent.Create(leaveRequest);
+
+        var response = await client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task LeaveEvent_HostCannotLeave_ReturnsBadRequest()
+    {
+        // Arrange - Create an event first
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Test Event",
+            PacksInBox = 36,
+            HostPin = "1234",
+            HostName = "Host"
+        };
+        var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        var leaveRequest = new LeaveEventRequest { ExpectedVersion = 1 };
+
+        // Act (host trying to leave with their player token)
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/events/{createResult.EventId}/leave");
+        request.Headers.Add("X-Player-Token", createResult.PlayerToken);
+        request.Content = JsonContent.Create(leaveRequest);
+
+        var response = await client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task LeaveEvent_WithVersionConflict_ReturnsConflict()
+    {
+        // Arrange - Create an event and add a player
+        var createRequest = new CreateEventRequest
+        {
+            Name = "Test Event",
+            PacksInBox = 36,
+            HostPin = "1234",
+            HostName = "Host"
+        };
+        var createResponse = await client.PostAsJsonAsync("/api/events", createRequest);
+        var createContent = await createResponse.Content.ReadAsStringAsync();
+        Assert.True(createResponse.IsSuccessStatusCode, $"Create failed: {createContent}");
+
+        var createResult = JsonSerializer.Deserialize<CreateEventResponse>(createContent, JsonOptions);
+        Assert.NotNull(createResult);
+
+        // Join as a player
+        var joinRequest = new JoinEventRequest
+        {
+            JoinCode = createResult.JoinCode,
+            PlayerName = "Alice",
+            PlayerPin = "0000"
+        };
+        var joinResponse = await client.PostAsJsonAsync("/api/events/join", joinRequest);
+        var joinContent = await joinResponse.Content.ReadAsStringAsync();
+        Assert.True(joinResponse.IsSuccessStatusCode, $"Join failed: {joinContent}");
+
+        var joinResult = JsonSerializer.Deserialize<JoinEventResponse>(joinContent, JsonOptions);
+        Assert.NotNull(joinResult);
+
+        // Wrong version
+        var leaveRequest = new LeaveEventRequest { ExpectedVersion = 999 };
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/events/{createResult.EventId}/leave");
+        request.Headers.Add("X-Player-Token", joinResult.PlayerToken);
+        request.Content = JsonContent.Create(leaveRequest);
+
+        var response = await client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
 }

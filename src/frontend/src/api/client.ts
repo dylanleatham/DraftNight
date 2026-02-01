@@ -217,6 +217,19 @@ export const api = {
     })
     return handleResponse<AuditLogResponse>(response)
   },
+
+  async leaveEvent(
+    eventId: string,
+    playerToken: string,
+    expectedVersion: number
+  ): Promise<MutationResponse> {
+    const response = await fetch(`${BASE_URL}/events/${eventId}/leave`, {
+      method: 'POST',
+      headers: buildHeaders({ playerToken }),
+      body: JSON.stringify({ expectedVersion }),
+    })
+    return handleResponse<MutationResponse>(response)
+  },
 }
 
 export { ApiError }

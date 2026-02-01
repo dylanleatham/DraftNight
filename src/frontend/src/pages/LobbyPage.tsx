@@ -5,6 +5,7 @@ import { PlayerList } from '../components/event'
 import { useEvent } from '../context/EventContext'
 import { useAuth } from '../context/AuthContext'
 import { useHostActions } from '../hooks/useHostActions'
+import { usePlayerActions } from '../hooks/usePlayerActions'
 import { EventStatus } from '../api/types'
 import styles from './LobbyPage.module.css'
 
@@ -12,11 +13,14 @@ export function LobbyPage() {
   const { eventId } = useParams<{ eventId: string }>()
   const navigate = useNavigate()
   const { state } = useEvent()
-  const { isHost, getPlayerId, hostSession } = useAuth()
+  const { isHost, getPlayerId, hostSession, clearPlayerSession } = useAuth()
   const { startEvent, dropPlayer } = useHostActions(eventId!)
+  const { leaveEvent } = usePlayerActions(eventId!)
 
   const [isStarting, setIsStarting] = useState(false)
+  const [isLeaving, setIsLeaving] = useState(false)
   const [dropModalOpen, setDropModalOpen] = useState(false)
+  const [leaveModalOpen, setLeaveModalOpen] = useState(false)
   const [playerToDrop, setPlayerToDrop] = useState<string | null>(null)
   const [dropReason, setDropReason] = useState('')
 
@@ -54,6 +58,24 @@ export function LobbyPage() {
   }
 
   const playerToDropInfo = snapshot.players.find((p) => p.id === playerToDrop)
+
+  const handleLeaveClick = () => {
+    setLeaveModalOpen(true)
+  }
+
+  const handleLeaveConfirm = async () => {
+    setIsLeaving(true)
+    const success = await leaveEvent()
+    setIsLeaving(false)
+    if (success) {
+      clearPlayerSession()
+      navigate('/')
+    }
+    setLeaveModalOpen(false)
+  }
+
+  // Non-host players can leave the event
+  const canLeave = !isHostUser && playerId !== null
 
   return (
     <div className={styles.container}>
@@ -109,6 +131,18 @@ export function LobbyPage() {
         </div>
       )}
 
+      {canLeave && (
+        <div className={styles.actions}>
+          <Button
+            variant="secondary"
+            fullWidth
+            onClick={handleLeaveClick}
+          >
+            Leave Event
+          </Button>
+        </div>
+      )}
+
       {!isSetup && (
         <div className={styles.eventInfo}>
           <div className={styles.infoItem}>
@@ -152,6 +186,29 @@ export function LobbyPage() {
             </Button>
             <Button variant="danger" onClick={handleDropConfirm}>
               Drop Player
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        open={leaveModalOpen}
+        onClose={() => setLeaveModalOpen(false)}
+        title="Leave Event"
+      >
+        <div className={styles.modalContent}>
+          <p>
+            Are you sure you want to leave this event?
+            {isSetup
+              ? ' You will be removed from the player list.'
+              : ' You will be marked as dropped from the tournament.'}
+          </p>
+          <div className={styles.modalActions}>
+            <Button variant="secondary" onClick={() => setLeaveModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" loading={isLeaving} onClick={handleLeaveConfirm}>
+              Leave Event
             </Button>
           </div>
         </div>

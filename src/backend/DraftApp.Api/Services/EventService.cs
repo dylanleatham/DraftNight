@@ -830,6 +830,55 @@ public class EventService(
         return null;
     }
 
+    public async Task<Guid?> ValidatePlayerTokenAsync(string playerToken, Guid eventId, CancellationToken ct = default)
+    {
+        var player = await context.Players
+            .FirstOrDefaultAsync(p => p.PlayerToken == playerToken && p.EventId == eventId, ct);
+
+        return player?.Id;
+    }
+
+    public async Task<MutationResponse> LeaveEventAsync(Guid eventId, Guid playerId, int expectedVersion, CancellationToken ct = default)
+    {
+        var entity = await repository.GetByIdAsync(eventId, ct);
+        if (entity is null)
+        {
+            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+        }
+
+        if (entity.Version != expectedVersion)
+        {
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+        }
+
+        var player = entity.Players.FirstOrDefault(p => p.Id == playerId);
+        if (player is null)
+        {
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Player not found" };
+        }
+
+        // Host (seed 1) cannot leave - they should cancel instead
+        if (player.Seed == 1)
+        {
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Host cannot leave their own event. Use cancel instead." };
+        }
+
+        if (entity.Status == EventStatus.Setup)
+        {
+            // During Setup: Remove player completely from the database
+            return await LeaveEventDuringSetupAsync(entity, player, expectedVersion, ct);
+        }
+        else if (entity.Status == EventStatus.Active)
+        {
+            // During Active: Use existing drop logic
+            return await LeaveEventDuringActiveAsync(entity, player, expectedVersion, ct);
+        }
+        else
+        {
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Cannot leave event in current status" };
+        }
+    }
+
     private static EventSnapshotResponse MapToSnapshot(EventEntity entity)
     {
         var players = entity.Players
@@ -897,5 +946,107 @@ public class EventService(
             Rounds = rounds,
             PrizeAllocations = prizeAllocations
         };
+    }
+
+    private async Task<MutationResponse> LeaveEventDuringSetupAsync(
+        Data.Entities.EventEntity entity,
+        Data.Entities.PlayerEntity player,
+        int expectedVersion,
+        CancellationToken ct)
+    {
+        var playerSeed = player.Seed;
+        var playerName = player.Name;
+
+        // Remove the player from the database
+        context.Players.Remove(player);
+
+        // Reorder remaining players' seeds to be contiguous
+        var remainingPlayers = entity.Players
+            .Where(p => p.Id != player.Id && p.Seed > playerSeed)
+            .OrderBy(p => p.Seed)
+            .ToList();
+
+        foreach (var p in remainingPlayers)
+        {
+            p.Seed -= 1;
+        }
+
+        // Create audit log entry
+        var auditLog = new AuditLogEntity
+        {
+            Id = Guid.NewGuid(),
+            EventId = entity.Id,
+            ActionType = AuditActionType.PlayerLeft,
+            EntityType = "Player",
+            EntityId = player.Id,
+            AfterJson = $"{{\"name\": \"{playerName}\", \"phase\": \"Setup\"}}",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        // Update event version
+        var newVersion = entity.Version + 1;
+        await context.Database.ExecuteSqlInterpolatedAsync(
+            $"UPDATE Events SET Version = {newVersion}, UpdatedAt = {DateTime.UtcNow} WHERE Id = {entity.Id}",
+            ct);
+
+        context.AuditLogs.Add(auditLog);
+        await context.SaveChangesAsync(ct);
+
+        // Broadcast update to connected clients
+        var updatedEntity = await repository.GetByIdAsync(entity.Id, ct);
+        if (updatedEntity is not null)
+        {
+            var snapshot = MapToSnapshot(updatedEntity);
+            await notificationService.BroadcastEventUpdateAsync(entity.Id, snapshot, ct);
+        }
+
+        return new MutationResponse { Success = true, NewVersion = newVersion };
+    }
+
+    private async Task<MutationResponse> LeaveEventDuringActiveAsync(
+        Data.Entities.EventEntity entity,
+        Data.Entities.PlayerEntity player,
+        int expectedVersion,
+        CancellationToken ct)
+    {
+        // Use existing drop logic via the engine
+        var state = await repository.LoadEngineStateAsync(entity.Id, ct);
+        if (state is null)
+        {
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Failed to load engine state" };
+        }
+
+        var dropResult = TournamentEngine.DropPlayer(state, player.Id.ToString());
+
+        return await dropResult.Match(
+            async droppedState =>
+            {
+                var auditLog = new AuditLogEntity
+                {
+                    Id = Guid.NewGuid(),
+                    ActionType = AuditActionType.PlayerLeft,
+                    EntityType = "Player",
+                    EntityId = player.Id,
+                    AfterJson = $"{{\"name\": \"{player.Name}\", \"phase\": \"Active\"}}"
+                };
+
+                var (success, newVersion) = await repository.PersistEngineStateAsync(entity, expectedVersion, droppedState, auditLog, ct);
+
+                if (!success)
+                {
+                    return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                }
+
+                // Broadcast update to connected clients
+                var updatedEntity = await repository.GetByIdAsync(entity.Id, ct);
+                if (updatedEntity is not null)
+                {
+                    var snapshot = MapToSnapshot(updatedEntity);
+                    await notificationService.BroadcastEventUpdateAsync(entity.Id, snapshot, ct);
+                }
+
+                return new MutationResponse { Success = true, NewVersion = newVersion };
+            },
+            error => Task.FromResult(new MutationResponse { Success = false, NewVersion = entity.Version, Error = error.Message }));
     }
 }

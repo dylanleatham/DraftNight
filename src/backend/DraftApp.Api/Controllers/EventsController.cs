@@ -191,6 +191,28 @@ public class EventsController(IEventService eventService) : ControllerBase
         return HandleMutationResponse(response);
     }
 
+    /// <summary>
+    /// Allows a player to leave the event. During Setup, removes the player. During Active, drops the player.
+    /// The host cannot leave their own event.
+    /// </summary>
+    [HttpPost("{eventId:guid}/leave")]
+    [ProducesResponseType(typeof(MutationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> LeaveEvent(Guid eventId, [FromBody] LeaveEventRequest request, CancellationToken ct)
+    {
+        var authResult = await AuthorizePlayerAsync(eventId, ct);
+        if (authResult.Error is not null)
+        {
+            return authResult.Error;
+        }
+
+        var response = await eventService.LeaveEventAsync(eventId, authResult.PlayerId!.Value, request.ExpectedVersion, ct);
+        return HandleMutationResponse(response);
+    }
+
     // ========================================
     // Host Repair APIs (3.3)
     // ========================================
@@ -353,6 +375,26 @@ public class EventsController(IEventService eventService) : ControllerBase
         }
 
         return null;
+    }
+
+    private async Task<(IActionResult? Error, Guid? PlayerId)> AuthorizePlayerAsync(Guid eventId, CancellationToken ct)
+    {
+        // Check if player token is provided
+        if (!Request.Headers.TryGetValue(PlayerTokenHeader, out var tokenValues) || string.IsNullOrEmpty(tokenValues.FirstOrDefault()))
+        {
+            return (Unauthorized(new ErrorResponse { Code = "MISSING_PLAYER_TOKEN", Message = "Player token required" }), null);
+        }
+
+        var playerToken = tokenValues.First()!;
+
+        // Validate the player token and check if player is the host
+        var result = await eventService.ValidatePlayerTokenAsync(playerToken, eventId, ct);
+        if (result is null)
+        {
+            return (Unauthorized(new ErrorResponse { Code = "INVALID_PLAYER_TOKEN", Message = "Invalid player token" }), null);
+        }
+
+        return (null, result);
     }
 
     private async Task<IActionResult?> AuthorizeHostOrMatchPlayerAsync(Guid eventId, Guid matchId, CancellationToken ct)
