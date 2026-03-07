@@ -14,60 +14,60 @@ import { LifeTrackerPage } from './pages/LifeTrackerPage'
 
 export const router = createBrowserRouter(
   [
-  {
-    path: '/',
-    element: <HomePage />,
-  },
-  {
-    path: '/create',
-    element: <CreateEventPage />,
-  },
-  {
-    path: '/join',
-    element: <JoinEventPage />,
-  },
-  {
-    path: '/life-tracker',
-    element: <LifeTrackerSetupPage />,
-  },
-  {
-    path: '/life-tracker/game/:sessionId',
-    element: <LifeTrackerPage />,
-  },
-  {
-    path: '/event/:eventId',
-    element: <EventLayout />,
-    children: [
-      {
-        index: true,
-        element: <Navigate to="lobby" replace />,
-      },
-      {
-        path: 'lobby',
-        element: <LobbyPage />,
-      },
-      {
-        path: 'pairings',
-        element: <PairingsPage />,
-      },
-      {
-        path: 'standings',
-        element: <StandingsPage />,
-      },
-      {
-        path: 'prizes',
-        element: <PrizesPage />,
-      },
-      {
-        path: 'audit',
-        element: <AuditLogPage />,
-      },
-      {
-        path: 'match/:matchId/life',
-        element: <LifeTrackerPage />,
-      },
-    ],
-  },
-],
+    {
+      path: '/',
+      element: <HomePage />,
+    },
+    {
+      path: '/create',
+      element: <CreateEventPage />,
+    },
+    {
+      path: '/join',
+      element: <JoinEventPage />,
+    },
+    {
+      path: '/life-tracker',
+      element: <LifeTrackerSetupPage />,
+    },
+    {
+      path: '/life-tracker/game/:sessionId',
+      element: <LifeTrackerPage />,
+    },
+    {
+      path: '/event/:eventId',
+      element: <EventLayout />,
+      children: [
+        {
+          index: true,
+          element: <Navigate to="lobby" replace />,
+        },
+        {
+          path: 'lobby',
+          element: <LobbyPage />,
+        },
+        {
+          path: 'pairings',
+          element: <PairingsPage />,
+        },
+        {
+          path: 'standings',
+          element: <StandingsPage />,
+        },
+        {
+          path: 'prizes',
+          element: <PrizesPage />,
+        },
+        {
+          path: 'audit',
+          element: <AuditLogPage />,
+        },
+        {
+          path: 'match/:matchId/life',
+          element: <LifeTrackerPage />,
+        },
+      ],
+    },
+  ],
   { basename: routerBasename }
 )
