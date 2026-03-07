@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { routerBasename } from './config'
 import { HomePage } from './pages/HomePage'
 import { CreateEventPage } from './pages/CreateEventPage'
 import { JoinEventPage } from './pages/JoinEventPage'
@@ -11,7 +12,8 @@ import { AuditLogPage } from './pages/AuditLogPage'
 import { LifeTrackerSetupPage } from './pages/LifeTrackerSetupPage'
 import { LifeTrackerPage } from './pages/LifeTrackerPage'
 
-export const router = createBrowserRouter([
+export const router = createBrowserRouter(
+  [
   {
     path: '/',
     element: <HomePage />,
@@ -66,4 +68,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-])
+],
+  { basename: routerBasename }
+)

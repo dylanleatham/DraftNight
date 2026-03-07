@@ -6,6 +6,7 @@ import {
   LogLevel,
 } from '@microsoft/signalr'
 import type { EventSnapshotResponse } from '../api/types'
+import { apiBaseUrl } from '../config'
 
 export type ConnectionStatus =
   | 'connecting'
@@ -53,7 +54,7 @@ export function useEventConnection({
   }, [])
 
   useEffect(() => {
-    const hubUrl = `${window.location.origin}/hubs/event`
+    const hubUrl = `${window.location.origin}${apiBaseUrl}/hubs/event`
 
     const connection = new HubConnectionBuilder()
       .withUrl(hubUrl)

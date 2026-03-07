@@ -10,7 +10,9 @@ import type {
   ErrorResponse,
 } from './types'
 
-const BASE_URL = import.meta.env.VITE_API_URL || '/api'
+import { apiBaseUrl } from '../config'
+
+const BASE_URL = `${apiBaseUrl}/api`
 
 class ApiError extends Error {
   status: number

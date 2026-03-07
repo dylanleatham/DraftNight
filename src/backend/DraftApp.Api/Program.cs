@@ -76,6 +76,8 @@ catch (Exception ex)
 }
 
 // Configure the HTTP request pipeline
+app.UsePathBase("/draftnight");
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -83,12 +85,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
+app.UseStaticFiles();
 
 app.MapControllers();
 app.MapHub<EventHub>("/hubs/event");
 
-app.MapGet("/health", () => Results.Ok(new { Status = "Healthy" }))
-    .WithName("HealthCheck");
+// Health check at root for platform probes (probes hit /healthz directly;
+// UsePathBase is a no-op when the path doesn't start with /draftnight)
+app.MapMethods("/healthz", new[] { "GET", "HEAD" }, () =>
+    Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
+
+app.MapFallbackToFile("index.html");
 
 app.Run();
 

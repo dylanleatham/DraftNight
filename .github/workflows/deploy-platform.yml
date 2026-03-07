@@ -1,0 +1,58 @@
+name: Deploy to Platform
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    uses: dylanleatham/knucklehead-platform/.github/workflows/build-and-push-image.yml@main
+    with:
+      app-name: draftnight
+      dockerfile-path: ./Dockerfile
+    secrets: inherit
+
+  deploy:
+    needs: build
+    uses: dylanleatham/knucklehead-platform/.github/workflows/deploy-container-app.yml@main
+    with:
+      app-name: draftnight
+      resource-group: draftnight-rg
+      image-tag: ${{ needs.build.outputs.image-tag }}
+    secrets: inherit
+
+  configure:
+    needs: deploy
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Set container app secrets and env vars
+        run: |
+          az containerapp secret set \
+            --name draftnight-ca \
+            --resource-group draftnight-rg \
+            --secrets \
+              db-connection-string="${{ secrets.DB_CONNECTION_STRING }}" \
+              signalr-connection-string="${{ secrets.SIGNALR_CONNECTION_STRING }}"
+
+          az containerapp update \
+            --name draftnight-ca \
+            --resource-group draftnight-rg \
+            --set-env-vars \
+              ConnectionStrings__DefaultConnection=secretref:db-connection-string \
+              ConnectionStrings__AzureSignalR=secretref:signalr-connection-string
