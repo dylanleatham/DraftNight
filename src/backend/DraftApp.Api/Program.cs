@@ -76,6 +76,19 @@ catch (Exception ex)
 }
 
 // Configure the HTTP request pipeline
+
+// Redirect /draftnight to /draftnight/ so relative asset paths resolve correctly
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.Value?.Equals("/draftnight", StringComparison.OrdinalIgnoreCase) == true
+        && !context.Request.Path.Value.EndsWith('/'))
+    {
+        context.Response.Redirect("/draftnight/", permanent: true);
+        return;
+    }
+    await next();
+});
+
 app.UsePathBase("/draftnight");
 
 if (app.Environment.IsDevelopment())
