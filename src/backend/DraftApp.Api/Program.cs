@@ -86,6 +86,7 @@ app.Use(async (context, next) =>
         context.Response.Redirect("/draftnight/", permanent: true);
         return;
     }
+
     await next();
 });
 

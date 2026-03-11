@@ -27,7 +27,11 @@ export const storage = {
   },
 
   setHostSession(session: HostSession): void {
-    localStorage.setItem(STORAGE_KEYS.HOST_SESSION, JSON.stringify(session))
+    try {
+      localStorage.setItem(STORAGE_KEYS.HOST_SESSION, JSON.stringify(session))
+    } catch {
+      // Silently handle QuotaExceededError or other storage failures
+    }
   },
 
   clearHostSession(): void {
@@ -45,7 +49,14 @@ export const storage = {
   },
 
   setPlayerSession(session: PlayerSession): void {
-    localStorage.setItem(STORAGE_KEYS.PLAYER_SESSION, JSON.stringify(session))
+    try {
+      localStorage.setItem(
+        STORAGE_KEYS.PLAYER_SESSION,
+        JSON.stringify(session)
+      )
+    } catch {
+      // Silently handle QuotaExceededError or other storage failures
+    }
   },
 
   clearPlayerSession(): void {

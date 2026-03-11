@@ -52,6 +52,13 @@ internal static class EventInitializer
             return EngineResult<EventState>.Fail(new InvalidPlayerCountError(players.Count));
         }
 
+        // Validate player names are non-empty
+        var emptyNamePlayer = players.FirstOrDefault(p => string.IsNullOrWhiteSpace(p.Name));
+        if (emptyNamePlayer != default)
+        {
+            return EngineResult<EventState>.Fail(new EmptyPlayerNameError(emptyNamePlayer.Id));
+        }
+
         // Check for duplicate IDs
         var duplicateId = players
             .GroupBy(p => p.Id)

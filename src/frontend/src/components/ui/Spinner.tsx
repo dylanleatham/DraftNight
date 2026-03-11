@@ -7,6 +7,10 @@ interface SpinnerProps {
 
 export function Spinner({ size = 'medium', className }: SpinnerProps) {
   return (
-    <div className={`${styles.spinner} ${styles[size]} ${className ?? ''}`} />
+    <div
+      className={`${styles.spinner} ${styles[size]} ${className ?? ''}`}
+      role="status"
+      aria-label="Loading"
+    />
   )
 }

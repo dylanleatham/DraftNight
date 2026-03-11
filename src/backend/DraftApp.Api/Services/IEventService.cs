@@ -16,7 +16,7 @@ public interface IEventService
     /// <summary>
     /// Joins an event as a player.
     /// </summary>
-    Task<JoinEventResponse?> JoinEventAsync(JoinEventRequest request, CancellationToken ct = default);
+    Task<JoinEventResult> JoinEventAsync(JoinEventRequest request, CancellationToken ct = default);
 
     /// <summary>
     /// Gets an event snapshot by ID.
@@ -95,7 +95,7 @@ public interface IEventService
     /// <summary>
     /// Cancels an event. Sets status to Archived and notifies all connected clients.
     /// </summary>
-    Task<MutationResponse> CancelEventAsync(Guid eventId, int expectedVersion, CancellationToken ct = default);
+    Task<MutationResponse> CancelEventAsync(Guid eventId, int expectedVersion, string? reason = null, CancellationToken ct = default);
 
     /// <summary>
     /// Validates a player token and checks if the player is a participant in the specified match.

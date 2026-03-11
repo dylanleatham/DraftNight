@@ -6,7 +6,7 @@ import { useEvent } from '../context/EventContext'
 import { useAuth } from '../context/AuthContext'
 import { useHostActions } from '../hooks/useHostActions'
 import { usePlayerActions } from '../hooks/usePlayerActions'
-import { EventStatus } from '../api/types'
+import { EventStatus, TournamentFormat } from '../api/types'
 import styles from './LobbyPage.module.css'
 
 export function LobbyPage() {
@@ -43,8 +43,8 @@ export function LobbyPage() {
     }
   }
 
-  const handleDropClick = (playerId: string) => {
-    setPlayerToDrop(playerId)
+  const handleDropClick = (playerIdToDrop: string) => {
+    setPlayerToDrop(playerIdToDrop)
     setDropReason('')
     setDropModalOpen(true)
   }
@@ -144,7 +144,7 @@ export function LobbyPage() {
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Format</span>
             <span className={styles.infoValue}>
-              {snapshot.format === 0 ? 'Round Robin' : 'Swiss'}
+              {snapshot.format === TournamentFormat.RoundRobin ? 'Round Robin' : 'Swiss'}
             </span>
           </div>
           <div className={styles.infoItem}>

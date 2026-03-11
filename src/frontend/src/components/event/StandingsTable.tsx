@@ -13,7 +13,7 @@ export function StandingsTable({
 }: StandingsTableProps) {
   return (
     <div className={styles.container}>
-      <table className={styles.table}>
+      <table className={styles.table} aria-label="Tournament Standings">
         <thead>
           <tr>
             <th className={styles.rankHeader}>#</th>

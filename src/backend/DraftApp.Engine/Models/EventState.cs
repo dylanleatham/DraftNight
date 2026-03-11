@@ -62,7 +62,7 @@ public sealed record EventState
     /// <summary>
     /// Gets the current round number (highest round with pairings, or 0 if none).
     /// </summary>
-    public int CurrentRound => MatchesByRound.Count > 0 ? MatchesByRound.Keys.Max() : 0;
+    public int CurrentRound => ComputeCurrentRound();
 
     /// <summary>
     /// Gets a value indicating whether the tournament is complete.
@@ -149,4 +149,21 @@ public sealed record EventState
     /// </summary>
     public EventState WithPrizeAllocations(ImmutableDictionary<string, int> allocations) =>
         this with { PrizeAllocations = allocations, PrizesAllocated = true };
+
+    /// <summary>
+    /// Computes the current round number without LINQ allocation overhead.
+    /// </summary>
+    private int ComputeCurrentRound()
+    {
+        var max = 0;
+        foreach (var key in MatchesByRound.Keys)
+        {
+            if (key > max)
+            {
+                max = key;
+            }
+        }
+
+        return max;
+    }
 }

@@ -1,3 +1,4 @@
+using DraftApp.Api.Models;
 using DraftApp.Api.Models.Requests;
 using DraftApp.Api.Models.Responses;
 using DraftApp.Api.Services;
@@ -39,15 +40,23 @@ public class EventsController(IEventService eventService) : ControllerBase
     [ProducesResponseType(typeof(JoinEventResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> JoinEvent([FromBody] JoinEventRequest request, CancellationToken ct)
     {
-        var response = await eventService.JoinEventAsync(request, ct);
-        if (response is null)
+        var result = await eventService.JoinEventAsync(request, ct);
+
+        if (result.ErrorCode is not null)
         {
-            return NotFound(new ErrorResponse { Code = "EVENT_NOT_FOUND", Message = "Event not found or not accepting players" });
+            return result.ErrorCode switch
+            {
+                JoinEventErrorCode.NotFound => NotFound(new ErrorResponse { Code = "EVENT_NOT_FOUND", Message = "Event not found or not accepting players" }),
+                JoinEventErrorCode.LobbyFull => Conflict(new ErrorResponse { Code = "LOBBY_FULL", Message = "Lobby is full (maximum 8 players)" }),
+                JoinEventErrorCode.VersionConflict => Conflict(new ErrorResponse { Code = "VERSION_CONFLICT", Message = "Version conflict" }),
+                _ => BadRequest(new ErrorResponse { Code = "JOIN_FAILED", Message = "Failed to join event" })
+            };
         }
 
-        return Ok(response);
+        return Ok(result.Response);
     }
 
     /// <summary>
@@ -187,7 +196,7 @@ public class EventsController(IEventService eventService) : ControllerBase
             return authResult;
         }
 
-        var response = await eventService.CancelEventAsync(eventId, request.ExpectedVersion, ct);
+        var response = await eventService.CancelEventAsync(eventId, request.ExpectedVersion, request.Reason, ct);
         return HandleMutationResponse(response);
     }
 
@@ -431,12 +440,12 @@ public class EventsController(IEventService eventService) : ControllerBase
     {
         if (!response.Success)
         {
-            if (response.Error == "Event not found")
+            if (response.Error == MutationErrors.EventNotFound)
             {
                 return NotFound(new ErrorResponse { Code = "EVENT_NOT_FOUND", Message = response.Error });
             }
 
-            if (response.Error == "Version conflict")
+            if (response.Error == MutationErrors.VersionConflict)
             {
                 return Conflict(new ErrorResponse
                 {

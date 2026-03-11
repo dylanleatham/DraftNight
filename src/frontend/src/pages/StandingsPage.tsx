@@ -18,12 +18,15 @@ export function StandingsPage() {
   const standings = useMemo((): StandingEntry[] => {
     if (!snapshot) return []
 
-    // Sort players by MW desc, then seed asc for tie-break
+    // Sort players by MW desc, then seed asc, then id asc for tie-break
     const sorted = [...snapshot.players].sort((a, b) => {
       if (b.matchWins !== a.matchWins) {
         return b.matchWins - a.matchWins
       }
-      return a.seed - b.seed
+      if (a.seed !== b.seed) {
+        return a.seed - b.seed
+      }
+      return a.id.localeCompare(b.id)
     })
 
     return sorted.map((player, index) => ({

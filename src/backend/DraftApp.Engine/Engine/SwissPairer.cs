@@ -108,8 +108,7 @@ internal static class SwissPairer
         // Try to find lowest-ranked player who hasn't had a BYE
         for (var i = ranked.Count - 1; i >= 0; i--)
         {
-            var player = state.Players[ranked[i].Id];
-            if (!player.ByeReceived)
+            if (!ranked[i].ByeReceived)
             {
                 return ranked[i];
             }
@@ -133,23 +132,37 @@ internal static class SwissPairer
 
         // Separate into non-repeat and repeat candidates
         var nonRepeats = candidates.Where(c => !playerOpponents.Contains(c.Id)).ToList();
-        var searchCandidates = nonRepeats.Count > 0 ? nonRepeats : candidates;
+        var useNonRepeats = nonRepeats.Count > 0;
+        var searchCandidates = useNonRepeats ? nonRepeats : candidates;
 
         // Score each candidate
-        var bestCandidate = searchCandidates
-            .Select((c, index) => new
+        // RankIndex is computed as the candidate's position within the full unpaired pool (candidates),
+        // not within the restricted searchCandidates subset (spec §8.2.2 Step C.3.2).
+        var scored = searchCandidates
+            .Select(c => new
             {
                 Candidate = c,
-                RankIndex = index + 1,
+                RankIndex = candidates.IndexOf(c) + 1,
                 RecordGap = Math.Abs(player.MatchWins - c.MatchWins),
                 RepeatAge = GetRepeatAge(currentPlayer, c.Id, roundNumber),
-            })
-            .OrderBy(x => x.RecordGap)
-            .ThenBy(x => x.RankIndex)
-            .ThenByDescending(x => x.RepeatAge)
-            .ThenBy(x => x.Candidate.Seed)
-            .ThenBy(x => x.Candidate.Id)
-            .First();
+            });
+
+        // For non-repeat candidates: sort by recordGap, rankIndex, seed, id (no repeatAge).
+        // For repeat candidates (fallback): include repeatAge to prefer least-recent repeats.
+        var bestCandidate = useNonRepeats
+            ? scored
+                .OrderBy(x => x.RecordGap)
+                .ThenBy(x => x.RankIndex)
+                .ThenBy(x => x.Candidate.Seed)
+                .ThenBy(x => x.Candidate.Id)
+                .First()
+            : scored
+                .OrderBy(x => x.RecordGap)
+                .ThenBy(x => x.RankIndex)
+                .ThenByDescending(x => x.RepeatAge)
+                .ThenBy(x => x.Candidate.Seed)
+                .ThenBy(x => x.Candidate.Id)
+                .First();
 
         return bestCandidate.Candidate;
     }

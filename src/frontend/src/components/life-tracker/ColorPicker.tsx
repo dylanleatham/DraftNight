@@ -30,7 +30,9 @@ export function ColorPicker({
   archetype,
   onClose,
 }: ColorPickerProps) {
-  const [activeTab, setActiveTab] = useState<'color' | 'image'>('image')
+  const [activeTab, setActiveTab] = useState<'color' | 'image'>(
+    onSelectImage ? 'image' : 'color'
+  )
 
   // Get available images for the player's archetype
   const availableImages = archetype ? archetypeImages.get(archetype) || [] : []

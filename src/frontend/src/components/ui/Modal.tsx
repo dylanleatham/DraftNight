@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef } from 'react'
+import { type ReactNode, useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import styles from './Modal.module.css'
 
@@ -10,6 +10,7 @@ interface ModalProps {
 }
 
 export function Modal({ open, onClose, title, children }: ModalProps) {
+  const titleId = useId()
   const overlayRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -53,11 +54,11 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         className={styles.modal}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={title ? 'modal-title' : undefined}
+        aria-labelledby={title ? titleId : undefined}
       >
         {title && (
           <div className={styles.header}>
-            <h2 id="modal-title" className={styles.title}>
+            <h2 id={titleId} className={styles.title}>
               {title}
             </h2>
             <button

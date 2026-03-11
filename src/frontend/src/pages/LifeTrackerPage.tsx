@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useLifeTracker } from '../hooks/useLifeTracker'
 import { useCommanderLifeTracker } from '../hooks/useCommanderLifeTracker'
@@ -53,16 +53,19 @@ export function LifeTrackerPage() {
     .filter((a): a is Archetype => ALL_ARCHETYPES.includes(a as Archetype))
 
   // Initialize event archetypes if needed (for draft events)
-  if (
-    eventId &&
-    playerAId &&
-    playerBId &&
-    !archetypeStorage.getEventData(eventId)
-  ) {
-    // Get all unique player IDs we know about for this event
-    // For now, just initialize with the two players in this match
-    archetypeStorage.initializeEvent(eventId, [playerAId, playerBId])
-  }
+  const archetypeInitialized = useRef(false)
+  useEffect(() => {
+    if (
+      eventId &&
+      playerAId &&
+      playerBId &&
+      !archetypeInitialized.current &&
+      !archetypeStorage.getEventData(eventId)
+    ) {
+      archetypeInitialized.current = true
+      archetypeStorage.initializeEvent(eventId, [playerAId, playerBId])
+    }
+  }, [eventId, playerAId, playerBId])
 
   const handleExit = useCallback(
     async (matchWinner?: 'playerA' | 'playerB') => {

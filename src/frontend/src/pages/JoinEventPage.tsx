@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { Button, Input } from '../components/ui'
 import { api, ApiError } from '../api/client'
@@ -10,19 +10,13 @@ export function JoinEventPage() {
   const [searchParams] = useSearchParams()
   const { setPlayerSession } = useAuth()
 
-  const [joinCode, setJoinCode] = useState(searchParams.get('code') ?? '')
+  const [joinCode, setJoinCode] = useState(
+    () => searchParams.get('code')?.toUpperCase() ?? ''
+  )
   const [playerName, setPlayerName] = useState('')
   const [playerPin, setPlayerPin] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-
-  // Pre-fill join code from URL
-  useEffect(() => {
-    const code = searchParams.get('code')
-    if (code) {
-      setJoinCode(code.toUpperCase())
-    }
-  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

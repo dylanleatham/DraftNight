@@ -73,7 +73,7 @@ export function MatchCard({
           <span className={styles.vs}>vs</span>
 
           <button
-            className={`${styles.playerButton} ${getPlayerWinStatus(match.playerBId!) === 'winner' ? styles.winner : ''} ${getPlayerWinStatus(match.playerBId!) === 'loser' ? styles.loser : ''}`}
+            className={`${styles.playerButton} ${match.playerBId && getPlayerWinStatus(match.playerBId) === 'winner' ? styles.winner : ''} ${match.playerBId && getPlayerWinStatus(match.playerBId) === 'loser' ? styles.loser : ''}`}
             disabled={!canSelectWinner}
             onClick={() =>
               canSelectWinner &&
@@ -84,7 +84,7 @@ export function MatchCard({
             <span className={styles.playerName}>
               {playerB?.name ?? 'Unknown'}
             </span>
-            {getPlayerWinStatus(match.playerBId!) === 'winner' && (
+            {match.playerBId && getPlayerWinStatus(match.playerBId) === 'winner' && (
               <span className={styles.winnerIcon}>W</span>
             )}
           </button>
@@ -92,7 +92,11 @@ export function MatchCard({
       )}
 
       {!match.isBye && onLifeTracker && (
-        <button className={styles.lifeTrackerButton} onClick={onLifeTracker}>
+        <button
+          className={styles.lifeTrackerButton}
+          onClick={onLifeTracker}
+          aria-label={`Life Tracker: ${playerA?.name ?? 'Unknown'} vs ${playerB?.name ?? 'Unknown'}`}
+        >
           Life Tracker
         </button>
       )}

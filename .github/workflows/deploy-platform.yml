@@ -5,12 +5,17 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 permissions:
   id-token: write
   contents: read
 
 jobs:
   build:
+    # TODO: Pin to a specific release tag or commit SHA instead of @main
     uses: dylanleatham/knucklehead-platform/.github/workflows/build-and-push-image.yml@main
     with:
       app-name: draftnight
@@ -19,6 +24,7 @@ jobs:
 
   deploy:
     needs: build
+    # TODO: Pin to a specific release tag or commit SHA instead of @main
     uses: dylanleatham/knucklehead-platform/.github/workflows/deploy-container-app.yml@main
     with:
       app-name: draftnight

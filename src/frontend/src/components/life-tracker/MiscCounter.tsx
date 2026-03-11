@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react'
 import type { MiscCounter as MiscCounterType } from '../../types/lifeTracker'
 import styles from './MiscCounter.module.css'
 
@@ -46,11 +47,22 @@ export function MiscCounterList({
   onRemove,
   onAdd,
 }: MiscCounterListProps) {
-  const handleAddCounter = () => {
-    const name = prompt('Counter name:')
-    if (name?.trim()) {
-      onAdd(name.trim())
+  const [isAddingCounter, setIsAddingCounter] = useState(false)
+  const [newCounterName, setNewCounterName] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (isAddingCounter) {
+      inputRef.current?.focus()
     }
+  }, [isAddingCounter])
+
+  const handleSubmitCounter = () => {
+    if (newCounterName.trim()) {
+      onAdd(newCounterName.trim())
+    }
+    setNewCounterName('')
+    setIsAddingCounter(false)
   }
 
   return (
@@ -63,9 +75,33 @@ export function MiscCounterList({
           onRemove={() => onRemove(counter.id)}
         />
       ))}
-      <button className={styles.addButton} onClick={handleAddCounter}>
-        + Add Counter
-      </button>
+      {isAddingCounter ? (
+        <div className={styles.addInputContainer}>
+          <input
+            ref={inputRef}
+            className={styles.addInput}
+            type="text"
+            placeholder="Counter name"
+            value={newCounterName}
+            onChange={(e) => setNewCounterName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSubmitCounter()
+              if (e.key === 'Escape') {
+                setNewCounterName('')
+                setIsAddingCounter(false)
+              }
+            }}
+            onBlur={handleSubmitCounter}
+          />
+        </div>
+      ) : (
+        <button
+          className={styles.addButton}
+          onClick={() => setIsAddingCounter(true)}
+        >
+          + Add Counter
+        </button>
+      )}
     </div>
   )
 }

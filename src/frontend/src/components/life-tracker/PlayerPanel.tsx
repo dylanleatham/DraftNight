@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import type { DraftPlayer } from '../../types/lifeTracker'
 import { BasePlayerPanel, type PlayerColor } from './BasePlayerPanel'
 import { LifeDisplay } from './LifeDisplay'
@@ -38,6 +38,23 @@ export function PlayerPanel({
   inverted = false,
 }: PlayerPanelProps) {
   const [showColorPicker, setShowColorPicker] = useState(false)
+  const [isAddingCounter, setIsAddingCounter] = useState(false)
+  const [newCounterName, setNewCounterName] = useState('')
+  const counterInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (isAddingCounter) {
+      counterInputRef.current?.focus()
+    }
+  }, [isAddingCounter])
+
+  const handleSubmitCounter = () => {
+    if (newCounterName.trim() && onAddMiscCounter) {
+      onAddMiscCounter(newCounterName.trim())
+    }
+    setNewCounterName('')
+    setIsAddingCounter(false)
+  }
 
   const effectiveColor = player.panelColor ?? color
   const hasMiscCounterSupport =
@@ -72,17 +89,31 @@ export function PlayerPanel({
               />
             )}
             {hasMiscCounterSupport && player.miscCounters.length === 0 && (
-              <button
-                className={styles.addCounterButton}
-                onClick={() => {
-                  const name = prompt('Counter name:')
-                  if (name?.trim()) {
-                    onAddMiscCounter(name.trim())
-                  }
-                }}
-              >
-                + Counter
-              </button>
+              isAddingCounter ? (
+                <input
+                  ref={counterInputRef}
+                  className={styles.addCounterInput}
+                  type="text"
+                  placeholder="Counter name"
+                  value={newCounterName}
+                  onChange={(e) => setNewCounterName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSubmitCounter()
+                    if (e.key === 'Escape') {
+                      setNewCounterName('')
+                      setIsAddingCounter(false)
+                    }
+                  }}
+                  onBlur={handleSubmitCounter}
+                />
+              ) : (
+                <button
+                  className={styles.addCounterButton}
+                  onClick={() => setIsAddingCounter(true)}
+                >
+                  + Counter
+                </button>
+              )
             )}
           </div>
         }

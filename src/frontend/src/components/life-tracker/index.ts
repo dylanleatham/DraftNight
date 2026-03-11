@@ -6,7 +6,6 @@ export { MiscCounter, MiscCounterList } from './MiscCounter'
 export { ColorPicker } from './ColorPicker'
 
 // Draft mode components
-export { LifeCounter } from './LifeCounter'
 export { GameWinToggle } from './GameWinToggle'
 export { PlayerPanel } from './PlayerPanel'
 export { DraftLifeTracker } from './DraftLifeTracker'

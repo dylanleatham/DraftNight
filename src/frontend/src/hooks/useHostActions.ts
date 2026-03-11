@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
-import { api, ApiError } from '../api/client'
+import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
-import { useEvent } from '../context/EventContext'
+import { useEventErrorHandler } from './useEventErrorHandler'
 
 interface UseHostActionsResult {
   startEvent: () => Promise<boolean>
@@ -14,20 +14,7 @@ interface UseHostActionsResult {
 
 export function useHostActions(eventId: string): UseHostActionsResult {
   const { getHostToken } = useAuth()
-  const { dispatch } = useEvent()
-
-  const handleError = useCallback(
-    (err: unknown) => {
-      if (err instanceof ApiError) {
-        dispatch({ type: 'SET_ERROR', payload: err.message })
-      } else if (err instanceof Error) {
-        dispatch({ type: 'SET_ERROR', payload: err.message })
-      } else {
-        dispatch({ type: 'SET_ERROR', payload: 'An unexpected error occurred' })
-      }
-    },
-    [dispatch]
-  )
+  const handleError = useEventErrorHandler()
 
   const startEvent = useCallback(async () => {
     try {

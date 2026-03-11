@@ -78,7 +78,13 @@ export function CommanderLifeTracker({
           // Invert top panels for face-to-face play:
           // - 2 players: index 0 (top)
           // - 3-4 players: indices 0-1 (top row)
-          const isTopPanel = playerCount <= 2 ? index === 0 : index < 2
+          // - 5-6 players: top half is inverted
+          const isTopPanel =
+            playerCount <= 2
+              ? index === 0
+              : playerCount <= 4
+                ? index < 2
+                : index < Math.ceil(playerCount / 2)
 
           return (
             <CommanderPlayerPanel

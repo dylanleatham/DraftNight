@@ -71,7 +71,7 @@ public class EventsControllerTests : IDisposable
     public async Task HealthCheck_ReturnsOk()
     {
         // Act
-        var response = await client.GetAsync("/health");
+        var response = await client.GetAsync("/healthz");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

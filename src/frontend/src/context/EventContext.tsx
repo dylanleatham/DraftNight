@@ -4,6 +4,7 @@ import {
   useContext,
   useReducer,
   useCallback,
+  useMemo,
   type ReactNode,
   type Dispatch,
 } from 'react'
@@ -71,8 +72,13 @@ export function EventProvider({ children }: { children: ReactNode }) {
     [state.snapshot]
   )
 
+  const contextValue = useMemo(
+    () => ({ state, dispatch, getPlayer }),
+    [state, dispatch, getPlayer]
+  )
+
   return (
-    <EventContext.Provider value={{ state, dispatch, getPlayer }}>
+    <EventContext.Provider value={contextValue}>
       {children}
     </EventContext.Provider>
   )

@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import type { PrizeAllocationResponse, PlayerResponse } from '../../api/types'
 import { Badge } from '../ui'
 import styles from './PrizeDisplay.module.css'
@@ -20,8 +21,9 @@ export function PrizeDisplay({
   }
 
   // Sort by packs awarded descending
-  const sortedAllocations = [...prizeAllocations].sort(
-    (a, b) => b.packsAwarded - a.packsAwarded
+  const sortedAllocations = useMemo(
+    () => [...prizeAllocations].sort((a, b) => b.packsAwarded - a.packsAwarded),
+    [prizeAllocations]
   )
 
   const allocatedPacks = prizeAllocations.reduce(

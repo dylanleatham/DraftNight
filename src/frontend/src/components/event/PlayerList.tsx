@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import type { PlayerResponse } from '../../api/types'
 import { PlayerCard } from './PlayerCard'
 import styles from './PlayerList.module.css'
@@ -16,7 +17,10 @@ export function PlayerList({
   onDropPlayer,
 }: PlayerListProps) {
   // Sort by seed
-  const sortedPlayers = [...players].sort((a, b) => a.seed - b.seed)
+  const sortedPlayers = useMemo(
+    () => [...players].sort((a, b) => a.seed - b.seed),
+    [players]
+  )
 
   return (
     <div className={styles.list}>

@@ -17,6 +17,11 @@ public static class EventMapper
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
+    static EventMapper()
+    {
+        JsonOptions.MakeReadOnly();
+    }
+
     /// <summary>
     /// Converts an EventEntity with all related data to an engine EventState.
     /// </summary>
@@ -211,10 +216,12 @@ public static class EventMapper
     private static Player ToEnginePlayer(PlayerEntity entity)
     {
         var opponents = JsonSerializer.Deserialize<List<string>>(entity.OpponentsJson, JsonOptions)
-            ?? new List<string>();
+            ?? throw new InvalidOperationException(
+                $"Failed to deserialize OpponentsJson for player {entity.Id}. Value: '{entity.OpponentsJson}'");
 
         var lastPlayedRound = JsonSerializer.Deserialize<Dictionary<string, int>>(entity.LastPlayedRoundJson, JsonOptions)
-            ?? new Dictionary<string, int>();
+            ?? throw new InvalidOperationException(
+                $"Failed to deserialize LastPlayedRoundJson for player {entity.Id}. Value: '{entity.LastPlayedRoundJson}'");
 
         return new Player
         {
@@ -254,8 +261,8 @@ public static class EventMapper
             MatchLosses = player.MatchLosses,
             ByeReceived = player.ByeReceived,
             IsDropped = player.IsDropped,
-            OpponentsJson = JsonSerializer.Serialize(player.Opponents.ToList(), JsonOptions),
-            LastPlayedRoundJson = JsonSerializer.Serialize(player.LastPlayedRound.ToDictionary(kvp => kvp.Key, kvp => kvp.Value), JsonOptions)
+            OpponentsJson = JsonSerializer.Serialize(player.Opponents, JsonOptions),
+            LastPlayedRoundJson = JsonSerializer.Serialize(player.LastPlayedRound, JsonOptions)
         };
     }
 
@@ -265,8 +272,8 @@ public static class EventMapper
         entity.MatchLosses = player.MatchLosses;
         entity.ByeReceived = player.ByeReceived;
         entity.IsDropped = player.IsDropped;
-        entity.OpponentsJson = JsonSerializer.Serialize(player.Opponents.ToList(), JsonOptions);
-        entity.LastPlayedRoundJson = JsonSerializer.Serialize(player.LastPlayedRound.ToDictionary(kvp => kvp.Key, kvp => kvp.Value), JsonOptions);
+        entity.OpponentsJson = JsonSerializer.Serialize(player.Opponents, JsonOptions);
+        entity.LastPlayedRoundJson = JsonSerializer.Serialize(player.LastPlayedRound, JsonOptions);
     }
 
     private static MatchEntity CreateMatchEntity(Match match, Guid roundId, DateTime timestamp)

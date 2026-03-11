@@ -63,7 +63,7 @@ internal static class PrizeAllocator
             else
             {
                 // Not enough packs - use tie-break
-                var rankedWinners = RankWinnersForRound(state, roundWinners);
+                var rankedWinners = RankWinnersForRound(state, roundWinners, round);
 
                 for (var i = 0; i < packsRemaining; i++)
                 {
@@ -104,17 +104,45 @@ internal static class PrizeAllocator
     /// Ranks winners for tie-breaking within a round.
     /// Uses standings after that round: MW desc, seed asc, id asc.
     /// </summary>
-    private static List<string> RankWinnersForRound(EventState state, List<string> winnerIds)
+    private static List<string> RankWinnersForRound(EventState state, List<string> winnerIds, int round)
     {
-        // Get player states (which reflect standings after all rounds).
-        // For more accurate tie-breaking, we could compute standings-at-round
-        // but for simplicity, we use final standings.
+        // Compute match wins through round r only (not final standings)
+        var winsThrough = ComputeWinsThroughRound(state, round);
+
+        // Create temporary player records with wins-through-round-r for ranking
         var winners = winnerIds
-            .Select(id => state.Players[id])
+            .Select(id =>
+            {
+                var player = state.Players[id];
+                var mw = winsThrough.GetValueOrDefault(id, 0);
+                return player with { MatchWins = mw };
+            })
             .ToList();
 
         return PlayerRanker.Rank(winners)
             .Select(p => p.Id)
             .ToList();
+    }
+
+    /// <summary>
+    /// Computes match wins for each player counting only rounds 1 through r.
+    /// </summary>
+    private static Dictionary<string, int> ComputeWinsThroughRound(EventState state, int throughRound)
+    {
+        var wins = new Dictionary<string, int>();
+
+        for (var r = 1; r <= throughRound; r++)
+        {
+            foreach (var match in state.GetRoundMatches(r))
+            {
+                if (match.WinnerId is not null)
+                {
+                    wins.TryGetValue(match.WinnerId, out var current);
+                    wins[match.WinnerId] = current + 1;
+                }
+            }
+        }
+
+        return wins;
     }
 }

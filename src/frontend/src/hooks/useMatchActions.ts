@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
-import { api, ApiError } from '../api/client'
+import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
-import { useEvent } from '../context/EventContext'
+import { useEventErrorHandler } from './useEventErrorHandler'
 import type { MatchResponse } from '../api/types'
 
 interface UseMatchActionsResult {
@@ -18,20 +18,7 @@ interface UseMatchActionsResult {
  */
 export function useMatchActions(eventId: string): UseMatchActionsResult {
   const { getHostToken, getPlayerToken, getPlayerId } = useAuth()
-  const { dispatch } = useEvent()
-
-  const handleError = useCallback(
-    (err: unknown) => {
-      if (err instanceof ApiError) {
-        dispatch({ type: 'SET_ERROR', payload: err.message })
-      } else if (err instanceof Error) {
-        dispatch({ type: 'SET_ERROR', payload: err.message })
-      } else {
-        dispatch({ type: 'SET_ERROR', payload: 'An unexpected error occurred' })
-      }
-    },
-    [dispatch]
-  )
+  const handleError = useEventErrorHandler()
 
   const finalizeMatch = useCallback(
     async (matchId: string, winnerId: string, match: MatchResponse) => {

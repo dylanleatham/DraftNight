@@ -50,6 +50,9 @@ public sealed class EventHub(IEventService eventService) : Hub
             return;
         }
 
+        // Re-add to group so reconnecting clients don't miss subsequent updates
+        var groupName = GetGroupName(eventId);
+        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
         await Clients.Caller.SendAsync("EventUpdated", snapshot);
     }
 

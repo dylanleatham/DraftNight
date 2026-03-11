@@ -1,7 +1,9 @@
+using System.Text.Json;
 using DraftApp.Api.Data;
 using DraftApp.Api.Data.Entities;
 using DraftApp.Api.Data.Enums;
 using DraftApp.Api.Data.Repositories;
+using DraftApp.Api.Models;
 using DraftApp.Api.Models.Requests;
 using DraftApp.Api.Models.Responses;
 using DraftApp.Engine.Engine;
@@ -82,7 +84,7 @@ public class EventService(
             ActionType = AuditActionType.PlayerJoined,
             EntityType = "Player",
             EntityId = playerId,
-            AfterJson = $"{{\"name\": \"{request.HostName}\", \"seed\": 1}}",
+            AfterJson = JsonSerializer.Serialize(new { name = request.HostName, seed = 1 }),
             CreatedAt = DateTime.UtcNow
         };
 
@@ -102,7 +104,7 @@ public class EventService(
         };
     }
 
-    public async Task<JoinEventResponse?> JoinEventAsync(JoinEventRequest request, CancellationToken ct = default)
+    public async Task<JoinEventResult> JoinEventAsync(JoinEventRequest request, CancellationToken ct = default)
     {
         var eventEntity = await context.Events
             .Include(e => e.Players)
@@ -110,12 +112,12 @@ public class EventService(
 
         if (eventEntity is null || eventEntity.Status != EventStatus.Setup)
         {
-            return null;
+            return JoinEventResult.NotFound();
         }
 
         if (eventEntity.Players.Count >= 8)
         {
-            return null;
+            return JoinEventResult.LobbyFull();
         }
 
         var playerId = Guid.NewGuid();
@@ -146,7 +148,7 @@ public class EventService(
             ActionType = AuditActionType.PlayerJoined,
             EntityType = "Player",
             EntityId = playerId,
-            AfterJson = $"{{\"name\": \"{request.PlayerName}\", \"seed\": {seed}}}",
+            AfterJson = JsonSerializer.Serialize(new { name = request.PlayerName, seed }),
             CreatedAt = DateTime.UtcNow
         };
 
@@ -154,13 +156,23 @@ public class EventService(
         context.Players.Add(player);
         context.AuditLogs.Add(auditLog);
 
-        // Update event version using raw SQL to avoid concurrency token issues
-        var newVersion = eventEntity.Version + 1;
-        await context.Database.ExecuteSqlInterpolatedAsync(
-            $"UPDATE Events SET Version = {newVersion}, UpdatedAt = {DateTime.UtcNow} WHERE Id = {eventEntity.Id}",
+        // Update event version using compare-and-swap within a transaction
+        var currentVersion = eventEntity.Version;
+        var newVersion = currentVersion + 1;
+        await using var transaction = await context.Database.BeginTransactionAsync(ct);
+
+        var rowsAffected = await context.Database.ExecuteSqlInterpolatedAsync(
+            $"UPDATE Events SET Version = {newVersion}, UpdatedAt = {DateTime.UtcNow} WHERE Id = {eventEntity.Id} AND Version = {currentVersion}",
             ct);
 
+        if (rowsAffected == 0)
+        {
+            await transaction.RollbackAsync(ct);
+            return JoinEventResult.Conflict();
+        }
+
         await context.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
 
         // Reload the event with updated data for broadcast
         var updatedEntity = await repository.GetByIdAsync(eventEntity.Id, ct);
@@ -170,12 +182,12 @@ public class EventService(
             await notificationService.BroadcastEventUpdateAsync(eventEntity.Id, snapshot, ct);
         }
 
-        return new JoinEventResponse
+        return JoinEventResult.Success(new JoinEventResponse
         {
             EventId = eventEntity.Id,
             PlayerId = playerId,
             PlayerToken = playerToken
-        };
+        });
     }
 
     public async Task<EventSnapshotResponse?> GetEventAsync(Guid eventId, CancellationToken ct = default)
@@ -202,12 +214,12 @@ public class EventService(
         var entity = await repository.GetByIdAsync(eventId, ct);
         if (entity is null)
         {
-            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.EventNotFound };
         }
 
         if (entity.Version != expectedVersion)
         {
-            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = MutationErrors.VersionConflict };
         }
 
         if (entity.Status != EventStatus.Setup)
@@ -248,7 +260,7 @@ public class EventService(
 
                         if (!success)
                         {
-                            return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.VersionConflict };
                         }
 
                         // Broadcast update to connected clients
@@ -271,13 +283,13 @@ public class EventService(
         var state = await repository.LoadEngineStateAsync(eventId, ct);
         if (state is null)
         {
-            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.EventNotFound };
         }
 
         var entity = await repository.GetByIdAsync(eventId, ct);
         if (entity!.Version != expectedVersion)
         {
-            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = MutationErrors.VersionConflict };
         }
 
         var pairingResult = TournamentEngine.GenerateRoundPairings(state, roundNumber);
@@ -297,7 +309,7 @@ public class EventService(
 
                 if (!success)
                 {
-                    return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                    return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.VersionConflict };
                 }
 
                 // Broadcast update to connected clients - reload to get updated data
@@ -318,13 +330,13 @@ public class EventService(
         var state = await repository.LoadEngineStateAsync(eventId, ct);
         if (state is null)
         {
-            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.EventNotFound };
         }
 
         var entity = await repository.GetByIdAsync(eventId, ct);
         if (entity!.Version != expectedVersion)
         {
-            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = MutationErrors.VersionConflict };
         }
 
         var match = entity.Rounds
@@ -354,7 +366,7 @@ public class EventService(
 
                 if (!success)
                 {
-                    return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                    return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.VersionConflict };
                 }
 
                 // Broadcast update to connected clients
@@ -375,13 +387,13 @@ public class EventService(
         var state = await repository.LoadEngineStateAsync(eventId, ct);
         if (state is null)
         {
-            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.EventNotFound };
         }
 
         var entity = await repository.GetByIdAsync(eventId, ct);
         if (entity!.Version != expectedVersion)
         {
-            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = MutationErrors.VersionConflict };
         }
 
         var dropResult = TournamentEngine.DropPlayer(state, playerId.ToString());
@@ -402,7 +414,7 @@ public class EventService(
 
                 if (!success)
                 {
-                    return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                    return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.VersionConflict };
                 }
 
                 // Broadcast update to connected clients
@@ -423,13 +435,13 @@ public class EventService(
         var state = await repository.LoadEngineStateAsync(eventId, ct);
         if (state is null)
         {
-            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.EventNotFound };
         }
 
         var entity = await repository.GetByIdAsync(eventId, ct);
         if (entity!.Version != expectedVersion)
         {
-            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = MutationErrors.VersionConflict };
         }
 
         var prizeResult = TournamentEngine.AllocatePrizes(state);
@@ -449,7 +461,7 @@ public class EventService(
 
                 if (!success)
                 {
-                    return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                    return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.VersionConflict };
                 }
 
                 // Broadcast update to connected clients
@@ -474,7 +486,8 @@ public class EventService(
         }
 
         var standings = entity.Players
-            .OrderByDescending(p => p.MatchWins)
+            .OrderBy(p => p.IsDropped)
+            .ThenByDescending(p => p.MatchWins)
             .ThenBy(p => p.Seed)
             .ThenBy(p => p.Id)
             .Select((p, index) => new StandingEntry
@@ -525,13 +538,13 @@ public class EventService(
         var state = await repository.LoadEngineStateAsync(eventId, ct);
         if (state is null)
         {
-            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.EventNotFound };
         }
 
         var entity = await repository.GetByIdAsync(eventId, ct);
         if (entity!.Version != expectedVersion)
         {
-            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = MutationErrors.VersionConflict };
         }
 
         var match = entity.Rounds
@@ -561,7 +574,7 @@ public class EventService(
 
                 if (!success)
                 {
-                    return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                    return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.VersionConflict };
                 }
 
                 // Broadcast update to connected clients
@@ -591,13 +604,13 @@ public class EventService(
         var state = await repository.LoadEngineStateAsync(eventId, ct);
         if (state is null)
         {
-            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.EventNotFound };
         }
 
         var entity = await repository.GetByIdAsync(eventId, ct);
         if (entity!.Version != expectedVersion)
         {
-            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = MutationErrors.VersionConflict };
         }
 
         // Find the match codes from match IDs
@@ -645,7 +658,7 @@ public class EventService(
 
                 if (!success)
                 {
-                    return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                    return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.VersionConflict };
                 }
 
                 // Broadcast update to connected clients
@@ -666,13 +679,13 @@ public class EventService(
         var state = await repository.LoadEngineStateAsync(eventId, ct);
         if (state is null)
         {
-            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.EventNotFound };
         }
 
         var entity = await repository.GetByIdAsync(eventId, ct);
         if (entity!.Version != expectedVersion)
         {
-            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = MutationErrors.VersionConflict };
         }
 
         var reopenResult = TournamentEngine.ReopenRound(state, roundNumber);
@@ -693,7 +706,7 @@ public class EventService(
 
                 if (!success)
                 {
-                    return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                    return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.VersionConflict };
                 }
 
                 // Broadcast update to connected clients
@@ -714,13 +727,13 @@ public class EventService(
         var state = await repository.LoadEngineStateAsync(eventId, ct);
         if (state is null)
         {
-            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.EventNotFound };
         }
 
         var entity = await repository.GetByIdAsync(eventId, ct);
         if (entity!.Version != expectedVersion)
         {
-            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = MutationErrors.VersionConflict };
         }
 
         var regenerateResult = TournamentEngine.RegeneratePairings(state, roundNumber);
@@ -741,7 +754,7 @@ public class EventService(
 
                 if (!success)
                 {
-                    return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                    return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.VersionConflict };
                 }
 
                 // Broadcast update to connected clients
@@ -757,17 +770,17 @@ public class EventService(
             error => Task.FromResult(new MutationResponse { Success = false, NewVersion = entity.Version, Error = error.Message }));
     }
 
-    public async Task<MutationResponse> CancelEventAsync(Guid eventId, int expectedVersion, CancellationToken ct = default)
+    public async Task<MutationResponse> CancelEventAsync(Guid eventId, int expectedVersion, string? reason = null, CancellationToken ct = default)
     {
         var entity = await repository.GetByIdAsync(eventId, ct);
         if (entity is null)
         {
-            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.EventNotFound };
         }
 
         if (entity.Version != expectedVersion)
         {
-            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = MutationErrors.VersionConflict };
         }
 
         if (entity.Status == EventStatus.Archived)
@@ -789,6 +802,7 @@ public class EventService(
             ActionType = AuditActionType.EventCancelled,
             EntityType = "Event",
             EntityId = eventId,
+            Reason = reason,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -843,12 +857,12 @@ public class EventService(
         var entity = await repository.GetByIdAsync(eventId, ct);
         if (entity is null)
         {
-            return new MutationResponse { Success = false, NewVersion = 0, Error = "Event not found" };
+            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.EventNotFound };
         }
 
         if (entity.Version != expectedVersion)
         {
-            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = "Version conflict" };
+            return new MutationResponse { Success = false, NewVersion = entity.Version, Error = MutationErrors.VersionConflict };
         }
 
         var player = entity.Players.FirstOrDefault(p => p.Id == playerId);
@@ -979,18 +993,28 @@ public class EventService(
             ActionType = AuditActionType.PlayerLeft,
             EntityType = "Player",
             EntityId = player.Id,
-            AfterJson = $"{{\"name\": \"{playerName}\", \"phase\": \"Setup\"}}",
+            AfterJson = JsonSerializer.Serialize(new { name = playerName, phase = "Setup" }),
             CreatedAt = DateTime.UtcNow
         };
 
-        // Update event version
-        var newVersion = entity.Version + 1;
-        await context.Database.ExecuteSqlInterpolatedAsync(
-            $"UPDATE Events SET Version = {newVersion}, UpdatedAt = {DateTime.UtcNow} WHERE Id = {entity.Id}",
+        // Update event version using compare-and-swap within a transaction
+        var currentVersion = entity.Version;
+        var newVersion = currentVersion + 1;
+        await using var transaction = await context.Database.BeginTransactionAsync(ct);
+
+        var rowsAffected = await context.Database.ExecuteSqlInterpolatedAsync(
+            $"UPDATE Events SET Version = {newVersion}, UpdatedAt = {DateTime.UtcNow} WHERE Id = {entity.Id} AND Version = {currentVersion}",
             ct);
+
+        if (rowsAffected == 0)
+        {
+            await transaction.RollbackAsync(ct);
+            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.VersionConflict };
+        }
 
         context.AuditLogs.Add(auditLog);
         await context.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
 
         // Broadcast update to connected clients
         var updatedEntity = await repository.GetByIdAsync(entity.Id, ct);
@@ -1027,14 +1051,14 @@ public class EventService(
                     ActionType = AuditActionType.PlayerLeft,
                     EntityType = "Player",
                     EntityId = player.Id,
-                    AfterJson = $"{{\"name\": \"{player.Name}\", \"phase\": \"Active\"}}"
+                    AfterJson = JsonSerializer.Serialize(new { name = player.Name, phase = "Active" })
                 };
 
                 var (success, newVersion) = await repository.PersistEngineStateAsync(entity, expectedVersion, droppedState, auditLog, ct);
 
                 if (!success)
                 {
-                    return new MutationResponse { Success = false, NewVersion = 0, Error = "Version conflict" };
+                    return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.VersionConflict };
                 }
 
                 // Broadcast update to connected clients

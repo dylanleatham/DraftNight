@@ -79,14 +79,16 @@ export function LifeTrackerSetupPage() {
   const handleResumeSession = (session: LifeTrackerSession) => {
     // Resume sessions based on their mode
     if (session.mode === 'draft') {
-      navigate(
-        `/life-tracker/game/${session.id}?playerA=${encodeURIComponent(session.playerA.name)}&playerB=${encodeURIComponent(session.playerB.name)}`
-      )
+      const params = new URLSearchParams({
+        playerA: session.playerA.name,
+        playerB: session.playerB.name,
+      })
+      navigate(`/life-tracker/game/${session.id}?${params.toString()}`)
     } else {
-      const playerNamesParam = session.players.map((p) => p.name).join(',')
-      navigate(
-        `/life-tracker/game/${session.id}?players=${encodeURIComponent(playerNamesParam)}`
-      )
+      const params = new URLSearchParams({
+        players: session.players.map((p) => p.name).join(','),
+      })
+      navigate(`/life-tracker/game/${session.id}?${params.toString()}`)
     }
   }
 

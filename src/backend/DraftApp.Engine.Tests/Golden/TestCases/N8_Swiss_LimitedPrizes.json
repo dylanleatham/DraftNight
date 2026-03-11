@@ -25,7 +25,7 @@
         { "matchId": "r2-m0", "winnerId": "p1" },
         { "matchId": "r2-m1", "winnerId": "p5" },
         { "matchId": "r2-m2", "winnerId": "p2" },
-        { "matchId": "r2-m3", "winnerId": "p4" }
+        { "matchId": "r2-m3", "winnerId": "p6" }
       ],
       "3": [
         { "matchId": "r3-m0", "winnerId": "p1" },
@@ -50,7 +50,7 @@
         { "id": "r2-m0", "playerAId": "p1", "playerBId": "p3", "isBye": false, "winnerId": "p1" },
         { "id": "r2-m1", "playerAId": "p5", "playerBId": "p7", "isBye": false, "winnerId": "p5" },
         { "id": "r2-m2", "playerAId": "p2", "playerBId": "p4", "isBye": false, "winnerId": "p2" },
-        { "id": "r2-m3", "playerAId": "p6", "playerBId": "p8", "isBye": false, "winnerId": "p4" }
+        { "id": "r2-m3", "playerAId": "p6", "playerBId": "p8", "isBye": false, "winnerId": "p6" }
       ],
       "3": [
         { "id": "r3-m0", "playerAId": "p1", "playerBId": "p5", "isBye": false, "winnerId": "p1" },
@@ -63,14 +63,14 @@
       { "playerId": "p1", "matchWins": 3, "matchLosses": 0, "seed": 1 },
       { "playerId": "p2", "matchWins": 1, "matchLosses": 2, "seed": 2 },
       { "playerId": "p3", "matchWins": 2, "matchLosses": 1, "seed": 3 },
-      { "playerId": "p4", "matchWins": 1, "matchLosses": 2, "seed": 4 },
+      { "playerId": "p4", "matchWins": 0, "matchLosses": 3, "seed": 4 },
       { "playerId": "p5", "matchWins": 2, "matchLosses": 1, "seed": 5 },
-      { "playerId": "p6", "matchWins": 1, "matchLosses": 2, "seed": 6 },
+      { "playerId": "p6", "matchWins": 2, "matchLosses": 1, "seed": 6 },
       { "playerId": "p7", "matchWins": 2, "matchLosses": 1, "seed": 7 },
       { "playerId": "p8", "matchWins": 0, "matchLosses": 3, "seed": 8 }
     ],
     "prizeAllocations": {
-      "p1": 1,
+      "p1": 2,
       "p2": 0,
       "p3": 1,
       "p4": 0,

@@ -73,12 +73,6 @@ public class EventRepository(DraftAppDbContext context) : IEventRepository
         AuditLogEntity auditLog,
         CancellationToken ct = default)
     {
-        // Version check already done by service - just verify it's still valid
-        if (entity.Version != expectedVersion)
-        {
-            return (false, 0);
-        }
-
         // Track existing round/match IDs before update
         var existingRoundIds = entity.Rounds.Select(r => r.Id).ToHashSet();
         var existingMatchIds = entity.Rounds.SelectMany(r => r.Matches).Select(m => m.Id).ToHashSet();
