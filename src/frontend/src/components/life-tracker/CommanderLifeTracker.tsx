@@ -7,7 +7,6 @@ import styles from './CommanderLifeTracker.module.css'
 interface CommanderLifeTrackerProps {
   session: CommanderSession
   onAdjustLife: (playerId: string, delta: number) => void
-  onSetLife: (playerId: string, life: number) => void
   onAdjustPoison: (playerId: string, delta: number) => void
   onAdjustCommanderDamage: (
     playerId: string,
@@ -33,7 +32,6 @@ interface CommanderLifeTrackerProps {
 export function CommanderLifeTracker({
   session,
   onAdjustLife,
-  onSetLife,
   onAdjustPoison,
   onAdjustCommanderDamage,
   onAddMiscCounter,
@@ -90,7 +88,6 @@ export function CommanderLifeTracker({
               playerNames={playerNames}
               inverted={isTopPanel}
               onAdjustLife={(delta) => onAdjustLife(player.id, delta)}
-              onSetLife={(life) => onSetLife(player.id, life)}
               onAdjustPoison={(delta) => onAdjustPoison(player.id, delta)}
               onAdjustCommanderDamage={(fromPlayerId, delta) =>
                 onAdjustCommanderDamage(player.id, fromPlayerId, delta)

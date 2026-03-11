@@ -167,39 +167,6 @@
 }
 
 /* ========================================
-   LIFE INPUT
-   ======================================== */
-
-.lifeInput {
-  width: 60px;
-  font-family: var(--font-pixel);
-  font-size: var(--text-3xl);
-  font-weight: 400;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.4);
-  border: var(--border-width-default) solid rgba(255, 255, 255, 0.5);
-  border-radius: var(--radius-none);
-  color: white;
-  outline: none;
-}
-
-.lifeInput:focus {
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-}
-
-/* Hide number input spinners */
-.lifeInput::-webkit-outer-spin-button,
-.lifeInput::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.lifeInput[type='number'] {
-  -moz-appearance: textfield;
-}
-
-/* ========================================
    INDICATORS
    ======================================== */
 

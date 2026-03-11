@@ -1,4 +1,3 @@
-import { useState, useCallback } from 'react'
 import styles from './LifeCounter.module.css'
 
 interface LifeCounterProps {
@@ -11,38 +10,10 @@ interface LifeCounterProps {
 
 export function LifeCounter({
   life,
-  onLifeChange,
   onAdjust,
   color = 'blue',
   inverted = false,
 }: LifeCounterProps) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [editValue, setEditValue] = useState('')
-
-  const handleLifeClick = useCallback(() => {
-    setEditValue(life.toString())
-    setIsEditing(true)
-  }, [life])
-
-  const handleEditSubmit = useCallback(() => {
-    const newLife = parseInt(editValue, 10)
-    if (!isNaN(newLife)) {
-      onLifeChange(newLife)
-    }
-    setIsEditing(false)
-  }, [editValue, onLifeChange])
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        handleEditSubmit()
-      } else if (e.key === 'Escape') {
-        setIsEditing(false)
-      }
-    },
-    [handleEditSubmit]
-  )
-
   return (
     <div
       className={`${styles.container} ${styles[color]} ${inverted ? styles.inverted : ''}`}
@@ -64,20 +35,8 @@ export function LifeCounter({
         </button>
       </div>
 
-      <div className={styles.lifeDisplay} onClick={handleLifeClick}>
-        {isEditing ? (
-          <input
-            type="number"
-            className={styles.lifeInput}
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onBlur={handleEditSubmit}
-            onKeyDown={handleKeyDown}
-            autoFocus
-          />
-        ) : (
-          <span className={styles.lifeValue}>{life}</span>
-        )}
+      <div className={styles.lifeDisplay}>
+        <span className={styles.lifeValue}>{life}</span>
       </div>
 
       <div className={styles.adjustButtons}>

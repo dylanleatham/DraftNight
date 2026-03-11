@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useCallback, useRef, useEffect, useState } from 'react'
 import styles from './LifeDisplay.module.css'
 
 function DeltaToast({ delta, visible }: { delta: number; visible: boolean }) {
@@ -19,7 +19,6 @@ export type AdjustmentButton = 1 | 5 | 10
 
 interface LifeDisplayProps {
   life: number
-  onLifeChange: (newLife: number) => void
   onAdjust: (delta: number) => void
   /** Which adjustment buttons to show (default: [1, 5]) */
   buttons?: AdjustmentButton[]
@@ -31,42 +30,15 @@ interface LifeDisplayProps {
 
 export function LifeDisplay({
   life,
-  onLifeChange,
   onAdjust,
   buttons = [1, 5],
   size = 'normal',
   inverted = false,
 }: LifeDisplayProps) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [editValue, setEditValue] = useState('')
   const [cumulativeDelta, setCumulativeDelta] = useState(0)
   const [toastVisible, setToastVisible] = useState(false)
   const hideTimeoutRef = useRef<number | null>(null)
   const resetTimeoutRef = useRef<number | null>(null)
-
-  const handleLifeClick = useCallback(() => {
-    setEditValue(life.toString())
-    setIsEditing(true)
-  }, [life])
-
-  const handleEditSubmit = useCallback(() => {
-    const newLife = parseInt(editValue, 10)
-    if (!isNaN(newLife)) {
-      onLifeChange(newLife)
-    }
-    setIsEditing(false)
-  }, [editValue, onLifeChange])
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        handleEditSubmit()
-      } else if (e.key === 'Escape') {
-        setIsEditing(false)
-      }
-    },
-    [handleEditSubmit]
-  )
 
   const handleAdjust = useCallback(
     (delta: number) => {
@@ -118,20 +90,8 @@ export function LifeDisplay({
         ))}
       </div>
 
-      <div className={styles.lifeDisplay} onClick={handleLifeClick}>
-        {isEditing ? (
-          <input
-            type="number"
-            className={styles.lifeInput}
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onBlur={handleEditSubmit}
-            onKeyDown={handleKeyDown}
-            autoFocus
-          />
-        ) : (
-          <span className={styles.lifeValue}>{life}</span>
-        )}
+      <div className={styles.lifeDisplay}>
+        <span className={styles.lifeValue}>{life}</span>
         <DeltaToast delta={cumulativeDelta} visible={toastVisible} />
       </div>
 

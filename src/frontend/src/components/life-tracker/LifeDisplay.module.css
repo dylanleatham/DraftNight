@@ -54,11 +54,6 @@
   font-size: var(--text-xl);
 }
 
-.medium .lifeInput {
-  width: 120px;
-  font-size: var(--text-4xl);
-}
-
 /* Compact - Small panel (Commander 6-player) */
 .compact .lifeValue {
   font-size: var(--text-5xl);
@@ -161,42 +156,4 @@
     4px 4px 0 rgba(0, 0, 0, 0.5),
     0 0 20px rgba(255, 255, 255, 0.3);
   line-height: var(--leading-none);
-}
-
-/* ========================================
-   LIFE INPUT
-   ======================================== */
-
-.lifeInput {
-  width: 160px;
-  font-family: var(--font-pixel);
-  font-size: var(--text-5xl);
-  font-weight: 400;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.4);
-  border: var(--border-width-thick) solid rgba(255, 255, 255, 0.5);
-  border-radius: var(--radius-none);
-  color: white;
-  outline: none;
-}
-
-.compact .lifeInput {
-  width: 80px;
-  font-size: var(--text-4xl);
-}
-
-.lifeInput:focus {
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-}
-
-/* Hide number input spinners */
-.lifeInput::-webkit-outer-spin-button,
-.lifeInput::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.lifeInput[type='number'] {
-  -moz-appearance: textfield;
 }

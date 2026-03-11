@@ -11,7 +11,6 @@ import styles from './PlayerPanel.module.css'
 interface PlayerPanelProps {
   player: DraftPlayer
   gameWins: number
-  onLifeChange: (life: number) => void
   onAdjustLife: (delta: number) => void
   onAdjustPoison: (delta: number) => void
   onToggleWin: () => void
@@ -27,7 +26,6 @@ interface PlayerPanelProps {
 export function PlayerPanel({
   player,
   gameWins,
-  onLifeChange,
   onAdjustLife,
   onAdjustPoison,
   onToggleWin,
@@ -91,7 +89,6 @@ export function PlayerPanel({
       >
         <LifeDisplay
           life={player.life}
-          onLifeChange={onLifeChange}
           onAdjust={onAdjustLife}
           buttons={[1, 5]}
         />

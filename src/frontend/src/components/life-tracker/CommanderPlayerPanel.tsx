@@ -66,7 +66,6 @@ interface CommanderPlayerPanelProps {
   playerIndex: number
   playerNames: Map<string, string>
   onAdjustLife: (delta: number) => void
-  onSetLife: (life: number) => void
   onAdjustPoison: (delta: number) => void
   onAdjustCommanderDamage: (fromPlayerId: string, delta: number) => void
   onAddMiscCounter: (name: string) => void
@@ -83,7 +82,6 @@ export function CommanderPlayerPanel({
   playerIndex,
   playerNames,
   onAdjustLife,
-  onSetLife,
   onAdjustPoison,
   onAdjustCommanderDamage,
   onAddMiscCounter,
@@ -153,7 +151,6 @@ export function CommanderPlayerPanel({
           >
             <LifeDisplay
               life={player.life}
-              onLifeChange={onSetLife}
               onAdjust={onAdjustLife}
               buttons={[1, 5]}
               size="medium"

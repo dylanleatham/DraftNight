@@ -7,7 +7,6 @@ import styles from './DraftLifeTracker.module.css'
 interface DraftLifeTrackerProps {
   session: DraftSession
   onAdjustLife: (playerId: string, delta: number) => void
-  onSetLife: (playerId: string, life: number) => void
   onAdjustPoison: (playerId: string, delta: number) => void
   onToggleWin: (player: 'playerA' | 'playerB') => void
   onResetGame: () => void
@@ -30,7 +29,6 @@ interface DraftLifeTrackerProps {
 export function DraftLifeTracker({
   session,
   onAdjustLife,
-  onSetLife,
   onAdjustPoison,
   onToggleWin,
   onResetGame,
@@ -58,7 +56,6 @@ export function DraftLifeTracker({
       <PlayerPanel
         player={session.playerA}
         gameWins={session.gameWins.playerA}
-        onLifeChange={(life) => onSetLife('playerA', life)}
         onAdjustLife={(delta) => onAdjustLife('playerA', delta)}
         onAdjustPoison={(delta) => onAdjustPoison('playerA', delta)}
         onToggleWin={() => onToggleWin('playerA')}
@@ -113,7 +110,6 @@ export function DraftLifeTracker({
       <PlayerPanel
         player={session.playerB}
         gameWins={session.gameWins.playerB}
-        onLifeChange={(life) => onSetLife('playerB', life)}
         onAdjustLife={(delta) => onAdjustLife('playerB', delta)}
         onAdjustPoison={(delta) => onAdjustPoison('playerB', delta)}
         onToggleWin={() => onToggleWin('playerB')}
