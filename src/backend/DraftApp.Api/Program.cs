@@ -1,3 +1,4 @@
+using DraftApp.Api;
 using DraftApp.Api.Data;
 using DraftApp.Api.Data.Repositories;
 using DraftApp.Api.Hubs;
@@ -45,6 +46,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddDraftAppRateLimiting();
+
 // Add repositories
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 
@@ -55,15 +58,19 @@ builder.Services.AddSingleton<IEventNotificationService, EventNotificationServic
 
 var app = builder.Build();
 
-// Apply pending migrations on startup
+// Apply pending migrations on startup. Migrations target SQL Server; tests swap in
+// another provider and create the schema themselves.
 try
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<DraftAppDbContext>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-    logger.LogInformation("Attempting to apply database migrations...");
-    dbContext.Database.Migrate();
-    logger.LogInformation("Database migrations applied successfully.");
+    if (dbContext.Database.IsSqlServer())
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("Attempting to apply database migrations...");
+        dbContext.Database.Migrate();
+        logger.LogInformation("Database migrations applied successfully.");
+    }
 }
 catch (Exception ex)
 {
@@ -76,22 +83,6 @@ catch (Exception ex)
 }
 
 // Configure the HTTP request pipeline
-
-// Redirect /draftnight to /draftnight/ so relative asset paths resolve correctly
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path.Value?.Equals("/draftnight", StringComparison.OrdinalIgnoreCase) == true
-        && !context.Request.Path.Value.EndsWith('/'))
-    {
-        context.Response.Redirect("/draftnight/", permanent: true);
-        return;
-    }
-
-    await next();
-});
-
-app.UsePathBase("/draftnight");
-
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -99,13 +90,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
+app.UseRateLimiter();
 app.UseStaticFiles();
 
 app.MapControllers();
 app.MapHub<EventHub>("/hubs/event");
 
-// Health check at root for platform probes (probes hit /healthz directly;
-// UsePathBase is a no-op when the path doesn't start with /draftnight)
+// Liveness probe used by the container HEALTHCHECK
 app.MapMethods("/healthz", new[] { "GET", "HEAD" }, () =>
     Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
 

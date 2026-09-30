@@ -52,7 +52,7 @@
 ```
 
 ### 2.5 Local Development
-- **Docker Compose** for local Azure SQL (via SQL Server container) and Azurite (storage emulator)
+- **Docker Compose** for a local SQL Server container (and optionally the full app image)
 - Backend: `dotnet run` or VS Code / Visual Studio
 - Frontend: `npm run dev` (Vite dev server with API proxy)
 
@@ -362,6 +362,8 @@ Include event-scoped structured logs:
 ---
 
 ## 13. Deployment Notes (Azure)
+
+> **Note:** This section records the original Azure deployment target. That environment has since been retired; the app now ships as a single Docker image (see the root `README.md`).
 
 ### 13.1 Hosting Architecture
 - **Frontend**: Azure Static Web Apps for SPA/PWA hosting (built-in HTTPS, global CDN)

@@ -131,6 +131,21 @@ export interface JoinEventRequest {
   playerPin: string
 }
 
+export interface ResumeSessionRequest {
+  joinCode: string
+  playerName: string
+  pin: string
+}
+
+export interface ResumeSessionResponse {
+  eventId: string
+  joinCode: string
+  playerId: string
+  playerToken: string
+  /** Present only when the reclaimed seat is the host's */
+  hostToken: string | null
+}
+
 export interface HostActionRequest {
   expectedVersion: number
   reason?: string
@@ -177,6 +192,12 @@ export interface AuditLogEntry {
   entityId: string | null
   reason: string | null
   createdAt: string
+  /** Round the action applied to, for round-level actions */
+  roundNumber?: number | null
+  /** Winner recorded at the time, for match results */
+  winnerId?: string | null
+  /** Player name recorded at the time, for player actions */
+  playerName?: string | null
 }
 
 export interface AuditLogResponse {

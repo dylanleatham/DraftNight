@@ -19,7 +19,7 @@ public static class EventMapper
 
     static EventMapper()
     {
-        JsonOptions.MakeReadOnly();
+        JsonOptions.MakeReadOnly(populateMissingResolver: true);
     }
 
     /// <summary>

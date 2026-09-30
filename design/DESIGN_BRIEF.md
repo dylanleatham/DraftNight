@@ -13,9 +13,9 @@
 ## Design Philosophy
 
 ### The Vibe
-> *"Welcome to the basement. The fluorescent lights flicker. Someone hasn't showered. The cards are sticky. Let's play some Magic."*
+> *"Welcome to the basement. The fluorescent lights flicker. The playmats are worn. Let's play some Magic."*
 
-This isn't a clean, corporate esports aesthetic. This is the **LGS back room at 2 AM**. Crumbs on the playmat. Sweat beading on foreheads. Victory screams and defeated groans. We're leaning *hard* into the culture—with love, but without mercy.
+This isn't a clean, corporate esports aesthetic. This is the **LGS back room at 2 AM**: crumbs on the playmat, victory cheers and defeated groans. The look leans into the culture with affectionate caricature.
 
 ### Pixel Art Direction
 - **Resolution:** 256×256 base grid for detailed character work
@@ -42,25 +42,25 @@ Each tournament participant is assigned a character archetype. These serve as vi
 - **Use Case:** Default "unassigned" or "mysterious player" avatar
 
 ### 2. The Rules Lawyer 🧔
-**File:** `RulesLawyer.png`
-- **Traits:** Magnificent facial hair, food particles, skull t-shirt, soda cans
+**File:** `ruleslawyer/portrait.png`
+- **Traits:** Magnificent beard, skull t-shirt, soda cans, a card held up as evidence
 - **Flavor:** *"Actually, if you read the comprehensive rules..."*
 - **Color Association:** Brown, orange (Cheeto dust), earth tones
 - **Use Case:** Rules lawyer, experienced player
 
 ### 3. The Streamer 🎙️
 **File:** `Streamer.png`
-- **Traits:** Headset, multiple monitors, drooling, energy drinks, pointing at camera
+- **Traits:** Headset, multiple monitors, energy drinks, pointing at camera
 - **Flavor:** *"WHAT'S UP CHAT let me show you this INSANE play"*
 - **Color Association:** RGB rainbow, neon green, electric blue
 - **Use Case:** Content creator, loud player
 
 ### 4. The Anime Fan 🍜
-**File:** `Anime Fan.png`
-- **Traits:** Anime figurines, Cup Noodles, manga stacks, sweat drops, trembling hands
-- **Flavor:** *"My waifu commander will destroy you, b-baka!"*
+**File:** `animefan/portrait.png`
+- **Traits:** Anime figurines, Cup Noodles, manga stacks, nervous excitement
+- **Flavor:** *"My commander's alt-art is worth more than your deck."*
 - **Color Association:** Pink, pastel accents, anime aesthetic colors
-- **Use Case:** Anime-sleeve enthusiast, weeb
+- **Use Case:** Anime-sleeve enthusiast, plays for the art
 
 ### 5. The Strategist 📊
 **File:** `Strategist.png`
@@ -123,13 +123,13 @@ Each tournament participant is assigned a character archetype. These serve as vi
 | `--accent-mana-gold` | `#ffc53d` | Warnings, prizes, featured |
 | `--accent-mana-purple` | `#a855f7` | Special, mythic, rare |
 
-### Grime Accents (The Gross Stuff)
+### Grime Accents
 
 | Token | Hex | Usage |
 |-------|-----|-------|
 | `--grime-sweat` | `#7a8b4a` | Sweat drop indicators |
 | `--grime-cheeto` | `#ff8c42` | Food stain effects |
-| `--grime-slime` | `#4ade80` | Slimy/gross highlights |
+| `--grime-slime` | `#4ade80` | Toxic/poison highlights |
 | `--grime-stain` | `#8b6914` | Coffee/soda stains |
 
 ---

@@ -1,13 +1,10 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using DraftApp.Api.Data;
 using DraftApp.Api.Models.Requests;
 using DraftApp.Api.Models.Responses;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace DraftApp.Api.Tests.Integration;
 
@@ -23,39 +20,10 @@ public class SignalRIntegrationTests : IDisposable
 
     private readonly WebApplicationFactory<Program> factory;
     private readonly HttpClient httpClient;
-    private readonly string databaseName;
 
     public SignalRIntegrationTests()
     {
-        databaseName = $"TestDb_{Guid.NewGuid()}";
-
-        factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                // Remove all EF Core related services to avoid provider conflicts
-                var descriptorsToRemove = services
-                    .Where(d =>
-                        d.ServiceType == typeof(DbContextOptions<DraftAppDbContext>) ||
-                        d.ServiceType == typeof(DbContextOptions) ||
-                        d.ServiceType == typeof(DraftAppDbContext) ||
-                        (d.ServiceType.FullName != null && d.ServiceType.FullName.Contains("EntityFramework")) ||
-                        (d.ImplementationType?.FullName != null && d.ImplementationType.FullName.Contains("SqlServer")))
-                    .ToList();
-
-                foreach (var descriptor in descriptorsToRemove)
-                {
-                    services.Remove(descriptor);
-                }
-
-                // Add in-memory database
-                services.AddDbContext<DraftAppDbContext>(options =>
-                {
-                    options.UseInMemoryDatabase(databaseName);
-                    options.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-                });
-            });
-        });
+        factory = new SqliteWebApplicationFactory();
 
         httpClient = factory.CreateClient();
     }
@@ -222,7 +190,7 @@ public class SignalRIntegrationTests : IDisposable
         await hubConnection.DisposeAsync();
     }
 
-    [Fact(Skip = "EF Core InMemory provider has issues with entity tracking across different DbContext scopes. This test passes with SQL Server.")]
+    [Fact]
     public async Task TwoClients_JoinSameEvent_BothReceiveUpdates()
     {
         // Arrange - Create an event and join a player
@@ -309,17 +277,18 @@ public class SignalRIntegrationTests : IDisposable
         var latestClient1Snapshot = client1Snapshots[^1];
         var latestClient2Snapshot = client2Snapshots[^1];
 
-        Assert.Single(latestClient1Snapshot.Players);
-        Assert.Single(latestClient2Snapshot.Players);
-        Assert.Equal("Alice", latestClient1Snapshot.Players[0].Name);
-        Assert.Equal("Alice", latestClient2Snapshot.Players[0].Name);
+        // The host is seated as a player on creation, so Alice is the second player
+        Assert.Equal(2, latestClient1Snapshot.Players.Count);
+        Assert.Equal(2, latestClient2Snapshot.Players.Count);
+        Assert.Contains(latestClient1Snapshot.Players, p => p.Name == "Alice");
+        Assert.Contains(latestClient2Snapshot.Players, p => p.Name == "Alice");
 
         // Cleanup
         await client1.DisposeAsync();
         await client2.DisposeAsync();
     }
 
-    [Fact(Skip = "EF Core InMemory provider does not support ExecuteSqlInterpolatedAsync used in JoinEventAsync. This test passes with SQL Server.")]
+    [Fact]
     public async Task RequestSnapshot_AfterStateChange_ReturnsUpdatedState()
     {
         // Arrange - Create an event
@@ -360,7 +329,7 @@ public class SignalRIntegrationTests : IDisposable
         // Wait for initial snapshot
         await Task.WhenAny(snapshotReceived.Task, Task.Delay(5000));
         Assert.True(snapshots.Count >= 1, "Did not receive initial snapshot");
-        Assert.Empty(snapshots[0].Players);
+        Assert.Single(snapshots[0].Players); // just the host
 
         // Act - Add a player via REST API
         var joinRequest = new JoinEventRequest
@@ -390,14 +359,14 @@ public class SignalRIntegrationTests : IDisposable
         Assert.True(received, "Did not receive updated snapshot within timeout");
         Assert.NotEmpty(snapshots);
         var latestSnapshot = snapshots[^1];
-        Assert.Single(latestSnapshot.Players);
-        Assert.Equal("TestPlayer", latestSnapshot.Players[0].Name);
+        Assert.Equal(2, latestSnapshot.Players.Count);
+        Assert.Contains(latestSnapshot.Players, p => p.Name == "TestPlayer");
 
         // Cleanup
         await hubConnection.DisposeAsync();
     }
 
-    [Fact(Skip = "EF Core InMemory provider does not support ExecuteSqlInterpolatedAsync used in JoinEventAsync. This test passes with SQL Server.")]
+    [Fact]
     public async Task Client_RejoinsGroup_AfterReconnect_ReceivesCurrentState()
     {
         // Arrange - Create an event and add a player
@@ -449,7 +418,7 @@ public class SignalRIntegrationTests : IDisposable
         var received1 = await Task.WhenAny(initialReceived.Task, Task.Delay(5000)) == initialReceived.Task;
         Assert.True(received1, "Did not receive initial snapshot");
         Assert.NotNull(initialSnapshot);
-        Assert.Single(initialSnapshot.Players);
+        Assert.Equal(2, initialSnapshot.Players.Count); // host + ExistingPlayer
 
         // Simulate disconnection
         await connection1.StopAsync();
@@ -481,8 +450,8 @@ public class SignalRIntegrationTests : IDisposable
         Assert.True(received2, "Did not receive snapshot after reconnect");
         Assert.NotNull(reconnectSnapshot);
         Assert.Equal(createResult.EventId, reconnectSnapshot.Id);
-        Assert.Single(reconnectSnapshot.Players);
-        Assert.Equal("ExistingPlayer", reconnectSnapshot.Players[0].Name);
+        Assert.Equal(2, reconnectSnapshot.Players.Count);
+        Assert.Contains(reconnectSnapshot.Players, p => p.Name == "ExistingPlayer");
 
         // Cleanup
         await connection2.DisposeAsync();

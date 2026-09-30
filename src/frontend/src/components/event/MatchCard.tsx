@@ -84,9 +84,10 @@ export function MatchCard({
             <span className={styles.playerName}>
               {playerB?.name ?? 'Unknown'}
             </span>
-            {match.playerBId && getPlayerWinStatus(match.playerBId) === 'winner' && (
-              <span className={styles.winnerIcon}>W</span>
-            )}
+            {match.playerBId &&
+              getPlayerWinStatus(match.playerBId) === 'winner' && (
+                <span className={styles.winnerIcon}>W</span>
+              )}
           </button>
         </div>
       )}

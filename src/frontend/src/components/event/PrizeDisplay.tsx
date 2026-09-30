@@ -60,7 +60,9 @@ export function PrizeDisplay({
                 <span className={styles.packsCount}>
                   {allocation.packsAwarded}
                 </span>
-                <span className={styles.packsLabel}>packs</span>
+                <span className={styles.packsLabel}>
+                  {allocation.packsAwarded === 1 ? 'pack' : 'packs'}
+                </span>
               </div>
             </div>
           )

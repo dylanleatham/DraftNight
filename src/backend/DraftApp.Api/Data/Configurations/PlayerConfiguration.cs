@@ -20,12 +20,10 @@ public class PlayerConfiguration : IEntityTypeConfiguration<PlayerEntity>
             .HasMaxLength(50);
 
         builder.Property(p => p.OpponentsJson)
-            .IsRequired()
-            .HasColumnType("nvarchar(max)");
+            .IsRequired();
 
         builder.Property(p => p.LastPlayedRoundJson)
-            .IsRequired()
-            .HasColumnType("nvarchar(max)");
+            .IsRequired();
 
         builder.Property(p => p.PinHash)
             .HasMaxLength(200);

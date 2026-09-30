@@ -99,7 +99,9 @@ public class EventRepository(DraftAppDbContext context) : IEventRepository
             context.Entry(prize).State = EntityState.Added;
         }
 
-        // Increment version
+        // Compare-and-swap: EF's concurrency check uses the original value, so pin it to the
+        // caller's expected version rather than whatever version happened to be loaded.
+        context.Entry(entity).Property(e => e.Version).OriginalValue = expectedVersion;
         entity.Version = expectedVersion + 1;
 
         // Add audit log

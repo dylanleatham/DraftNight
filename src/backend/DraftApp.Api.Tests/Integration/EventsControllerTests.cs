@@ -1,13 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using DraftApp.Api.Data;
 using DraftApp.Api.Models.Requests;
 using DraftApp.Api.Models.Responses;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace DraftApp.Api.Tests.Integration;
 
@@ -23,39 +20,10 @@ public class EventsControllerTests : IDisposable
 
     private readonly WebApplicationFactory<Program> factory;
     private readonly HttpClient client;
-    private readonly string databaseName;
 
     public EventsControllerTests()
     {
-        databaseName = $"TestDb_{Guid.NewGuid()}";
-
-        factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                // Remove all EF Core related services to avoid provider conflicts
-                var descriptorsToRemove = services
-                    .Where(d =>
-                        d.ServiceType == typeof(DbContextOptions<DraftAppDbContext>) ||
-                        d.ServiceType == typeof(DbContextOptions) ||
-                        d.ServiceType == typeof(DraftAppDbContext) ||
-                        (d.ServiceType.FullName != null && d.ServiceType.FullName.Contains("EntityFramework")) ||
-                        (d.ImplementationType?.FullName != null && d.ImplementationType.FullName.Contains("SqlServer")))
-                    .ToList();
-
-                foreach (var descriptor in descriptorsToRemove)
-                {
-                    services.Remove(descriptor);
-                }
-
-                // Add in-memory database
-                services.AddDbContext<DraftAppDbContext>(options =>
-                {
-                    options.UseInMemoryDatabase(databaseName);
-                    options.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-                });
-            });
-        });
+        factory = new SqliteWebApplicationFactory();
 
         client = factory.CreateClient();
     }
@@ -107,7 +75,7 @@ public class EventsControllerTests : IDisposable
         Assert.NotEmpty(result.PlayerToken);
     }
 
-    [Fact(Skip = "EF Core InMemory provider has issues updating entities loaded across different DbContext scopes. This test passes with SQL Server.")]
+    [Fact]
     public async Task JoinEvent_WithValidCode_ReturnsOk()
     {
         // Arrange - Create an event first
@@ -293,7 +261,7 @@ public class EventsControllerTests : IDisposable
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
-    [Fact(Skip = "EF Core InMemory provider has issues updating entities loaded across different DbContext scopes. This test passes with SQL Server.")]
+    [Fact]
     public async Task StartEvent_WithValidHostToken_AndEnoughPlayers_ReturnsOk()
     {
         // Arrange - Create an event and add players
@@ -346,7 +314,7 @@ public class EventsControllerTests : IDisposable
         Assert.True(result.NewVersion > 3);
     }
 
-    [Fact(Skip = "EF Core InMemory provider does not support ExecuteSqlInterpolatedAsync used in JoinEventAsync. This test passes with SQL Server.")]
+    [Fact]
     public async Task StartEvent_WithVersionConflict_ReturnsConflict()
     {
         // Arrange - Create an event and add players

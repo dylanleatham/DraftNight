@@ -83,3 +83,34 @@
   letter-spacing: 0.05em;
   color: var(--mana-red);
 }
+
+/* ========================================
+   REJOIN MODE
+   ======================================== */
+
+.hint {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.modeToggle {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-6);
+  padding: var(--space-3);
+  background: none;
+  border: none;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-pixel);
+}
+
+.modeToggle:hover,
+.modeToggle:focus-visible {
+  color: var(--mana-gold);
+}

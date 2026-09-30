@@ -6,6 +6,7 @@ import { useEvent } from '../context/EventContext'
 import { Card, Spinner } from '../components/ui'
 import type { AuditLogEntry } from '../api/types'
 import { AuditActionType } from '../api/types'
+import { describeAuditEntry } from '../lib/auditDescription'
 import styles from './AuditLogPage.module.css'
 
 function getActionTypeLabel(actionType: AuditActionType): string {
@@ -64,32 +65,10 @@ function formatTimestamp(isoString: string): string {
   })
 }
 
-function getEntityDescription(
-  entry: AuditLogEntry,
-  getPlayerName: (id: string) => string | undefined
-): string {
-  if (entry.entityType === 'Player' && entry.entityId) {
-    const name = getPlayerName(entry.entityId)
-    return name
-      ? `Player: ${name}`
-      : `Player ID: ${entry.entityId.slice(0, 8)}...`
-  }
-  if (entry.entityType === 'Match' && entry.entityId) {
-    return `Match: ${entry.entityId.slice(0, 8)}...`
-  }
-  if (entry.entityType === 'Round' && entry.entityId) {
-    return `Round ${entry.entityId}`
-  }
-  if (entry.entityType === 'Event') {
-    return ''
-  }
-  return entry.entityType
-}
-
 export function AuditLogPage() {
   const { eventId } = useParams<{ eventId: string }>()
   const { getHostToken } = useAuth()
-  const { getPlayer } = useEvent()
+  const { state } = useEvent()
 
   const [entries, setEntries] = useState<AuditLogEntry[]>([])
   const [loading, setLoading] = useState(true)
@@ -122,14 +101,6 @@ export function AuditLogPage() {
   useEffect(() => {
     loadAuditLog()
   }, [loadAuditLog])
-
-  const getPlayerName = useCallback(
-    (playerId: string): string | undefined => {
-      const player = getPlayer(playerId)
-      return player?.name
-    },
-    [getPlayer]
-  )
 
   if (!hostToken) {
     return (
@@ -185,7 +156,7 @@ export function AuditLogPage() {
         <div className={styles.timeline}>
           {entries.map((entry) => {
             const variant = getActionTypeVariant(entry.actionType)
-            const entityDesc = getEntityDescription(entry, getPlayerName)
+            const entityDesc = describeAuditEntry(entry, state.snapshot)
 
             return (
               <Card

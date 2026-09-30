@@ -1,4 +1,10 @@
-export type PlayerColor = 'blue' | 'red' | 'green' | 'purple' | 'orange' | 'teal'
+export type PlayerColor =
+  | 'blue'
+  | 'red'
+  | 'green'
+  | 'purple'
+  | 'orange'
+  | 'teal'
 
 export const PLAYER_COLORS: PlayerColor[] = [
   'blue',

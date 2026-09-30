@@ -1,9 +1,5 @@
 import type { ReactNode, CSSProperties } from 'react'
-import {
-  COLOR_GRADIENTS,
-  isPlayerColor,
-  adjustBrightness,
-} from './panelColors'
+import { COLOR_GRADIENTS, isPlayerColor, adjustBrightness } from './panelColors'
 export type { PlayerColor } from './panelColors'
 import styles from './BasePlayerPanel.module.css'
 

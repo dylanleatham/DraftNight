@@ -56,6 +56,11 @@ public class AuthorizationService : IAuthorizationService
         return Convert.ToBase64String(tokenBytes).Replace("+", "-").Replace("/", "_").TrimEnd('=');
     }
 
+    public string HashToken(string token)
+    {
+        return Convert.ToHexStringLower(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(token)));
+    }
+
     public string GenerateJoinCode()
     {
         const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";

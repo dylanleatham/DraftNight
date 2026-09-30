@@ -22,12 +22,6 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLogEntity>
             .IsRequired()
             .HasMaxLength(50);
 
-        builder.Property(a => a.BeforeJson)
-            .HasColumnType("nvarchar(max)");
-
-        builder.Property(a => a.AfterJson)
-            .HasColumnType("nvarchar(max)");
-
         builder.Property(a => a.Reason)
             .HasMaxLength(500);
 

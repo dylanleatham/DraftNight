@@ -3,6 +3,8 @@ import type {
   CreateEventResponse,
   JoinEventRequest,
   JoinEventResponse,
+  ResumeSessionRequest,
+  ResumeSessionResponse,
   EventSnapshotResponse,
   MutationResponse,
   StandingsResponse,
@@ -78,6 +80,18 @@ export const api = {
       body: JSON.stringify(request),
     })
     return handleResponse<JoinEventResponse>(response)
+  },
+
+  /** Reclaims an existing seat on this device; previously issued tokens stop working. */
+  async resumeSession(
+    request: ResumeSessionRequest
+  ): Promise<ResumeSessionResponse> {
+    const response = await fetch(`${BASE_URL}/events/resume`, {
+      method: 'POST',
+      headers: buildHeaders(),
+      body: JSON.stringify(request),
+    })
+    return handleResponse<ResumeSessionResponse>(response)
   },
 
   async getEvent(eventId: string): Promise<EventSnapshotResponse> {

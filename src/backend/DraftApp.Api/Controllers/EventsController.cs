@@ -3,6 +3,7 @@ using DraftApp.Api.Models.Requests;
 using DraftApp.Api.Models.Responses;
 using DraftApp.Api.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace DraftApp.Api.Controllers;
 
@@ -37,6 +38,7 @@ public class EventsController(IEventService eventService) : ControllerBase
     /// Joins an event as a player.
     /// </summary>
     [HttpPost("join")]
+    [EnableRateLimiting(RateLimitPolicies.Join)]
     [ProducesResponseType(typeof(JoinEventResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
@@ -57,6 +59,28 @@ public class EventsController(IEventService eventService) : ControllerBase
         }
 
         return Ok(result.Response);
+    }
+
+    /// <summary>
+    /// Reclaims an existing seat (for example on a new phone) using join code, name and PIN.
+    /// Issues new tokens and invalidates the old ones. Rate limited because it checks a PIN.
+    /// </summary>
+    [HttpPost("resume")]
+    [EnableRateLimiting(RateLimitPolicies.Credentials)]
+    [ProducesResponseType(typeof(ResumeSessionResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+    public async Task<IActionResult> ResumeSession([FromBody] ResumeSessionRequest request, CancellationToken ct)
+    {
+        var response = await eventService.ResumeSessionAsync(request, ct);
+        if (response is null)
+        {
+            // Deliberately doesn't say which of code, name or PIN was wrong
+            return Unauthorized(new ErrorResponse { Code = "INVALID_CREDENTIALS", Message = "No seat matches that join code, name and PIN" });
+        }
+
+        return Ok(response);
     }
 
     /// <summary>

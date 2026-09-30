@@ -6,6 +6,7 @@ import { useEvent } from '../context/EventContext'
 import { useAuth } from '../context/AuthContext'
 import { useHostActions } from '../hooks/useHostActions'
 import { EventStatus } from '../api/types'
+import { plural } from '../lib/plural'
 import styles from './PrizesPage.module.css'
 
 export function PrizesPage() {
@@ -86,7 +87,7 @@ export function PrizesPage() {
         <p>Prize packs = Packs in Box - (3 × Players)</p>
         <p>
           {snapshot.packsInBox} - (3 × {snapshot.players.length}) ={' '}
-          {snapshot.prizePacks} packs
+          {plural(snapshot.prizePacks, 'pack')}
         </p>
       </div>
 
@@ -97,9 +98,9 @@ export function PrizesPage() {
       >
         <div className={styles.modalContent}>
           <p>
-            Are you sure you want to allocate prizes? This will distribute{' '}
-            <strong>{snapshot.prizePacks} packs</strong> based on final
-            standings.
+            Allocate prizes now? Each match win earns one pack, from a pool of{' '}
+            <strong>{plural(snapshot.prizePacks, 'pack')}</strong>. If there
+            aren&apos;t enough, later-round winners are paid first.
           </p>
           <p className={styles.modalWarning}>This action cannot be undone.</p>
           <div className={styles.modalActions}>

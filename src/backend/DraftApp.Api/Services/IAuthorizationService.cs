@@ -21,6 +21,13 @@ public interface IAuthorizationService
     string GenerateToken();
 
     /// <summary>
+    /// Hashes a bearer token for storage. Tokens are high-entropy random values, so a fast
+    /// unsalted SHA-256 is sufficient; it keeps lookups indexable while ensuring a database
+    /// leak does not expose usable credentials.
+    /// </summary>
+    string HashToken(string token);
+
+    /// <summary>
     /// Generates a random join code for events.
     /// </summary>
     string GenerateJoinCode();

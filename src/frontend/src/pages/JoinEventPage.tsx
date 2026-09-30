@@ -8,7 +8,11 @@ import styles from './JoinEventPage.module.css'
 export function JoinEventPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { setPlayerSession } = useAuth()
+  const { setPlayerSession, setHostSession } = useAuth()
+  // Rejoin reclaims an existing seat (new phone, cleared browser) with name + PIN
+  const [isRejoin, setIsRejoin] = useState(
+    () => searchParams.get('mode') === 'rejoin'
+  )
 
   const [joinCode, setJoinCode] = useState(
     () => searchParams.get('code')?.toUpperCase() ?? ''
@@ -38,6 +42,30 @@ export function JoinEventPage() {
 
     setIsLoading(true)
     try {
+      if (isRejoin) {
+        const response = await api.resumeSession({
+          joinCode: joinCode.trim().toUpperCase(),
+          playerName: playerName.trim(),
+          pin: playerPin,
+        })
+
+        setPlayerSession({
+          eventId: response.eventId,
+          playerId: response.playerId,
+          playerToken: response.playerToken,
+        })
+        if (response.hostToken) {
+          setHostSession({
+            eventId: response.eventId,
+            hostToken: response.hostToken,
+            joinCode: response.joinCode,
+          })
+        }
+
+        navigate(`/event/${response.eventId}`)
+        return
+      }
+
       const response = await api.joinEvent({
         joinCode: joinCode.trim().toUpperCase(),
         playerName: playerName.trim(),
@@ -52,7 +80,9 @@ export function JoinEventPage() {
 
       navigate(`/event/${response.eventId}/lobby`)
     } catch (err) {
-      if (err instanceof ApiError) {
+      if (err instanceof ApiError && err.status === 429) {
+        setError('Too many attempts. Wait a minute and try again.')
+      } else if (err instanceof ApiError) {
         setError(err.message)
       } else {
         setError('Failed to join event. Please check the code and try again.')
@@ -69,7 +99,16 @@ export function JoinEventPage() {
           &larr; Back
         </Link>
 
-        <h1 className={styles.title}>Join Event</h1>
+        <h1 className={styles.title}>
+          {isRejoin ? 'Rejoin Event' : 'Join Event'}
+        </h1>
+
+        {isRejoin && (
+          <p className={styles.hint}>
+            Use the name and PIN you joined with. Hosts use the host PIN. Your
+            other device will be signed out.
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <Input
@@ -104,9 +143,22 @@ export function JoinEventPage() {
           {error && <p className={styles.error}>{error}</p>}
 
           <Button type="submit" size="large" fullWidth loading={isLoading}>
-            Join Event
+            {isRejoin ? 'Rejoin Event' : 'Join Event'}
           </Button>
         </form>
+
+        <button
+          type="button"
+          className={styles.modeToggle}
+          onClick={() => {
+            setIsRejoin((value) => !value)
+            setError(null)
+          }}
+        >
+          {isRejoin
+            ? 'New to this event? Join instead'
+            : 'Already joined on another device? Rejoin'}
+        </button>
       </div>
     </div>
   )

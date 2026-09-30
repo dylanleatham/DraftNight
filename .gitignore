@@ -40,3 +40,9 @@ coverage/
 tmp/
 temp/
 *.tmp
+
+# Local tooling / scratch output
+.claude/settings.local.json
+output/
+nul
+%TEMP%/

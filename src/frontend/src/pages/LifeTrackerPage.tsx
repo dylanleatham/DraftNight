@@ -205,7 +205,6 @@ function DraftLifeTrackerView({
     <DraftLifeTracker
       session={session}
       onAdjustLife={adjustLife}
-
       onAdjustPoison={adjustPoison}
       onToggleWin={toggleGameWin}
       onResetGame={resetGame}
@@ -258,7 +257,6 @@ function CommanderLifeTrackerView({
     <CommanderLifeTracker
       session={session}
       onAdjustLife={adjustLife}
-
       onAdjustPoison={adjustPoison}
       onAdjustCommanderDamage={adjustCommanderDamage}
       onAddMiscCounter={addMiscCounter}

@@ -4,17 +4,18 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './',
+  base: '/',
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'MTG Draft Night',
-        short_name: 'DraftApp',
+        short_name: 'Draft Night',
         description: 'MTG Draft Night tournament manager',
-        theme_color: '#1a1a2e',
+        theme_color: '#0f0f12',
+        background_color: '#0f0f12',
         icons: [
           {
             src: 'pwa-192x192.png',

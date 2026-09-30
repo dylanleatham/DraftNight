@@ -3,8 +3,8 @@
 export type Archetype =
   | 'collector'
   | 'cosplay'
-  | 'ruleslawyer'
   | 'animefan'
+  | 'ruleslawyer'
   | 'shark'
   | 'strategist'
   | 'streamer'
@@ -13,8 +13,8 @@ export type Archetype =
 export const ALL_ARCHETYPES: Archetype[] = [
   'collector',
   'cosplay',
-  'ruleslawyer',
   'animefan',
+  'ruleslawyer',
   'shark',
   'strategist',
   'streamer',

@@ -406,7 +406,11 @@ function getInitialSession(options: UseLifeTrackerOptions): DraftSession {
 }
 
 export function useLifeTracker(options: UseLifeTrackerOptions) {
-  const [session, dispatch] = useReducer(draftReducer, options, getInitialSession)
+  const [session, dispatch] = useReducer(
+    draftReducer,
+    options,
+    getInitialSession
+  )
 
   // Auto-save on every state change
   useEffect(() => {

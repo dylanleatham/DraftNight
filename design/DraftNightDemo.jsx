@@ -497,8 +497,8 @@ const LifeTrackerScreen = ({ onNavigate, players }) => {
   const lifeTrackerPlayers = [
     { name: 'Alex', character: CHARACTERS[0] },
     { name: 'Sam', character: CHARACTERS[1] },
-    { name: 'Riley', character: CHARACTERS[2] },
-    { name: 'Jordan', character: CHARACTERS[3] },
+    { name: 'Jordan', character: CHARACTERS[2] },
+    { name: 'Priya', character: CHARACTERS[3] },
   ];
   
   const changeLife = (index, amount) => {
@@ -785,7 +785,7 @@ export default function DraftNightDemo() {
   const [eventName, setEventName] = useState('');
   const [players, setPlayers] = useState([
     { name: 'Alex', character: CHARACTERS[0] },
-    { name: 'Riley', character: CHARACTERS[1] },
+    { name: 'Jordan', character: CHARACTERS[1] },
   ]);
   
   const handleCreateEvent = (name) => {

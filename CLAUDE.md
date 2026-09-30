@@ -18,9 +18,9 @@ MTG Draft Night Web Application — a mobile-first web app for running in-person
 ## Technology Stack
 
 - **Backend**: .NET 10, ASP.NET Core Web API, Entity Framework Core, xUnit
-- **Frontend**: React 18, TypeScript, Vite, Vitest, Playwright
-- **API Contract**: OpenAPI 3.0 (Swashbuckle) → TypeScript client generation
-- **Hosting**: Azure Static Web Apps (frontend), Azure App Service (backend), Azure SignalR Service, Azure SQL Database
+- **Frontend**: React 19, TypeScript, Vite, Vitest, Playwright
+- **API Contract**: OpenAPI document via Microsoft.AspNetCore.OpenApi (`/openapi/v1.json` in Development)
+- **Hosting**: Single Docker container (API serves the built SPA from `wwwroot`) + SQL Server. No live deployment currently; originally ran on Azure.
 
 ## Repository Structure
 
@@ -75,8 +75,14 @@ npm run lint --prefix src/frontend
 
 ### Local Environment
 ```bash
-# Start local SQL Server and Azurite
-docker-compose up -d
+# Start local SQL Server only
+docker compose up -d sqlserver
+
+# Or run the whole app (SQL Server + API + SPA) at http://localhost:8080
+docker compose up --build
+
+# Populate a demo event
+node scripts/seed-demo.mjs
 ```
 
 ## Key Domain Rules
@@ -134,17 +140,14 @@ The tournament engine requires golden tests: fixed inputs (players, seeds, match
 
 ## CI/CD
 
-Deployments managed via GitHub Actions to Azure:
-
 ```
 .github/workflows/
-  ci.yml        # Build, lint, test on PRs
-  deploy.yml    # Deploy to Azure on push to main
+  ci.yml        # Build, format check, lint, test on pushes and PRs to main
 ```
 
 - CI must pass before merging to main
-- Push to main triggers automatic deployment
-- Database migrations run as part of backend deployment
+- There is no deploy workflow; the `Dockerfile` produces a self-contained image
+- The API applies EF Core migrations on startup when running against SQL Server
 
 ## Development Backlog
 

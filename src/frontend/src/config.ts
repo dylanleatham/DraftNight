@@ -1,10 +1,4 @@
-function getBasePath(): string {
-  const hostname = window.location.hostname
-  if (hostname.includes('draftnight.app')) return '/'
-  if (hostname.includes('knucklehead.dev')) return '/draftnight/'
-  return '/' // localhost
-}
-
-export const basePath = getBasePath()
-export const routerBasename = basePath.replace(/\/+$/, '') || '/'
-export const apiBaseUrl = routerBasename === '/' ? '' : routerBasename
+// The SPA and API are served from the same origin at the site root.
+// To host under a sub-path, set these (and the backend's UsePathBase) accordingly.
+export const routerBasename = '/'
+export const apiBaseUrl = ''

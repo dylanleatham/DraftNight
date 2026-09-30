@@ -19,6 +19,12 @@ public interface IEventService
     Task<JoinEventResult> JoinEventAsync(JoinEventRequest request, CancellationToken ct = default);
 
     /// <summary>
+    /// Reclaims a player's seat using their name and PIN, issuing new tokens.
+    /// Returns null if the join code, name and PIN do not match a seat.
+    /// </summary>
+    Task<ResumeSessionResponse?> ResumeSessionAsync(ResumeSessionRequest request, CancellationToken ct = default);
+
+    /// <summary>
     /// Gets an event snapshot by ID.
     /// </summary>
     Task<EventSnapshotResponse?> GetEventAsync(Guid eventId, CancellationToken ct = default);

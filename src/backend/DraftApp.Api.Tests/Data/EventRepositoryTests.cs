@@ -4,6 +4,7 @@ using DraftApp.Api.Data.Entities;
 using DraftApp.Api.Data.Enums;
 using DraftApp.Api.Data.Repositories;
 using DraftApp.Engine.Models;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace DraftApp.Api.Tests.Data;
@@ -13,13 +14,17 @@ namespace DraftApp.Api.Tests.Data;
 /// </summary>
 public class EventRepositoryTests : IDisposable
 {
+    private readonly SqliteConnection connection;
     private readonly DraftAppDbContext context;
     private readonly EventRepository repository;
 
     public EventRepositoryTests()
     {
+        // SQLite rather than EF InMemory so the Version concurrency token is enforced
+        connection = new SqliteConnection("DataSource=:memory:");
+        connection.Open();
         var options = new DbContextOptionsBuilder<DraftAppDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseSqlite(connection)
             .Options;
 
         context = new DraftAppDbContext(options);
@@ -30,6 +35,7 @@ public class EventRepositoryTests : IDisposable
     public void Dispose()
     {
         context.Dispose();
+        connection.Dispose();
         GC.SuppressFinalize(this);
     }
 

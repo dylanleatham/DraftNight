@@ -144,7 +144,9 @@ export function LobbyPage() {
           <div className={styles.infoItem}>
             <span className={styles.infoLabel}>Format</span>
             <span className={styles.infoValue}>
-              {snapshot.format === TournamentFormat.RoundRobin ? 'Round Robin' : 'Swiss'}
+              {snapshot.format === TournamentFormat.RoundRobin
+                ? 'Round Robin'
+                : 'Swiss'}
             </span>
           </div>
           <div className={styles.infoItem}>

@@ -171,7 +171,7 @@ If a player needs to leave mid-event:
 Dropped players:
 - Are removed from future pairings
 - Keep their existing match results
-- Cannot rejoin
+- Cannot re-enter the pairings (they can still use **Rejoin** to follow the event)
 
 ---
 
@@ -290,6 +290,10 @@ Someone else made a change. Refresh and try again.
 - Verify they're using the correct code (case-insensitive)
 - Check they haven't already joined with the same name
 - Ensure the event hasn't started yet
+
+### Phone died, or switched devices
+
+Tap **Join Event**, then **Already joined on another device? Rejoin**. Enter the join code, the same name, and the PIN chosen when joining. For the host's seat, use the host PIN; this also restores host controls. The old device is signed out. After 10 failed attempts in a minute, wait a minute before trying again.
 
 ### App seems stuck
 

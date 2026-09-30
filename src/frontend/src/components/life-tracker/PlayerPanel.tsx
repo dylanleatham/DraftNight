@@ -88,8 +88,9 @@ export function PlayerPanel({
                 onAdd={onAddMiscCounter}
               />
             )}
-            {hasMiscCounterSupport && player.miscCounters.length === 0 && (
-              isAddingCounter ? (
+            {hasMiscCounterSupport &&
+              player.miscCounters.length === 0 &&
+              (isAddingCounter ? (
                 <input
                   ref={counterInputRef}
                   className={styles.addCounterInput}
@@ -113,8 +114,7 @@ export function PlayerPanel({
                 >
                   + Counter
                 </button>
-              )
-            )}
+              ))}
           </div>
         }
       >

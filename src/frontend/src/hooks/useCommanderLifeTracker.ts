@@ -323,7 +323,11 @@ function getInitialCommanderSession(
 export function useCommanderLifeTracker(
   options: UseCommanderLifeTrackerOptions
 ) {
-  const [session, dispatch] = useReducer(commanderReducer, options, getInitialCommanderSession)
+  const [session, dispatch] = useReducer(
+    commanderReducer,
+    options,
+    getInitialCommanderSession
+  )
 
   // Auto-save on every state change
   useEffect(() => {

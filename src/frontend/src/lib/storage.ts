@@ -50,10 +50,7 @@ export const storage = {
 
   setPlayerSession(session: PlayerSession): void {
     try {
-      localStorage.setItem(
-        STORAGE_KEYS.PLAYER_SESSION,
-        JSON.stringify(session)
-      )
+      localStorage.setItem(STORAGE_KEYS.PLAYER_SESSION, JSON.stringify(session))
     } catch {
       // Silently handle QuotaExceededError or other storage failures
     }

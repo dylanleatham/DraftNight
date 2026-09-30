@@ -47,7 +47,7 @@ public class EventService(
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             HostPinHash = hostPinHash,
-            HostToken = hostToken
+            HostToken = authService.HashToken(hostToken)
         };
 
         // Create the host as the first player (seed 1)
@@ -64,7 +64,7 @@ public class EventService(
             OpponentsJson = "[]",
             LastPlayedRoundJson = "{}",
             PinHash = hostPinHash,
-            PlayerToken = playerToken
+            PlayerToken = authService.HashToken(playerToken)
         };
 
         var eventAuditLog = new AuditLogEntity
@@ -138,7 +138,7 @@ public class EventService(
             OpponentsJson = "[]",
             LastPlayedRoundJson = "{}",
             PinHash = pinHash,
-            PlayerToken = playerToken
+            PlayerToken = authService.HashToken(playerToken)
         };
 
         var auditLog = new AuditLogEntity
@@ -156,23 +156,10 @@ public class EventService(
         context.Players.Add(player);
         context.AuditLogs.Add(auditLog);
 
-        // Update event version using compare-and-swap within a transaction
-        var currentVersion = eventEntity.Version;
-        var newVersion = currentVersion + 1;
-        await using var transaction = await context.Database.BeginTransactionAsync(ct);
-
-        var rowsAffected = await context.Database.ExecuteSqlInterpolatedAsync(
-            $"UPDATE Events SET Version = {newVersion}, UpdatedAt = {DateTime.UtcNow} WHERE Id = {eventEntity.Id} AND Version = {currentVersion}",
-            ct);
-
-        if (rowsAffected == 0)
+        if (!await SaveWithVersionBumpAsync(eventEntity, eventEntity.Version, ct))
         {
-            await transaction.RollbackAsync(ct);
             return JoinEventResult.Conflict();
         }
-
-        await context.SaveChangesAsync(ct);
-        await transaction.CommitAsync(ct);
 
         // Reload the event with updated data for broadcast
         var updatedEntity = await repository.GetByIdAsync(eventEntity.Id, ct);
@@ -190,6 +177,58 @@ public class EventService(
         });
     }
 
+    public async Task<ResumeSessionResponse?> ResumeSessionAsync(ResumeSessionRequest request, CancellationToken ct = default)
+    {
+        var joinCode = request.JoinCode.Trim().ToUpperInvariant();
+        var eventEntity = await context.Events
+            .Include(e => e.Players)
+            .FirstOrDefaultAsync(e => e.JoinCode == joinCode, ct);
+
+        if (eventEntity is null)
+        {
+            return null;
+        }
+
+        // Names aren't unique, so try the PIN against every seat with that name.
+        // Dropped players keep their seat so they can still follow the event.
+        var name = request.PlayerName.Trim();
+        var player = eventEntity.Players
+            .Where(p => p.PinHash is not null && string.Equals(p.Name.Trim(), name, StringComparison.OrdinalIgnoreCase))
+            .FirstOrDefault(p => authService.VerifyPin(request.Pin, p.PinHash!));
+
+        if (player is null)
+        {
+            return null;
+        }
+
+        // Only token hashes are stored, so issue fresh tokens; old devices are signed out.
+        var playerToken = authService.GenerateToken();
+        player.PlayerToken = authService.HashToken(playerToken);
+
+        string? hostToken = null;
+        if (IsHostSeat(eventEntity, player))
+        {
+            // Tokens aren't part of the versioned tournament state, so update the column
+            // directly rather than through the tracked entity and its Version check.
+            hostToken = authService.GenerateToken();
+            var hostTokenHash = authService.HashToken(hostToken);
+            await context.Events
+                .Where(e => e.Id == eventEntity.Id)
+                .ExecuteUpdateAsync(u => u.SetProperty(e => e.HostToken, hostTokenHash), ct);
+        }
+
+        await context.SaveChangesAsync(ct);
+
+        return new ResumeSessionResponse
+        {
+            EventId = eventEntity.Id,
+            JoinCode = joinCode,
+            PlayerId = player.Id,
+            PlayerToken = playerToken,
+            HostToken = hostToken
+        };
+    }
+
     public async Task<EventSnapshotResponse?> GetEventAsync(Guid eventId, CancellationToken ct = default)
     {
         var entity = await repository.GetByIdAsync(eventId, ct);
@@ -203,8 +242,9 @@ public class EventService(
 
     public async Task<Guid?> ValidateHostTokenAsync(string hostToken, CancellationToken ct = default)
     {
+        var hostTokenHash = authService.HashToken(hostToken);
         var eventEntity = await context.Events
-            .FirstOrDefaultAsync(e => e.HostToken == hostToken, ct);
+            .FirstOrDefaultAsync(e => e.HostToken == hostTokenHash, ct);
 
         return eventEntity?.Id;
     }
@@ -507,19 +547,27 @@ public class EventService(
 
     public async Task<AuditLogResponse?> GetAuditLogAsync(Guid eventId, CancellationToken ct = default)
     {
-        var logs = await context.AuditLogs
+        var rows = await context.AuditLogs
             .Where(a => a.EventId == eventId)
             .OrderByDescending(a => a.CreatedAt)
-            .Select(a => new AuditLogEntry
+            .ToListAsync(ct);
+
+        var logs = rows.Select(a =>
+        {
+            var details = AuditDetails.Parse(a.AfterJson);
+            return new AuditLogEntry
             {
                 Id = a.Id,
                 ActionType = a.ActionType,
                 EntityType = a.EntityType,
                 EntityId = a.EntityId,
                 Reason = a.Reason,
-                CreatedAt = a.CreatedAt
-            })
-            .ToListAsync(ct);
+                CreatedAt = a.CreatedAt,
+                RoundNumber = details.RoundNumber,
+                WinnerId = details.WinnerId,
+                PlayerName = details.PlayerName
+            };
+        }).ToList();
 
         if (logs.Count == 0)
         {
@@ -789,11 +837,8 @@ public class EventService(
         }
 
         // Update event status to Archived
-        var newVersion = entity.Version + 1;
         entity.Status = EventStatus.Archived;
         entity.JoinCode = null; // Clear join code so it can't be joined
-        entity.Version = newVersion;
-        entity.UpdatedAt = DateTime.UtcNow;
 
         var auditLog = new AuditLogEntity
         {
@@ -807,19 +852,23 @@ public class EventService(
         };
 
         context.AuditLogs.Add(auditLog);
-        await context.SaveChangesAsync(ct);
+        if (!await SaveWithVersionBumpAsync(entity, expectedVersion, ct))
+        {
+            return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.VersionConflict };
+        }
 
         // Broadcast cancellation to all connected clients
         await notificationService.BroadcastEventCancelledAsync(eventId, ct);
 
-        return new MutationResponse { Success = true, NewVersion = newVersion };
+        return new MutationResponse { Success = true, NewVersion = entity.Version };
     }
 
     public async Task<Guid?> ValidatePlayerTokenForMatchAsync(string playerToken, Guid eventId, Guid matchId, CancellationToken ct = default)
     {
         // Find the player by token in this event
+        var playerTokenHash = authService.HashToken(playerToken);
         var player = await context.Players
-            .FirstOrDefaultAsync(p => p.PlayerToken == playerToken && p.EventId == eventId, ct);
+            .FirstOrDefaultAsync(p => p.PlayerToken == playerTokenHash && p.EventId == eventId, ct);
 
         if (player is null)
         {
@@ -846,8 +895,9 @@ public class EventService(
 
     public async Task<Guid?> ValidatePlayerTokenAsync(string playerToken, Guid eventId, CancellationToken ct = default)
     {
+        var playerTokenHash = authService.HashToken(playerToken);
         var player = await context.Players
-            .FirstOrDefaultAsync(p => p.PlayerToken == playerToken && p.EventId == eventId, ct);
+            .FirstOrDefaultAsync(p => p.PlayerToken == playerTokenHash && p.EventId == eventId, ct);
 
         return player?.Id;
     }
@@ -962,6 +1012,36 @@ public class EventService(
         };
     }
 
+    /// <summary>
+    /// The host's seat is created with the host PIN hash itself. Each hash embeds a random
+    /// salt, so a player who picks the same PIN as the host still gets a different string.
+    /// </summary>
+    private static bool IsHostSeat(EventEntity eventEntity, PlayerEntity player) =>
+        player.PinHash is not null && string.Equals(player.PinHash, eventEntity.HostPinHash, StringComparison.Ordinal);
+
+    /// <summary>
+    /// Saves pending changes together with an optimistic-concurrency bump of the event version.
+    /// The single SaveChanges call is atomic, and EF adds "WHERE Version = expectedVersion" to the
+    /// event update, so a concurrent writer causes the whole save to fail rather than interleave.
+    /// </summary>
+    /// <returns>False if another writer changed the event first.</returns>
+    private async Task<bool> SaveWithVersionBumpAsync(EventEntity entity, int expectedVersion, CancellationToken ct)
+    {
+        context.Entry(entity).Property(e => e.Version).OriginalValue = expectedVersion;
+        entity.Version = expectedVersion + 1;
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        try
+        {
+            await context.SaveChangesAsync(ct);
+            return true;
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return false;
+        }
+    }
+
     private async Task<MutationResponse> LeaveEventDuringSetupAsync(
         Data.Entities.EventEntity entity,
         Data.Entities.PlayerEntity player,
@@ -997,24 +1077,11 @@ public class EventService(
             CreatedAt = DateTime.UtcNow
         };
 
-        // Update event version using compare-and-swap within a transaction
-        var currentVersion = entity.Version;
-        var newVersion = currentVersion + 1;
-        await using var transaction = await context.Database.BeginTransactionAsync(ct);
-
-        var rowsAffected = await context.Database.ExecuteSqlInterpolatedAsync(
-            $"UPDATE Events SET Version = {newVersion}, UpdatedAt = {DateTime.UtcNow} WHERE Id = {entity.Id} AND Version = {currentVersion}",
-            ct);
-
-        if (rowsAffected == 0)
+        context.AuditLogs.Add(auditLog);
+        if (!await SaveWithVersionBumpAsync(entity, expectedVersion, ct))
         {
-            await transaction.RollbackAsync(ct);
             return new MutationResponse { Success = false, NewVersion = 0, Error = MutationErrors.VersionConflict };
         }
-
-        context.AuditLogs.Add(auditLog);
-        await context.SaveChangesAsync(ct);
-        await transaction.CommitAsync(ct);
 
         // Broadcast update to connected clients
         var updatedEntity = await repository.GetByIdAsync(entity.Id, ct);
@@ -1024,7 +1091,7 @@ public class EventService(
             await notificationService.BroadcastEventUpdateAsync(entity.Id, snapshot, ct);
         }
 
-        return new MutationResponse { Success = true, NewVersion = newVersion };
+        return new MutationResponse { Success = true, NewVersion = entity.Version };
     }
 
     private async Task<MutationResponse> LeaveEventDuringActiveAsync(
